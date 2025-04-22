@@ -1,0 +1,38 @@
+@startuml
+
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+title DAO层类图 - 数据访问层
+
+interface ArticleMapper {
+    +insertArticle(Article): int
+    +findByUrl(String): Article
+    +findByAccountName(String): List<Article>
+    +findAllOrderByPublishTime(): List<Article>
+    +searchByKeyword(String): List<Article>
+    +logicalDeleteByUrl(String): int
+    +deleteByUrl(String): int
+}
+
+interface ArticleDao {
+    +findById(Integer): Article
+}
+
+Article --> ArticleMapper: 被使用
+Article --> ArticleDao: 被使用
+
+note right of ArticleMapper
+  MyBatis Mapper接口
+  处理文章相关的数据库操作
+end note
+
+note right of ArticleDao
+  基础数据访问接口
+  提供基本的CRUD操作
+end note
+
+@enduml

@@ -1,0 +1,51 @@
+@startuml
+
+skinparam {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+title 系统整体数据流图
+
+actor "用户" as User
+rectangle "前端界面" as Frontend
+rectangle "控制器层" as Controller
+rectangle "服务层" as Service
+rectangle "爬虫层" as Crawler
+rectangle "数据访问层" as DAO
+database "数据库" as Database
+database "索引" as Index
+
+User --> Frontend : "操作请求"
+Frontend --> Controller : "API请求"
+Controller --> Service : "业务请求"
+Service --> Crawler : "爬取请求"
+Service --> DAO : "数据请求"
+Crawler --> Service : "爬取结果"
+DAO --> Database : "SQL操作"
+Database --> DAO : "查询结果"
+DAO --> Service : "数据"
+Service --> Controller : "处理结果"
+Controller --> Frontend : "API响应"
+Frontend --> User : "展示结果"
+
+Service --> Index : "索引操作"
+Index --> Service : "索引结果"
+
+note right of Controller
+  参数验证
+  请求分发
+end note
+
+note right of Service
+  业务逻辑
+  事务管理
+end note
+
+note right of DAO
+  数据访问
+  CRUD操作
+end note
+
+@enduml

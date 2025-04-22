@@ -1,0 +1,26 @@
+@startuml
+title 文章HTML内容获取流程
+
+actor 用户
+participant "前端\nArticleHtml.vue" as Frontend
+participant "后端API" as Backend
+database "MySQL" as DB
+
+用户 -> Frontend: 点击"显示原HTML"按钮\n传入article_table.id
+
+group 第一步：获取文章基本信息
+    Frontend -> Backend: GET /api/crawler/articles/${id}
+    Backend -> DB: SELECT * FROM article_table\nWHERE id = ?
+    DB --> Backend: 返回文章基本信息
+    Backend --> Frontend: 文章数据\n(title, publish_time等)
+end
+
+group 第二步：获取HTML内容
+    Frontend -> Backend: GET /api/article_full_html/${id}
+    Backend -> DB: SELECT full_html\nFROM article_full_html\nWHERE article_id = ?
+    DB --> Backend: 返回HTML内容
+    Backend --> Frontend: {\n  code: 200,\n  data: { full_html: "..." }\n}
+end
+
+Frontend -> 用户: 显示文章标题和HTML内容
+@enduml

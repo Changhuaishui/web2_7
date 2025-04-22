@@ -1,0 +1,42 @@
+@startuml
+
+skinparam {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+title 文章管理数据流图
+
+rectangle "前端界面" as Frontend
+rectangle "爬虫控制器" as CrawlerController
+rectangle "文章Mapper" as ArticleMapper
+rectangle "Lucene索引服务" as LuceneService
+database "MySQL数据库" as Database
+database "Lucene索引" as LuceneIndex
+
+Frontend --> CrawlerController : "获取文章列表请求"
+CrawlerController --> ArticleMapper : "查询请求"
+ArticleMapper --> Database : "查询数据库"
+Database --> ArticleMapper : "文章数据"
+ArticleMapper --> CrawlerController : "文章列表"
+CrawlerController --> Frontend : "返回文章列表"
+
+Frontend --> CrawlerController : "删除文章请求"
+CrawlerController --> ArticleMapper : "逻辑删除"
+ArticleMapper --> Database : "更新删除标记"
+CrawlerController --> LuceneService : "删除索引"
+LuceneService --> LuceneIndex : "更新索引"
+CrawlerController --> Frontend : "删除结果"
+
+note right of ArticleMapper
+  逻辑删除
+  按条件查询
+end note
+
+note right of LuceneService
+  索引更新
+  索引重建
+end note
+
+@enduml

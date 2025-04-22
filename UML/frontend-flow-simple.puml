@@ -1,0 +1,40 @@
+@startuml 前端核心流程
+
+skinparam backgroundColor white
+skinparam defaultFontName Microsoft YaHei
+
+title 文章爬虫系统 - 核心流程
+
+actor 用户
+participant "首页" as Home
+participant "后端API" as API
+
+用户 -> Home: 访问系统
+activate Home
+
+' 核心功能
+alt 爬取文章
+    用户 -> Home: 输入文章URL
+    Home -> API: 发送爬取请求
+    API --> Home: 返回文章数据
+else 搜索文章
+    用户 -> Home: 输入搜索关键词
+    Home -> API: 发送搜索请求
+    API --> Home: 返回搜索结果
+else 查看文章
+    用户 -> Home: 点击文章
+    Home -> API: 获取文章详情
+    API --> Home: 返回文章内容
+else 删除文章
+    用户 -> Home: 点击删除
+    Home -> API: 发送删除请求
+    API --> Home: 确认删除
+end
+
+deactivate Home
+
+footer
+Vue 3 + Element Plus
+end footer
+
+@enduml 

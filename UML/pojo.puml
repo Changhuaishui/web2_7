@@ -1,0 +1,33 @@
+@startuml
+
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+title POJO层类图 - 实体对象
+
+class Article {
+    -id: Integer
+    -title: String
+    -author: String
+    -url: String
+    -sourceUrl: String
+    -accountName: String
+    -publishTime: LocalDateTime
+    -content: String
+    -images: String
+    -isDeleted: Boolean
+    +getters()
+    +setters()
+}
+
+note right of Article
+  实体类
+  1. 映射数据库表结构
+  2. 提供数据传输载体
+  3. 不包含业务逻辑
+end note
+
+@enduml

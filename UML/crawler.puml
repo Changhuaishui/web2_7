@@ -1,0 +1,39 @@
+@startuml
+
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+title Crawler层类图 - 爬虫层
+
+class WeChatArticleSpider {
+    -site: Site
+    +process(Page): void
+    +getSite(): Site
+    -extractAuthor(Document): String
+    -extractPublishTime(Document): String
+    -downloadImage(String, File): void
+}
+
+class DatabasePipeline {
+    -articleMapper: ArticleMapper
+    -searchService: ArticleSearchService
+    +process(ResultItems, Task): void
+}
+
+DatabasePipeline --> ArticleMapper: 使用
+DatabasePipeline --> ArticleSearchService: 使用
+
+note right of WeChatArticleSpider
+  微信文章爬虫实现
+  负责解析和提取文章内容
+end note
+
+note right of DatabasePipeline
+  数据持久化管道
+  将爬取的数据存入数据库
+end note
+
+@enduml

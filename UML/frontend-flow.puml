@@ -1,0 +1,102 @@
+@startuml 前端工作流程
+
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam defaultFontName Microsoft YaHei
+skinparam activity {
+    BackgroundColor LightSkyBlue
+    BorderColor DarkSlateGray
+    FontColor DarkSlateGray
+}
+
+title 前端工作流程图
+
+' 定义参与者
+actor 用户
+participant "Home.vue" as Home
+participant "ArticleDetail.vue" as Detail
+participant "ArticleHtml.vue" as Html
+participant "Router" as Router
+participant "API" as API
+
+' 主要流程
+用户 -> Home: 访问首页
+activate Home
+
+' 爬虫功能
+group 爬取文章
+    用户 -> Home: 输入URL
+    Home -> API: POST /api/crawler/crawl
+    API --> Home: 返回爬取结果
+    Home -> Home: 更新文章列表
+end
+
+' 搜索功能
+group 搜索文章
+    用户 -> Home: 输入关键词
+    Home -> API: GET /api/search
+    API --> Home: 返回搜索结果
+    Home -> Home: 更新显示结果
+end
+
+' 文章详情
+group 查看文章详情
+    用户 -> Home: 点击文章标题
+    Home -> Router: 导航到文章详情
+    Router -> Detail: 路由到详情页
+    activate Detail
+    Detail -> API: POST /api/crawler/articles/detail
+    API --> Detail: 返回文章详情
+    Detail -> Detail: 显示文章内容
+    用户 -> Detail: 查看完毕
+    Detail -> Home: 返回首页
+    deactivate Detail
+end
+
+' 查看HTML
+group 查看原始HTML
+    用户 -> Home: 点击查看HTML
+    Home -> Router: 导航到HTML页面
+    Router -> Html: 路由到HTML页面
+    activate Html
+    Html -> API: GET /api/crawler/articles/{id}/html
+    API --> Html: 返回HTML内容
+    Html -> Html: DOMPurify处理
+    Html -> Html: 显示安全的HTML
+    用户 -> Html: 查看完毕
+    Html -> Home: 返回首页
+    deactivate Html
+end
+
+' 删除文章
+group 删除文章
+    用户 -> Home: 点击删除按钮
+    Home -> Home: 显示确认对话框
+    用户 -> Home: 确认删除
+    Home -> API: DELETE /api/crawler/articles/{id}
+    API --> Home: 返回删除结果
+    Home -> Home: 更新文章列表
+end
+
+' 错误处理
+group 错误处理
+    Home -> Home: 显示加载状态
+    Home -> API: 任何API请求
+    API --> Home: 返回错误
+    Home -> Home: 显示错误提示
+    Home -> Home: 隐藏加载状态
+end
+
+deactivate Home
+
+legend right
+    |颜色|类型|
+    |<#LightSkyBlue>|活动|
+    |<#White>|消息流|
+endlegend
+
+footer
+前端技术栈：Vue 3 + Vue Router + Element Plus
+end footer
+
+@enduml

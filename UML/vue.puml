@@ -1,0 +1,39 @@
+@startuml
+title Vue 3文章管理系统流程图
+
+actor 用户
+rectangle "主页 (Home.vue)" {
+    [文章列表] as ArticleList
+    [搜索框] as SearchBox
+    [爬虫表单] as CrawlerForm
+}
+
+rectangle "文章详情 (ArticleDetail.vue)" {
+    [文章内容] as ArticleContent
+    [元数据显示] as MetaData
+    [原文链接] as SourceLink
+}
+
+database "后端API" as Backend
+
+用户 --> ArticleList : 1. 访问主页
+用户 --> SearchBox : 2. 搜索文章
+用户 --> CrawlerForm : 3. 输入URL爬取
+ArticleList --> [文章详情] : 4. 点击文章
+用户 --> SourceLink : 5. 查看原文
+
+CrawlerForm --> Backend : 发送爬取请求
+SearchBox --> Backend : 发送搜索请求
+ArticleList --> Backend : 获取文章列表
+[文章详情] --> Backend : 获取文章详情
+
+note right of ArticleList
+  支持文章删除操作
+end note
+
+note right of [文章详情]
+  显示文章完整内容
+  包括标题、作者、发布时间等
+end note
+
+@enduml

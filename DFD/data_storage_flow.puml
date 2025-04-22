@@ -1,0 +1,46 @@
+@startuml
+
+skinparam {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+title 数据存储流图
+
+rectangle "爬虫数据" as CrawlerData
+rectangle "数据管道" as Pipeline
+rectangle "文章Mapper" as ArticleMapper
+rectangle "搜索服务" as SearchService
+database "MySQL数据库" as Database
+database "Lucene索引" as LuceneIndex
+
+CrawlerData --> Pipeline : "原始数据"
+Pipeline --> Pipeline : "数据清洗"
+Pipeline --> Pipeline : "数据验证"
+Pipeline --> ArticleMapper : "文章对象"
+ArticleMapper --> Database : "SQL插入"
+Database --> ArticleMapper : "插入结果"
+ArticleMapper --> SearchService : "文章ID"
+SearchService --> LuceneIndex : "创建索引"
+
+note right of Pipeline
+  1. 验证必填字段
+  2. 格式化日期时间
+  3. 处理图片链接
+  4. 检查重复数据
+end note
+
+note right of ArticleMapper
+  1. 插入文章记录
+  2. 获取生成ID
+  3. 处理事务
+end note
+
+note right of SearchService
+  1. 提取索引字段
+  2. 建立索引文档
+  3. 更新索引
+end note
+
+@enduml

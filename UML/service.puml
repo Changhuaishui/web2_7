@@ -1,0 +1,90 @@
+@startuml
+
+' 定义样式
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+' 接口定义
+interface ArticleService {
+    +getArticleById(Integer id): Article
+}
+
+interface CrawlerService {
+    +crawlArticle(String url): void
+}
+
+' 具体服务类
+class ArticleSearchService {
+    -indexManager: LuceneIndexManager
+    -articleMapper: ArticleMapper
+    -analyzer: Analyzer
+    +searchArticles(String keyword): List<Article>
+    +updateArticleIndex(Article article): void
+    +rebuildIndex(): void
+}
+
+class LuceneIndexService {
+    -articleMapper: ArticleMapper
+    -directory: Directory
+    -analyzer: StandardAnalyzer
+    -writer: IndexWriter
+    -indexDir: String
+    +init(): void
+    +addToIndex(String title, String content, String url): void
+    +search(String queryStr): List<SearchResult>
+    +deleteFromIndex(String url): void
+    +rebuildIndex(): void
+    +close(): void
+}
+
+' 实现类
+class ArticleServiceImpl {
+    -articleDao: ArticleDao
+    +getArticleById(Integer id): Article
+}
+
+class CrawlerServiceImpl {
+    -databasePipeline: DatabasePipeline
+    +crawlArticle(String url): void
+}
+
+' 搜索结果类
+class SearchResult {
+    +title: String
+    +content: String
+    +url: String
+    +author: String
+    +accountName: String
+    +score: float
+}
+
+' 依赖和实现关系
+ArticleService <|.. ArticleServiceImpl : 实现
+CrawlerService <|.. CrawlerServiceImpl : 实现
+ArticleServiceImpl --> ArticleDao : 使用
+CrawlerServiceImpl --> DatabasePipeline : 使用
+ArticleSearchService --> LuceneIndexManager : 使用
+ArticleSearchService --> ArticleMapper : 使用
+LuceneIndexService --> ArticleMapper : 使用
+LuceneIndexService --> SearchResult : 创建
+
+' 添加注解
+note right of ArticleSearchService
+  负责文章搜索和索引管理
+end note
+
+note right of LuceneIndexService
+  提供Lucene索引操作功能
+end note
+
+note right of CrawlerServiceImpl
+  实现微信文章爬取功能
+end note
+
+' 添加标题
+title Service层类图
+
+@enduml

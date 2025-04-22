@@ -1,0 +1,40 @@
+@startuml
+
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+title Utils层类图 - 工具层
+
+class LuceneIndexManager {
+    -analyzer: Analyzer
+    -directory: Directory
+    +createOrUpdateIndex(List<Article>): void
+    +updateDocument(IndexWriter, Article): void
+    +deleteDocument(String): void
+    +getIndexReader(): IndexReader
+}
+
+class DateUtils {
+    +{static} formatDateTime(String): String
+    +{static} parseDateTime(String): LocalDateTime
+}
+
+class StringUtils {
+    +{static} cleanUrl(String): String
+    +{static} isValidUrl(String): boolean
+}
+
+note right of LuceneIndexManager
+  Lucene索引管理工具
+  处理索引的CRUD操作
+end note
+
+note right of DateUtils
+  日期时间工具类
+  提供日期格式化方法
+end note
+
+@enduml

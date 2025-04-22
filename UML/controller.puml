@@ -1,0 +1,43 @@
+@startuml
+
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+title Controller层类图 - 控制器层
+
+class CrawlerController <<@RestController>> {
+    -crawlerService: CrawlerService
+    -articleMapper: ArticleMapper
+    -luceneIndexService: LuceneIndexService
+    +crawlArticle(Map): ResponseEntity
+    +getArticles(): ResponseEntity
+    +getArticlesByAccount(String): ResponseEntity
+    +deleteArticle(String): ResponseEntity
+}
+
+class ArticleSearchController <<@RestController>> {
+    -searchService: ArticleSearchService
+    +searchArticles(String): ResponseEntity
+}
+
+class HomeController <<@RestController>> {
+    +home(): String
+}
+
+CrawlerController --> CrawlerService: 使用
+CrawlerController --> ArticleMapper: 使用
+ArticleSearchController --> ArticleSearchService: 使用
+
+note right of CrawlerController
+  处理爬虫相关的HTTP请求
+  提供RESTful API接口
+end note
+
+note right of ArticleSearchController
+  处理文章搜索相关的HTTP请求
+end note
+
+@enduml
