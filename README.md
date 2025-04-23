@@ -1,7 +1,7 @@
 # 微信公众号文章爬虫系统
 
 ## 项目简介
-本项目是一个基于 Spring Boot 和 Vue.js 的微信公众号文章爬虫系统，实现了文章的爬取、存储、搜索等功能。系统采用前后端分离架构，后端使用 Java 开发，前端使用 Vue.js 框架。
+本项目是一个基于 Spring Boot 和 Vue.js 的微信公众号文章爬虫系统，实现了文章的爬取、存储、搜索和标签管理等功能。系统采用前后端分离架构，后端使用 Java 开发，前端使用 Vue.js 框架。
 
 ## 技术栈
 ### 后端技术
@@ -15,13 +15,8 @@
 - Vue.js 3
 - Element Plus
 - Axios
-#### 页面组件
-- Home.vue： 负责具体的文章爬取表单、搜索框和文章列表展示
-- App.vue：  作为主应用组件，包含了系统的整体布局，如头部和主内容区域
-#### 功能实现
-- 爬取文章：用户可以在输入框中输入微信公众号文章的 URL，点击 “开始爬取” 按钮，前端会向后端发送爬取请求。通过 WebMagic 框架实现，支持单个文章URL爬取，自动提取文章标题、作者、发布时间等信息，支持图片下载和存储。
-- 搜索文章：用户可以输入关键词进行搜索，系统会返回匹配的文章列表。支持全文搜索和高级搜索（时间范围、公众号筛选）。
-- 文章删除：在文章列表中，用户可以点击 “删除” 按钮，前端会向后端发送删除请求，后端会对文章进行逻辑删除，并更新索引。
+- Vite (构建工具)
+
 ## 系统架构
 ```
 src/main/java/org/example/web2_7/
@@ -29,51 +24,85 @@ src/main/java/org/example/web2_7/
 │   └── CorsConfig.java
 ├── controller/       # 控制器层
 │   ├── CrawlerController.java
-│   ├── SearchController.java
+│   ├── ArticleController.java
+│   ├── ArticleSearchController.java
+│   ├── TagController.java
 │   └── HomeController.java
-├── dao/             # 数据访问层
-│   └── ArticleMapper.java
-├── model/           # 实体类
+├── Dao/              # 数据访问层
+│   ├── ArticleMapper.java
+│   └── ArticleDao.java
+├── pojo/             # 实体类
 │   └── Article.java
-├── service/         # 服务层
+├── service/          # 服务层
 │   ├── CrawlerService.java
-│   ├── SearchService.java
+│   ├── ArticleService.java
+│   ├── ArticleSearchService.java
+│   ├── LuceneIndexService.java
+│   ├── TagService.java
 │   └── impl/
 │       ├── CrawlerServiceImpl.java
-│       └── SearchServiceImpl.java
-├── utils/           # 工具类
+│       └── ArticleServiceImpl.java
+├── crawler/          # 爬虫模块
+│   ├── WeChatArticleSpider.java
 │   ├── DatabasePipeline.java
-│   └── WeChatArticleSpider.java
-└── Main.java        # 应用入口
+│   └── ConsolePipeline.java
+├── utils/            # 工具类
+└── Main.java         # 应用入口
 ```
+
 ## 功能模块
 ### 控制器层
-- 主要有 CrawlerController 和 SearchController 两个控制器。
-- CrawlerController：提供了文章爬取、获取所有文章、根据账号名获取文章和删除文章等接口。
-- SearchController：提供了文章搜索和索引文章的接口。
-### 服务层
-- CrawlerService：负责文章的爬取任务。
-- LuceneIndexService：负责文章的索引和搜索功能，使用 Lucene 实现多字段搜索。
-- SearchServiceImpl：实现了 SearchService 接口，调用 LuceneIndexService 的方法进行文章搜索和索引。
-### 爬虫模块
-- 使用 WebMagic 框架实现文章的爬取，WeChatArticleSpider 类负责解析页面内容，提取文章的标题、作者、发布时间、正文、图片等信息，并将图片下载到本地。DatabasePipeline 类负责将爬取的数据存储到数据库中，并创建搜索索引。
-### 数据库MySQL
-- 使用 ArticleMapper 进行数据的持久化操作，包括插入文章、查找文章、逻辑删除文章等。
-## 功能特性
-1. 文章爬取
-   - 支持单个微信公众号文章URL爬取
-   - 自动提取文章标题、作者、发布时间等信息
-   - 支持图片下载和存储
+- **CrawlerController**：提供了文章爬取、获取所有文章、根据账号名获取文章、删除文章和图片访问等接口
+- **ArticleSearchController**：提供了文章搜索和重建索引的接口
+- **ArticleController**：提供文章基本操作接口
+- **TagController**：提供标签管理相关接口
+- **HomeController**：提供首页访问接口
 
-2. 文章管理
-   - 文章列表展示
+### 服务层
+- **CrawlerService**：负责文章的爬取任务
+- **ArticleService**：负责文章的基本管理功能
+- **ArticleSearchService**：实现文章的搜索功能
+- **LuceneIndexService**：负责文章的索引和搜索功能，使用 Lucene 实现多字段高效搜索
+- **TagService**：负责文章标签的管理功能
+
+### 爬虫模块
+- **WeChatArticleSpider**：负责解析微信公众号页面内容，提取文章的标题、作者、发布时间、正文、图片等信息，并支持图片下载到本地
+- **DatabasePipeline**：负责将爬取的数据存储到数据库中，并创建搜索索引
+- **ConsolePipeline**：用于控制台输出爬取结果，便于开发调试
+
+### 前端组件
+- **Home.vue**：首页组件，提供文章爬取表单、搜索框和文章列表展示
+- **ArticleDetail.vue**：文章详情页组件，展示文章详细内容
+- **ArticleHtml.vue**：文章HTML渲染组件，用于展示文章的原始HTML格式
+- **Search.vue**：搜索组件，提供高级搜索功能
+
+## 功能特性
+1. **文章爬取**
+   - 支持单个微信公众号文章URL爬取
+   - 自动提取文章标题、作者、发布时间、内容等信息
+   - 支持图片下载和本地存储，以文章标题命名创建图片文件夹
+   - 处理图片路径，将网络路径转换为本地相对路径
+
+2. **文章管理**
+   - 文章列表展示，支持分页
    - 按公众号分类查看
    - 文章删除功能
+   - 标签系统，支持对文章添加和管理标签
 
-3. 搜索功能
-   - 全文搜索
+3. **搜索功能**
+   - 基于Lucene的全文搜索
+   - 支持多字段搜索（标题、内容、作者等）
    - 高级搜索（支持时间范围、公众号筛选）
-   - 实时索引更新
+   - 搜索索引可重建，保证搜索结果准确性
+
+4. **图片资源管理**
+   - 自动下载并存储文章中的图片
+   - 提供图片访问API，支持不同格式图片展示
+   - 图片资源与文章关联管理
+
+5. **跨域支持**
+   - 支持前后端分离部署
+   - 完善的CORS配置，确保安全访问
 
 ## 安装部署
 ### 环境要求
@@ -81,11 +110,12 @@ src/main/java/org/example/web2_7/
 - MySQL 8.0+
 - Node.js 16+
 - Maven 3.6+
+- Git 2.49.0+
 
 ### 后端部署
 1. 克隆项目
 ```bash
-git clone [项目地址]
+git clone https://github.com/Changhuaishui/web2_7.git
 cd web2_7
 ```
 
@@ -152,57 +182,36 @@ npm run build
 - URL: GET /api/crawler/articles
 - 返回：文章列表
 
+3. 获取文章图片
+- URL: GET /api/crawler/images/{folder}/{filename}
+- 返回：图片资源
+
 ### 搜索接口
 1. 搜索文章
-- URL: GET /api/search
-- 参数：keyword=搜索关键词
+- URL: GET /api/search?keyword=搜索关键词
 - 返回：匹配的文章列表
 
-## 开发指南
-### 代码规范
-1. 命名规范
-   - 类名：驼峰命名，首字母大写
-   - 方法名：驼峰命名，首字母小写
-   - 变量名：驼峰命名，首字母小写
-   - 常量名：全大写，下划线分隔
+2. 重建索引
+- URL: POST /api/search/rebuild-index
+- 返回：索引重建状态
 
-2. 注释规范
-   - 类注释：说明类的功能和作用
-   - 方法注释：说明方法的功能、参数和返回值
-   - 关键代码注释：说明复杂逻辑
+### 标签接口
+1. 获取所有标签
+- URL: GET /api/tags
+- 返回：标签列表
 
-### 开发流程
-1. 功能开发
-   - 创建功能分支
-   - 编写代码和单元测试
-   - 提交代码审查
-   - 合并到主分支
+2. 为文章添加标签
+- URL: POST /api/tags/article/{articleId}
+- 参数：{"tags": ["标签1", "标签2"]}
+- 返回：操作状态
 
-2. 测试流程
-   - 单元测试
-   - 集成测试
-   - 功能测试
-   - 性能测试
+## 版本控制
+本项目使用Git进行版本控制，托管在GitHub上。
 
-## 常见问题
-1. 爬虫相关
-   - Q: 爬取失败如何处理？
-   - A: 检查URL格式，确保文章可访问，查看错误日志
 
-2. 搜索相关
-   - Q: 搜索结果不准确？
-   - A: 检查索引是否更新，确认搜索关键词正确
 
-## 更新日志
-### v1.0.0 (2025-03-27)
-- 实现基础爬虫功能
-- 完成文章管理系统
-- 集成全文搜索功能
 
-## 维护团队
-- 后端开发：[chen]
-- 前端开发：[chen]
+## 维护
+- 开发者：[chen]
 - 技术支持：[2021011100@bistu.edu.cn]
 
-## 许可证
-本项目采用 MIT 许可证 
