@@ -376,12 +376,22 @@ public class CrawlerController {
             Resource resource = new org.springframework.core.io.FileSystemResource(imageFile);
             
             // 确定内容类型
-            String contentType = "image/jpeg";
-            if (filename.toLowerCase().endsWith(".png")) {
+            String contentType = "image/jpeg"; // 默认为JPEG
+            String lowerFilename = filename.toLowerCase();
+            
+            if (lowerFilename.endsWith(".png")) {
                 contentType = "image/png";
-            } else if (filename.toLowerCase().endsWith(".gif")) {
+            } else if (lowerFilename.endsWith(".gif")) {
                 contentType = "image/gif";
+            } else if (lowerFilename.endsWith(".webp")) {
+                contentType = "image/webp";
+            } else if (lowerFilename.endsWith(".bmp")) {
+                contentType = "image/bmp";
+            } else if (lowerFilename.endsWith(".svg")) {
+                contentType = "image/svg+xml";
             }
+            
+            logger.info("提供图片访问: {}, Content-Type: {}", imageFile.getPath(), contentType);
             
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))

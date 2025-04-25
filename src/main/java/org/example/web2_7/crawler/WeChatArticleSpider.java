@@ -179,8 +179,11 @@ public class WeChatArticleSpider implements PageProcessor {
                 if (headImageUrl != null && !headImageUrl.isEmpty()) {
                     try {
                         String headImageUlid = UlidUtils.generate();
-                        String headImageFileName = headImageUlid + ".jpg";
+                        // 从URL或Content-Type确定图片扩展名
+                        String headImageExtension = getImageExtension(headImageUrl);
+                        String headImageFileName = headImageUlid + headImageExtension;
                         imageUlidMap.put("head", headImageUlid);
+                        imageUlidMap.put("head_ext", headImageExtension);
                         
                         System.out.println("正在下载文章头图: " + headImageUrl);
                         downloadImage(headImageUrl, new File(articleFolder, headImageFileName));
@@ -195,12 +198,16 @@ public class WeChatArticleSpider implements PageProcessor {
                 List<String> imageUlids = new ArrayList<>();
                 for (int i = 0; i < imageUrls.size(); i++) {
                     try {
+                        String imageUrl = imageUrls.get(i);
                         String imageUlid = UlidUtils.generate();
-                        String imageFileName = imageUlid + ".jpg";
+                        // 从URL或Content-Type确定图片扩展名
+                        String imageExtension = getImageExtension(imageUrl);
+                        String imageFileName = imageUlid + imageExtension;
                         imageUlids.add(imageUlid);
                         imageUlidMap.put(String.valueOf(i), imageUlid);
+                        imageUlidMap.put(String.valueOf(i) + "_ext", imageExtension);
                         
-                        downloadImage(imageUrls.get(i), 
+                        downloadImage(imageUrl, 
                             new File(articleFolder, imageFileName));
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -804,6 +811,59 @@ public class WeChatArticleSpider implements PageProcessor {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * 从图片URL或HTTP响应获取图片扩展名
+     * @param imageUrl 图片URL
+     * @return 图片扩展名（如.jpg, .png, .gif）
+     */
+    private String getImageExtension(String imageUrl) {
+        // 默认扩展名
+        String defaultExtension = ".jpg";
+        
+        try {
+            // 1. 尝试从URL中获取扩展名
+            if (imageUrl.contains(".")) {
+                String urlPath = new URL(imageUrl).getPath();
+                int lastDotIndex = urlPath.lastIndexOf('.');
+                if (lastDotIndex > 0) {
+                    String extension = urlPath.substring(lastDotIndex).toLowerCase();
+                    // 检查是否为合法图片扩展名
+                    if (extension.matches("\\.(jpg|jpeg|png|gif|webp|bmp)")) {
+                        return extension;
+                    }
+                }
+            }
+            
+            // 2. 尝试从HTTP头获取Content-Type
+            URL url = new URL(imageUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.connect();
+            
+            String contentType = connection.getContentType();
+            connection.disconnect();
+            
+            if (contentType != null) {
+                switch (contentType.toLowerCase()) {
+                    case "image/jpeg":
+                        return ".jpg";
+                    case "image/png":
+                        return ".png";
+                    case "image/gif":
+                        return ".gif";
+                    case "image/webp":
+                        return ".webp";
+                    case "image/bmp":
+                        return ".bmp";
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("获取图片扩展名失败: " + e.getMessage());
+        }
+        
+        return defaultExtension;
     }
 
     // Site对象，配置爬虫User-Agent

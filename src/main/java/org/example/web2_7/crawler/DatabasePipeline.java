@@ -121,24 +121,43 @@ public class DatabasePipeline implements Pipeline {
 
             // 处理图片 - 现在使用ULID作为图片标识
             List<String> imageUlids = resultItems.get("imageUlids");
+            Map<String, String> imageUlidMap = resultItems.get("imageUlidMap");
+            
             if (imageUlids != null && !imageUlids.isEmpty()) {
                 // 以ULID格式存储图片路径：articleUlid/imageUlid.jpg
                 List<String> imagePaths = new ArrayList<>();
-                for (String imageUlid : imageUlids) {
-                    imagePaths.add(ulid + "/" + imageUlid + ".jpg");
+                for (int i = 0; i < imageUlids.size(); i++) {
+                    String imageUlid = imageUlids.get(i);
+                    
+                    // 获取图片扩展名
+                    String extension = ".jpg"; // 默认扩展名
+                    if (imageUlidMap != null) {
+                        String storedExt = imageUlidMap.get(i + "_ext");
+                        if (storedExt != null && !storedExt.isEmpty()) {
+                            extension = storedExt;
+                        }
+                    }
+                    
+                    imagePaths.add(ulid + "/" + imageUlid + extension);
                 }
                 article.setImages(String.join(",", imagePaths));
             } else {
                 // 如果没有图片ULID列表，尝试处理原始URL列表
                 List<String> imageUrls = resultItems.get("imageUrls");
-                Map<String, String> imageUlidMap = resultItems.get("imageUlidMap");
                 
                 if (imageUrls != null && !imageUrls.isEmpty() && imageUlidMap != null && !imageUlidMap.isEmpty()) {
                     List<String> imagePaths = new ArrayList<>();
                     for (int i = 0; i < imageUrls.size(); i++) {
                         String imageUlid = imageUlidMap.get(String.valueOf(i));
                         if (imageUlid != null) {
-                            imagePaths.add(ulid + "/" + imageUlid + ".jpg");
+                            // 获取图片扩展名
+                            String extension = ".jpg"; // 默认扩展名
+                            String storedExt = imageUlidMap.get(String.valueOf(i) + "_ext");
+                            if (storedExt != null && !storedExt.isEmpty()) {
+                                extension = storedExt;
+                            }
+                            
+                            imagePaths.add(ulid + "/" + imageUlid + extension);
                         }
                     }
                     if (!imagePaths.isEmpty()) {
@@ -149,11 +168,17 @@ public class DatabasePipeline implements Pipeline {
             
             // 处理头图
             String headImageUrl = resultItems.get("headImageUrl");
-            Map<String, String> imageUlidMap = resultItems.get("imageUlidMap");
             if (headImageUrl != null && !headImageUrl.isEmpty() && imageUlidMap != null) {
                 String headImageUlid = imageUlidMap.get("head");
                 if (headImageUlid != null) {
-                    String headImagePath = ulid + "/" + headImageUlid + ".jpg";
+                    // 获取头图扩展名
+                    String extension = ".jpg"; // 默认扩展名
+                    String storedExt = imageUlidMap.get("head_ext");
+                    if (storedExt != null && !storedExt.isEmpty()) {
+                        extension = storedExt;
+                    }
+                    
+                    String headImagePath = ulid + "/" + headImageUlid + extension;
                     
                     // 如果有专门的头图字段，则设置
                     // article.setHeadImage(headImagePath);
