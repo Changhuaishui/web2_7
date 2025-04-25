@@ -129,6 +129,7 @@ public class CrawlerController {
             // 构建返回对象
             Map<String, Object> result = new java.util.HashMap<>();
             result.put("id", article.getId());
+            result.put("ulid", article.getUlid());
             result.put("title", article.getTitle());
             result.put("author", article.getAuthor());
             result.put("url", article.getUrl());
@@ -255,6 +256,7 @@ public class CrawlerController {
             
             Map<String, Object> response = new HashMap<>();
             response.put("title", article.getTitle());
+            response.put("ulid", article.getUlid());
             response.put("fullHtml", fullHtml);
             
             logger.info("成功获取文章HTML, ID: {}, HTML长度: {}", id, fullHtml.length());
@@ -270,6 +272,7 @@ public class CrawlerController {
     /**
      * 获取文章头图
      * 根据文章标题查找对应的头图并返回
+     * 更新支持ULID格式的图片路径
      */
     @GetMapping("/image/{articleId}")
     public ResponseEntity<?> getArticleImage(@PathVariable Integer articleId) {
@@ -283,23 +286,65 @@ public class CrawlerController {
                 return ResponseEntity.notFound().build();
             }
             
-            // 处理文章标题，移除特殊字符
-            String safeFolderName = article.getTitle().replaceAll("[\\\\/:*?\"<>|]", "_");
+            // 检查文章是否有ULID和图片
+            String ulid = article.getUlid();
+            if (ulid == null || ulid.isEmpty()) {
+                logger.warn("文章没有ULID: ID={}", articleId);
+                
+                // 兼容旧版标题方式
+                // 处理文章标题，移除特殊字符
+                String safeFolderName = article.getTitle().replaceAll("[\\\\/:*?\"<>|]", "_");
             
-            // 构建头图路径
-            String headImageName = safeFolderName + "_head.jpg";
-            File imageFolder = new File("image/" + safeFolderName);
-            File headImageFile = new File(imageFolder, headImageName);
+                // 构建头图路径
+                String headImageName = safeFolderName + "_head.jpg";
+                File imageFolder = new File("image/" + safeFolderName);
+                File headImageFile = new File(imageFolder, headImageName);
+                
+                // 检查头图是否存在
+                if (!headImageFile.exists()) {
+                    logger.warn("未找到文章头图: {}", headImageFile.getAbsolutePath());
+                    return ResponseEntity.status(404).body("未找到文章头图");
+                }
+                
+                // 头图URL
+                String imageUrl = "/api/crawler/images/" + safeFolderName + "/" + headImageName;
+                
+                Map<String, String> response = new HashMap<>();
+                response.put("imageUrl", imageUrl);
+                
+                logger.info("成功获取文章头图URL(旧版): {}", imageUrl);
+                return ResponseEntity.ok(response);
+            }
             
-            // 检查头图是否存在
-            if (!headImageFile.exists()) {
-                logger.warn("未找到文章头图: {}", headImageFile.getAbsolutePath());
+            // 使用ULID方式 - 解析图片路径
+            String images = article.getImages();
+            if (images == null || images.isEmpty()) {
+                logger.warn("文章没有图片: ID={}", articleId);
                 return ResponseEntity.status(404).body("未找到文章头图");
             }
             
-            // 头图URL
-            String imageUrl = "/api/crawler/images/" + safeFolderName + "/" + headImageName;
+            // 解析图片路径，使用第一张图片作为头图
+            String[] imagePaths = images.split(",");
+            if (imagePaths.length == 0) {
+                logger.warn("文章图片路径解析错误: ID={}", articleId);
+                return ResponseEntity.status(404).body("未找到文章头图");
+            }
             
+            String firstImagePath = imagePaths[0];
+            
+            // 检查图片路径格式
+            String imageUrl;
+            if (firstImagePath.contains("/")) {
+                // 新格式: articleUlid/imageUlid.jpg
+                imageUrl = "/api/images/" + firstImagePath;
+                logger.info("使用新API路径获取头图: {}", imageUrl);
+            } else {
+                // 旧格式或不符合要求的格式，尝试使用旧的路径格式
+                imageUrl = firstImagePath; // 直接使用存储的路径
+                logger.info("使用旧格式图片路径: {}", imageUrl);
+            }
+            
+            // 返回成功响应
             Map<String, String> response = new HashMap<>();
             response.put("imageUrl", imageUrl);
             

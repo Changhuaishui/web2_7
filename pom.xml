@@ -138,6 +138,13 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+        
+        <!-- ULID算法实现，用于生成唯一ID，代替UUID算法 -->
+        <dependency>
+            <groupId>de.huxhorn.sulky</groupId>
+            <artifactId>de.huxhorn.sulky.ulid</artifactId>
+            <version>8.3.0</version>
+        </dependency>
     </dependencies>
 
     <build>

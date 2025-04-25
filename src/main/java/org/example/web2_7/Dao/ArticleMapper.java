@@ -37,14 +37,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Mapper
 public interface ArticleMapper {
     // 插入文章
-    @Insert("INSERT INTO article_table (title, author, url, source_url, account_name, publish_time, content, images, is_deleted) " +
-            "VALUES (#{title}, #{author}, #{url}, #{sourceUrl}, #{accountName}, #{publishTime}, #{content}, #{images}, #{isDeleted})")
+    @Insert("INSERT INTO article_table (ulid, title, author, url, source_url, account_name, publish_time, content, images, is_deleted) " +
+            "VALUES (#{ulid}, #{title}, #{author}, #{url}, #{sourceUrl}, #{accountName}, #{publishTime}, #{content}, #{images}, #{isDeleted})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insertArticle(Article article);
 
     // 根据URL查找文章（排除已删除的）
     @Select("SELECT * FROM article_table WHERE url LIKE CONCAT(#{url}, '%') AND is_deleted = false LIMIT 1")
     Article findByUrl(String url);
+    
+    // 根据ULID查找文章
+    @Select("SELECT * FROM article_table WHERE ulid = #{ulid} AND is_deleted = false LIMIT 1")
+    Article findByUlid(String ulid);
     
     // 根据URL查找所有文章（包括已删除的）
     @Select("SELECT * FROM article_table WHERE url LIKE CONCAT(#{url}, '%') LIMIT 1")
@@ -55,7 +59,7 @@ public interface ArticleMapper {
     List<Article> findByAccountName(String accountName);
 
     // 获取所有文章（按发布时间倒序，排除已删除的）
-    @Select("SELECT id, title, author, url, source_url AS sourceUrl, account_name AS accountName, " +
+    @Select("SELECT id, ulid, title, author, url, source_url AS sourceUrl, account_name AS accountName, " +
             "publish_time AS publishTime, content, images, is_deleted AS isDeleted " +
             "FROM article_table WHERE is_deleted = false " +
             "ORDER BY publish_time DESC")
@@ -71,17 +75,27 @@ public interface ArticleMapper {
     @Transactional
     int logicalDeleteByUrl(String url);
     
+    // 根据ULID逻辑删除文章
+    @Update("UPDATE article_table SET is_deleted = true WHERE ulid = #{ulid}")
+    @Transactional
+    int logicalDeleteByUlid(String ulid);
+    
     // 物理删除文章（实际从数据库删除）
     @Delete("DELETE FROM article_table WHERE url LIKE CONCAT(#{url}, '%')")
     @Transactional
     int deleteByUrl(String url);
+    
+    // 根据ULID物理删除文章
+    @Delete("DELETE FROM article_table WHERE ulid = #{ulid}")
+    @Transactional
+    int deleteByUlid(String ulid);
     
     // 获取所有文章（包括已逻辑删除的，用于完全重建索引）
     @Select("SELECT * FROM article_table ORDER BY publish_time DESC")
     List<Article> findAllArticlesIncludeDeleted();
 
     // 根据ID获取文章（与findAllOrderByPublishTime保持一致的字段映射）
-    @Select("SELECT id, title, author, url, source_url AS sourceUrl, account_name AS accountName, " +
+    @Select("SELECT id, ulid, title, author, url, source_url AS sourceUrl, account_name AS accountName, " +
             "publish_time AS publishTime, content, images, is_deleted AS isDeleted " +
             "FROM article_table WHERE id = #{id} AND is_deleted = false")
     Article findById(Integer id);

@@ -15,6 +15,7 @@ import org.example.web2_7.Dao.ArticleMapper;
 import org.example.web2_7.pojo.Article;
 import org.example.web2_7.service.ArticleSearchService;
 import org.example.web2_7.service.LuceneIndexService;
+import org.example.web2_7.utils.UlidUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.ResultItems;
@@ -26,7 +27,10 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Component
 public class DatabasePipeline implements Pipeline {
@@ -73,10 +77,18 @@ public class DatabasePipeline implements Pipeline {
                 return;
             }
 
+            // 获取文章ULID
+            String ulid = resultItems.get("ulid");
+            if (ulid == null || ulid.isEmpty()) {
+                // 如果没有生成ULID，在这里生成一个
+                ulid = UlidUtils.generate();
+            }
+            
             // 设置必需字段
             article.setUrl(url);
             article.setTitle(title);
             article.setContent(content);
+            article.setUlid(ulid);
 
             // 设置原文链接
             String sourceUrl = resultItems.get("sourceUrl");
@@ -107,26 +119,54 @@ public class DatabasePipeline implements Pipeline {
                 article.setPublishTime(null);
             }
 
-            // 处理图片
-            List<String> imageUrls = resultItems.get("imageUrls");
-            if (imageUrls != null && !imageUrls.isEmpty()) {
-                article.setImages(String.join(",", imageUrls));
+            // 处理图片 - 现在使用ULID作为图片标识
+            List<String> imageUlids = resultItems.get("imageUlids");
+            if (imageUlids != null && !imageUlids.isEmpty()) {
+                // 以ULID格式存储图片路径：articleUlid/imageUlid.jpg
+                List<String> imagePaths = new ArrayList<>();
+                for (String imageUlid : imageUlids) {
+                    imagePaths.add(ulid + "/" + imageUlid + ".jpg");
+                }
+                article.setImages(String.join(",", imagePaths));
+            } else {
+                // 如果没有图片ULID列表，尝试处理原始URL列表
+                List<String> imageUrls = resultItems.get("imageUrls");
+                Map<String, String> imageUlidMap = resultItems.get("imageUlidMap");
+                
+                if (imageUrls != null && !imageUrls.isEmpty() && imageUlidMap != null && !imageUlidMap.isEmpty()) {
+                    List<String> imagePaths = new ArrayList<>();
+                    for (int i = 0; i < imageUrls.size(); i++) {
+                        String imageUlid = imageUlidMap.get(String.valueOf(i));
+                        if (imageUlid != null) {
+                            imagePaths.add(ulid + "/" + imageUlid + ".jpg");
+                        }
+                    }
+                    if (!imagePaths.isEmpty()) {
+                        article.setImages(String.join(",", imagePaths));
+                    }
+                }
             }
             
             // 处理头图
             String headImageUrl = resultItems.get("headImageUrl");
-            if (headImageUrl != null && !headImageUrl.isEmpty()) {
-                // 如果有专门的头图字段，则设置
-                // article.setHeadImage(headImageUrl);
-                
-                // 如果没有专门的头图字段，可以将头图添加到图片列表的开头
-                if (article.getImages() == null || article.getImages().isEmpty()) {
-                    article.setImages(headImageUrl);
-                } else {
-                    article.setImages(headImageUrl + "," + article.getImages());
+            Map<String, String> imageUlidMap = resultItems.get("imageUlidMap");
+            if (headImageUrl != null && !headImageUrl.isEmpty() && imageUlidMap != null) {
+                String headImageUlid = imageUlidMap.get("head");
+                if (headImageUlid != null) {
+                    String headImagePath = ulid + "/" + headImageUlid + ".jpg";
+                    
+                    // 如果有专门的头图字段，则设置
+                    // article.setHeadImage(headImagePath);
+                    
+                    // 如果没有专门的头图字段，可以将头图添加到图片列表的开头
+                    if (article.getImages() == null || article.getImages().isEmpty()) {
+                        article.setImages(headImagePath);
+                    } else {
+                        article.setImages(headImagePath + "," + article.getImages());
+                    }
+                    
+                    logger.info("添加文章头图: {}", headImagePath);
                 }
-                
-                logger.info("添加文章头图: {}", headImageUrl);
             }
 
             // 检查文章是否已存在

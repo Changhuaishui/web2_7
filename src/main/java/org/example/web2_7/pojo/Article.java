@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 @Data
 public class Article {
     private Integer id;  // 文章ID  
+    private String ulid;  // 使用ULID作为唯一标识符
     private String title;  // 文章标题
     private String author;  // 文章作者
     private String url;  // 文章链接
@@ -34,6 +35,14 @@ public class Article {
     private String content;  // 文章内容
     private String images;  // 文章图片
     private Boolean isDeleted = false;  // 是否删除，逻辑删除，标记1/0
+
+    public String getUlid() {
+        return ulid;
+    }
+
+    public void setUlid(String ulid) {
+        this.ulid = ulid;
+    }
 
     public void setTitle(String title) {
         this.title = title;

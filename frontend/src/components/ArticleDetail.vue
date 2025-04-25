@@ -71,9 +71,47 @@ export default {
       if (!article.value || !article.value.id) return;
       
       try {
-        const response = await axios.get(`/api/crawler/image/${article.value.id}`);
-        if (response.data && response.data.imageUrl) {
-          headImage.value = response.data.imageUrl;
+        // 检查文章是否有ULID和图片
+        if (!article.value.ulid) {
+          console.warn('文章没有ULID，尝试使用旧API获取头图');
+          // 尝试使用旧的API获取头图
+          try {
+            const response = await axios.get(`/api/crawler/image/${article.value.id}`);
+            if (response.data && response.data.imageUrl) {
+              headImage.value = response.data.imageUrl;
+              console.log('使用旧API获取头图成功:', headImage.value);
+              return;
+            }
+          } catch (err) {
+            console.warn('使用旧API获取头图失败:', err);
+          }
+        }
+        
+        if (!article.value.images) {
+          console.warn('文章没有图片信息');
+          return;
+        }
+        
+        // 解析图片路径
+        const imagePaths = article.value.images.split(',');
+        if (imagePaths.length === 0) {
+          console.warn('文章没有图片路径');
+          return;
+        }
+        
+        // 使用第一张图片作为头图
+        const firstImagePath = imagePaths[0];
+        
+        // 检查图片路径格式
+        if (firstImagePath.includes('/')) {
+          // 新格式: articleUlid/imageUlid.jpg
+          const imageUrl = `/api/images/${firstImagePath}`;
+          console.log('使用新API路径获取头图:', imageUrl);
+          headImage.value = imageUrl;
+        } else {
+          // 旧格式，直接使用路径
+          console.log('使用旧格式图片路径:', firstImagePath);
+          headImage.value = firstImagePath;
         }
       } catch (error) {
         console.warn('无法加载文章头图:', error);
@@ -121,7 +159,7 @@ export default {
         new URL(url);
         window.open(url, '_blank');
       } catch (error) {
-        console.error('无效的URL格式:', url);
+        console.error('无效的URL格式:', url, error);
         ElMessage.error('无效的文章链接格式');
       }
     }

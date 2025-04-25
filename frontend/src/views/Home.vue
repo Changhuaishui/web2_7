@@ -93,10 +93,54 @@ export default {
     
     // 加载文章头图
     const loadArticleImage = async (articleId) => {
+      if (!articleId) return;
+      
       try {
-        const response = await axios.get(`/api/crawler/image/${articleId}`);
-        if (response.data && response.data.imageUrl) {
-          articleImages.value[articleId] = response.data.imageUrl;
+        // 查找指定ID的文章
+        const article = articles.value.find(a => a.id === articleId);
+        if (!article) {
+          console.warn(`未找到ID为${articleId}的文章`);
+          return;
+        }
+        
+        // 检查文章是否有ULID
+        if (!article.ulid) {
+          console.warn(`文章ID=${articleId}没有ULID，尝试使用旧API获取头图`);
+          // 尝试使用旧的API获取头图
+          try {
+            const response = await axios.get(`/api/crawler/image/${articleId}`);
+            if (response.data && response.data.imageUrl) {
+              articleImages.value[articleId] = response.data.imageUrl;
+              console.log(`文章${articleId}使用旧API获取头图成功:`, response.data.imageUrl);
+              return;
+            }
+          } catch (err) {
+            console.warn(`文章${articleId}使用旧API获取头图失败:`, err);
+          }
+        }
+        
+        // 解析文章的图片路径
+        if (article.images && article.images.trim()) {
+          // 取第一张图片作为头图
+          const imagePaths = article.images.split(',');
+          if (imagePaths.length > 0) {
+            const firstImagePath = imagePaths[0];
+            
+            // 检查是否是ULID格式的路径
+            if (firstImagePath.includes('/')) {
+              // 路径形如：articleUlid/imageUlid.jpg
+              // 直接使用该路径
+              const imageUrl = `/api/images/${firstImagePath}`;
+              console.log(`文章${articleId}使用新API路径获取头图: ${imageUrl}`);
+              articleImages.value[articleId] = imageUrl;
+            } else {
+              // 旧格式，使用兼容API
+              console.log(`文章${articleId}使用旧API路径获取头图: ${firstImagePath}`);
+              articleImages.value[articleId] = firstImagePath;
+            }
+          }
+        } else {
+          console.warn(`文章ID=${articleId}没有图片`);
         }
       } catch (error) {
         console.warn(`无法加载文章${articleId}的头图:`, error);

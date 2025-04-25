@@ -28,12 +28,15 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.select.Selector;
 import org.jsoup.nodes.Attribute;
+import org.example.web2_7.utils.UlidUtils;
 
 public class WeChatArticleSpider implements PageProcessor {
     // 设置网站信息，为了避免被网站ban，设置User-Agent和Referer等头信息
@@ -139,6 +142,12 @@ public class WeChatArticleSpider implements PageProcessor {
             // 提取文章头图
             String headImageUrl = extractHeadImage(doc);
             
+            // 为文章生成ULID
+            String articleUlid = UlidUtils.generate();
+            
+            // 存储图片ULID映射
+            Map<String, String> imageUlidMap = new HashMap<>();
+            
             // 存储结果
             page.putField("url", url);
             page.putField("sourceUrl", originalUrl);
@@ -150,8 +159,9 @@ public class WeChatArticleSpider implements PageProcessor {
             page.putField("imageUrls", imageUrls);
             page.putField("headImageUrl", headImageUrl);
             page.putField("fullHtml", fullHtml);
+            page.putField("ulid", articleUlid);  // 添加文章ULID
 
-            // 创建以文章标题命名的文件夹并下载图片
+            // 创建以ULID命名的文件夹并下载图片
             if (!imageUrls.isEmpty() || headImageUrl != null) {
                 // 首先确保image目录存在
                 File imageRootFolder = new File("image");
@@ -159,9 +169,8 @@ public class WeChatArticleSpider implements PageProcessor {
                     imageRootFolder.mkdirs();
                 }
                 
-                // 使用文章标题创建子文件夹，处理标题中可能存在的非法字符
-                String safeFolderName = title.replaceAll("[\\\\/:*?\"<>|]", "_");
-                File articleFolder = new File(imageRootFolder, safeFolderName);
+                // 使用文章ULID创建子文件夹
+                File articleFolder = new File(imageRootFolder, articleUlid);
                 if (!articleFolder.exists()) {
                     articleFolder.mkdirs();
                 }
@@ -169,7 +178,10 @@ public class WeChatArticleSpider implements PageProcessor {
                 // 下载头图（如果存在）
                 if (headImageUrl != null && !headImageUrl.isEmpty()) {
                     try {
-                        String headImageFileName = safeFolderName + "_head.jpg";
+                        String headImageUlid = UlidUtils.generate();
+                        String headImageFileName = headImageUlid + ".jpg";
+                        imageUlidMap.put("head", headImageUlid);
+                        
                         System.out.println("正在下载文章头图: " + headImageUrl);
                         downloadImage(headImageUrl, new File(articleFolder, headImageFileName));
                         System.out.println("文章头图下载完成: " + headImageFileName);
@@ -179,16 +191,25 @@ public class WeChatArticleSpider implements PageProcessor {
                     }
                 }
 
-                // 下载文章内容中的图片到文章专属文件夹，并按指定格式命名
+                // 下载文章内容中的图片，使用ULID命名
+                List<String> imageUlids = new ArrayList<>();
                 for (int i = 0; i < imageUrls.size(); i++) {
                     try {
-                        String imageFileName = safeFolderName + "_" + (i + 1) + ".jpg";
+                        String imageUlid = UlidUtils.generate();
+                        String imageFileName = imageUlid + ".jpg";
+                        imageUlids.add(imageUlid);
+                        imageUlidMap.put(String.valueOf(i), imageUlid);
+                        
                         downloadImage(imageUrls.get(i), 
                             new File(articleFolder, imageFileName));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
+                
+                // 将图片ULID列表添加到Page对象
+                page.putField("imageUlids", imageUlids);
+                page.putField("imageUlidMap", imageUlidMap);
             }
         } catch (Exception e) {
             page.setSkip(true);
