@@ -10,10 +10,19 @@ skinparam class {
 ' 接口定义
 interface ArticleService {
     +getArticleById(Integer id): Article
+    +getArticleByUlid(String ulid): Article
 }
 
 interface CrawlerService {
     +crawlArticle(String url): void
+}
+
+interface TagService {
+    +getArticleTags(String articleUlid): List<String>
+    +addTagToArticle(String articleUlid, String tag): void
+    +removeTagFromArticle(String articleUlid, String tag): void
+    +getAllTags(): List<String>
+    +getArticlesByTag(String tag): List<Article>
 }
 
 ' 具体服务类
@@ -24,6 +33,7 @@ class ArticleSearchService {
     +searchArticles(String keyword): List<Article>
     +updateArticleIndex(Article article): void
     +rebuildIndex(): void
+    +searchByUlid(String ulid): Article
 }
 
 class LuceneIndexService {
@@ -33,21 +43,33 @@ class LuceneIndexService {
     -writer: IndexWriter
     -indexDir: String
     +init(): void
-    +addToIndex(String title, String content, String url): void
+    +addToIndex(Article article): void
     +search(String queryStr): List<SearchResult>
-    +deleteFromIndex(String url): void
+    +deleteFromIndex(String ulid): void
     +rebuildIndex(): void
     +close(): void
+}
+
+class TagServiceImpl {
+    -articleMapper: ArticleMapper
+    +getArticleTags(String articleUlid): List<String>
+    +addTagToArticle(String articleUlid, String tag): void
+    +removeTagFromArticle(String articleUlid, String tag): void
+    +getAllTags(): List<String>
+    +getArticlesByTag(String tag): List<Article>
 }
 
 ' 实现类
 class ArticleServiceImpl {
     -articleDao: ArticleDao
+    -articleMapper: ArticleMapper
     +getArticleById(Integer id): Article
+    +getArticleByUlid(String ulid): Article
 }
 
 class CrawlerServiceImpl {
     -databasePipeline: DatabasePipeline
+    -weChatArticleSpider: WeChatArticleSpider
     +crawlArticle(String url): void
 }
 
@@ -56,6 +78,7 @@ class SearchResult {
     +title: String
     +content: String
     +url: String
+    +ulid: String
     +author: String
     +accountName: String
     +score: float
@@ -64,27 +87,40 @@ class SearchResult {
 ' 依赖和实现关系
 ArticleService <|.. ArticleServiceImpl : 实现
 CrawlerService <|.. CrawlerServiceImpl : 实现
+TagService <|.. TagServiceImpl : 实现
 ArticleServiceImpl --> ArticleDao : 使用
+ArticleServiceImpl --> ArticleMapper : 使用
 CrawlerServiceImpl --> DatabasePipeline : 使用
+CrawlerServiceImpl --> WeChatArticleSpider : 使用
 ArticleSearchService --> LuceneIndexManager : 使用
 ArticleSearchService --> ArticleMapper : 使用
 LuceneIndexService --> ArticleMapper : 使用
 LuceneIndexService --> SearchResult : 创建
+TagServiceImpl --> ArticleMapper : 使用
 
 ' 添加注解
 note right of ArticleSearchService
   负责文章搜索和索引管理
+  支持基于ULID的查询
 end note
 
 note right of LuceneIndexService
   提供Lucene索引操作功能
+  支持基于ULID的索引
 end note
 
 note right of CrawlerServiceImpl
   实现微信文章爬取功能
+  管理爬虫和数据管道
+end note
+
+note right of TagServiceImpl
+  管理文章标签
+  提供标签的增删改查
+  支持按标签筛选文章
 end note
 
 ' 添加标题
-title Service层类图
+title Service层类图 - 更新版
 
 @enduml

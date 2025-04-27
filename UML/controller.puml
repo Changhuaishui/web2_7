@@ -13,9 +13,28 @@ class CrawlerController <<@RestController>> {
     -articleMapper: ArticleMapper
     -luceneIndexService: LuceneIndexService
     +crawlArticle(Map): ResponseEntity
+    +getArticleHtml(String): ResponseEntity
+    +getImage(String, String): ResponseEntity
+}
+
+class ArticleController <<@RestController>> {
+    -articleMapper: ArticleMapper
+    -luceneIndexService: LuceneIndexService
     +getArticles(): ResponseEntity
-    +getArticlesByAccount(String): ResponseEntity
+    +getArticleByUlid(String): ResponseEntity
     +deleteArticle(String): ResponseEntity
+}
+
+class ImageController <<@RestController>> {
+    +getImage(String, String): ResponseEntity
+}
+
+class TagController <<@RestController>> {
+    -tagService: TagService
+    +getTags(): ResponseEntity
+    +getArticlesByTag(String): ResponseEntity
+    +addTag(Map): ResponseEntity
+    +deleteTag(String): ResponseEntity
 }
 
 class ArticleSearchController <<@RestController>> {
@@ -29,15 +48,33 @@ class HomeController <<@RestController>> {
 
 CrawlerController --> CrawlerService: 使用
 CrawlerController --> ArticleMapper: 使用
+ArticleController --> ArticleMapper: 使用
+ArticleController --> LuceneIndexService: 使用
 ArticleSearchController --> ArticleSearchService: 使用
+TagController --> TagService: 使用
 
 note right of CrawlerController
   处理爬虫相关的HTTP请求
-  提供RESTful API接口
+  提供文章爬取和HTML内容获取API
+end note
+
+note right of ArticleController
+  处理文章管理相关的HTTP请求
+  提供文章增删改查API
+end note
+
+note right of ImageController
+  处理图片相关的HTTP请求
+  基于ULID提供图片访问服务
 end note
 
 note right of ArticleSearchController
   处理文章搜索相关的HTTP请求
+end note
+
+note right of TagController
+  处理标签相关的HTTP请求
+  管理文章标签和按标签筛选文章
 end note
 
 @enduml

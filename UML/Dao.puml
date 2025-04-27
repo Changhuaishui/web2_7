@@ -11,11 +11,21 @@ title DAO层类图 - 数据访问层
 interface ArticleMapper {
     +insertArticle(Article): int
     +findByUrl(String): Article
+    +findByUlid(String): Article
+    +findByUrlIncludeDeleted(String): Article
     +findByAccountName(String): List<Article>
     +findAllOrderByPublishTime(): List<Article>
     +searchByKeyword(String): List<Article>
     +logicalDeleteByUrl(String): int
+    +logicalDeleteByUlid(String): int
     +deleteByUrl(String): int
+    +deleteByUlid(String): int
+    +findAllArticlesIncludeDeleted(): List<Article>
+    +findById(Integer): Article
+    +insertArticleHtml(Integer, String): int
+    +getArticleHtml(Integer): String
+    +insertArticleFullHtml(ArticleFullHtml): int
+    +getArticleFullHtml(Integer): ArticleFullHtml
 }
 
 interface ArticleDao {
@@ -24,10 +34,13 @@ interface ArticleDao {
 
 Article --> ArticleMapper: 被使用
 Article --> ArticleDao: 被使用
+ArticleFullHtml --> ArticleMapper: 被使用
 
 note right of ArticleMapper
   MyBatis Mapper接口
   处理文章相关的数据库操作
+  支持基于ULID的查询和删除
+  管理文章HTML内容存储
 end note
 
 note right of ArticleDao

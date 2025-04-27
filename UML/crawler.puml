@@ -14,26 +14,45 @@ class WeChatArticleSpider {
     +getSite(): Site
     -extractAuthor(Document): String
     -extractPublishTime(Document): String
-    -downloadImage(String, File): void
+    -downloadImage(String, String, String): String
+    -generateUlid(): String
+    -processImageUrls(List<String>, String): Map<String, String>
 }
 
 class DatabasePipeline {
     -articleMapper: ArticleMapper
     -searchService: ArticleSearchService
+    -luceneIndexService: LuceneIndexService
+    +process(ResultItems, Task): void
+    -processArticleImages(List<String>, String): void
+    -saveArticleFullHtml(String, Integer): void
+}
+
+class ConsolePipeline {
     +process(ResultItems, Task): void
 }
 
 DatabasePipeline --> ArticleMapper: 使用
 DatabasePipeline --> ArticleSearchService: 使用
+DatabasePipeline --> LuceneIndexService: 使用
 
 note right of WeChatArticleSpider
   微信文章爬虫实现
   负责解析和提取文章内容
+  使用ULID标识文章和图片
+  处理图片下载和保存
 end note
 
 note right of DatabasePipeline
   数据持久化管道
   将爬取的数据存入数据库
+  处理文章、图片和HTML内容
+  创建索引以支持搜索
+end note
+
+note right of ConsolePipeline
+  控制台输出管道
+  用于测试和调试
 end note
 
 @enduml

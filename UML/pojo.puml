@@ -10,6 +10,7 @@ title POJO层类图 - 实体对象
 
 class Article {
     -id: Integer
+    -ulid: String
     -title: String
     -author: String
     -url: String
@@ -23,11 +24,28 @@ class Article {
     +setters()
 }
 
+class ArticleFullHtml {
+    -id: Integer
+    -articleId: Integer
+    -fullHtml: String
+    +getters()
+    +setters()
+}
+
+Article "1" -- "1" ArticleFullHtml : 关联
+
 note right of Article
-  实体类
-  1. 映射数据库表结构
-  2. 提供数据传输载体
-  3. 不包含业务逻辑
+  文章实体类
+  1. 映射数据库表article_table结构
+  2. 使用ULID作为唯一标识符
+  3. 提供数据传输载体
+  4. 支持逻辑删除
+end note
+
+note right of ArticleFullHtml
+  文章HTML内容实体类
+  1. 存储完整HTML内容
+  2. 与文章通过articleId关联
 end note
 
 @enduml
