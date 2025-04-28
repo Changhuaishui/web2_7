@@ -15,6 +15,7 @@ import org.example.web2_7.Dao.ArticleMapper;
 import org.example.web2_7.pojo.Article;
 import org.example.web2_7.service.CrawlerService;
 import org.example.web2_7.service.LuceneIndexService;
+import org.example.web2_7.crawler.WeChatArticleSpider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -400,6 +401,71 @@ public class CrawlerController {
         } catch (Exception e) {
             logger.error("获取图片失败: " + folder + "/" + filename, e);
             return ResponseEntity.status(500).build();
+        }
+    }
+
+    /**
+     * 处理爬虫检测到的失效链接
+     * 当爬虫识别到文章链接无法访问时，调用此端点记录信息
+     */
+    @GetMapping("/invalid-links")
+    public ResponseEntity<String> handleInvalidLink(@RequestParam("url") String url) {
+        // 记录失效链接日志
+        logger.warn("检测到失效链接: {}", url);
+        
+        // 这里只记录日志，不做数据持久化到数据库和lucene
+        return ResponseEntity.ok("文章链接不可访问，请检查链接或联系管理员。");
+    }
+    
+    /**
+     * 检查链接状态
+     * 返回链接是否可爬取的状态
+     */
+    @PostMapping("/check-link")
+    public ResponseEntity<?> checkLinkStatus(@RequestBody Map<String, String> request) {
+        String url = request.get("url");
+        if (url == null || url.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "URL不能为空"
+            ));
+        }
+        
+        try {
+            // 创建临时爬虫实例测试链接有效性
+            WeChatArticleSpider spider = new WeChatArticleSpider();
+            Map<String, Object> result = new HashMap<>();
+            
+            // 检查URL是否已经爬取过
+            Article existingArticle = articleMapper.findByUrl(url);
+            if (existingArticle != null) {
+                result.put("success", false);
+                result.put("status", "already_exists");
+                result.put("message", "该文章已经爬取过");
+                return ResponseEntity.ok(result);
+            }
+
+            // 使用爬虫检查链接状态
+            boolean isValid = crawlerService.checkLinkStatus(url);
+            
+            if (isValid) {
+                result.put("success", true);
+                result.put("status", "valid");
+                result.put("message", "链接有效，可以爬取");
+            } else {
+                result.put("success", false);
+                result.put("status", "invalid");
+                result.put("message", "链接无效或已失效，无法爬取");
+            }
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("检查链接状态失败: {}", url, e);
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "status", "error",
+                "message", "检查链接失败: " + e.getMessage()
+            ));
         }
     }
 } 

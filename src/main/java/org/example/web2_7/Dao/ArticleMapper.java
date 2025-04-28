@@ -102,7 +102,6 @@ public interface ArticleMapper {
 
     // 插入文章HTML内容
     @Insert("INSERT INTO article_full_html (article_id, full_html) VALUES (#{articleId}, #{fullHtml})")
-    @Options(useGeneratedKeys = true, keyProperty = "articleId")
     int insertArticleHtml(@Param("articleId") Integer articleId, @Param("fullHtml") String fullHtml);
 
     // 获取文章HTML内容，使用关联表article_full_html，article_id作为查询参数

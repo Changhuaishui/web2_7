@@ -486,3 +486,65 @@ const searchArticles = async () => {
 4. **统一接口**
    - 考虑设计统一的图片接口，在后端处理新旧格式转换
    - 简化前端调用逻辑
+
+## 2025-04-28 开发日志
+
+### 功能增强：失效链接检测
+
+今天实现了微信公众号文章爬取时的失效链接检测功能，优化了用户体验。微信公众号文章在原作者删除后会显示"临时链接已失效"，之前系统无法识别这种情况，现在已增加专门的检测和处理逻辑。
+
+#### 代码更新内容
+
+1. **爬虫失效链接检测**
+   - 修改 `WeChatArticleSpider.java`，添加对微信失效链接的识别逻辑：
+     - 检测页面中是否包含 `<div class="weui-msg__title warn">临时链接已失效</div>` 内容
+     - 当识别到失效链接时，标记页面并跳过后续爬取处理
+
+2. **失效链接处理管道**
+   - 在 `CrawlerServiceImpl.java` 中添加 `InvalidLinkPipeline` 来处理失效链接：
+     - 将失效链接放在数据库管道前处理，避免对失效链接进行数据库操作
+
+3. **链接有效性验证**
+   - 新增 `checkLinkStatus` 方法在 `CrawlerService` 接口和实现类中
+   - 该方法允许在爬取前检查链接是否有效
+
+4. **REST API 更新**
+   - 在 `CrawlerController` 中添加 `/api/crawler/check-link` 接口
+   - 该接口返回链接状态信息，包括链接是否有效、是否已被爬取等
+
+5. **前端优化**
+   - 修改 `Home.vue` 中的爬取逻辑，在爬取前先检查链接状态
+   - 对不同状态（有效、无效、已爬取）展示不同的用户提示
+
+### Bug修复：数据库插入HTML内容错误
+
+修复了在插入文章HTML内容时的 MyBatis 错误。错误原因是在 `ArticleMapper.java` 中 `insertArticleHtml` 方法的注解配置有误：
+
+```java
+// 错误的配置
+@Insert("INSERT INTO article_full_html (article_id, full_html) VALUES (#{articleId}, #{fullHtml})")
+@Options(useGeneratedKeys = true, keyProperty = "articleId")
+int insertArticleHtml(@Param("articleId") Integer articleId, @Param("fullHtml") String fullHtml);
+```
+
+错误原因：在 `@Options` 注解中，`keyProperty = "articleId"` 设置导致 MyBatis 尝试将自动生成的主键回写到 `articleId` 参数中，但 `articleId` 是作为外键传入的参数，而不是需要获取自动生成主键的字段。
+
+修复方法：移除不必要的 `@Options` 注解，因为我们不需要获取自动生成的主键：
+
+```java
+// 修复后的代码
+@Insert("INSERT INTO article_full_html (article_id, full_html) VALUES (#{articleId}, #{fullHtml})")
+int insertArticleHtml(@Param("articleId") Integer articleId, @Param("fullHtml") String fullHtml);
+```
+
+### 测试验证
+
+1. 测试有效链接爬取 - 通过
+2. 测试失效链接检测 - 通过
+3. 测试HTML内容存储 - 通过
+
+### 后续计划
+
+1. 考虑对失效链接进行记录存储，方便后续分析
+2. 优化爬虫性能，提高爬取速度
+3. 增加更多的异常处理逻辑，提高系统稳定性

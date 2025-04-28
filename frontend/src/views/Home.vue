@@ -33,6 +33,26 @@ export default {
 
       crawling.value = true
       try {
+        // 先检查链接状态
+        const checkResponse = await axios.post('/api/crawler/check-link', {
+          url: crawlerForm.value.url
+        })
+        
+        // 如果链接已经爬取过
+        if (checkResponse.data.status === 'already_exists') {
+          ElMessage.info('该文章已经爬取过，无需重复爬取')
+          crawlerForm.value.url = ''
+          await loadArticles() // 刷新列表
+          return
+        }
+        
+        // 如果链接无效
+        if (checkResponse.data.status === 'invalid') {
+          ElMessage.error('链接无效或已失效，无法爬取，可能是临时链接已过期')
+          return
+        }
+        
+        // 链接有效，开始爬取
         const response = await axios.post('/api/crawler/crawl', {
           url: crawlerForm.value.url
         })
@@ -40,7 +60,12 @@ export default {
         crawlerForm.value.url = ''
         loadArticles() // 重新加载文章列表
       } catch (error) {
-        ElMessage.error(error.response?.data || '爬取失败')
+        console.error('爬取失败:', error)
+        if (error.response?.data) {
+          ElMessage.error(error.response.data)
+        } else {
+          ElMessage.error('爬取失败：' + error.message)
+        }
       } finally {
         crawling.value = false
       }

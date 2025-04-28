@@ -73,6 +73,18 @@ public class WeChatArticleSpider implements PageProcessor {
             }
 
             Document doc = Jsoup.parse(page.getHtml().get());
+            
+            // 检测微信失效链接
+            Element invalidLinkElement = doc.selectFirst("div.weui-msg__title.warn");
+            if (invalidLinkElement != null && invalidLinkElement.text().contains("临时链接已失效")) {
+                // 设置失效链接标志
+                page.putField("isInvalidLink", true);
+                page.putField("url", url);
+                page.putField("invalidReason", "临时链接已失效");
+                // 跳过后续处理
+                page.setSkip(true);
+                return;
+            }
 
             // 提取完整HTML内容
             Element contentElem = doc.selectFirst("div.rich_media_content");
