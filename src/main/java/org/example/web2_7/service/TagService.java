@@ -26,7 +26,7 @@ public class TagService {
     private static final Map<String, List<String>> TAG_KEYWORDS = new HashMap<>();
 
     static {
-        // 初始化各标签的关键词
+        // 初始化各标签的关键词，优化
         TAG_KEYWORDS.put("前沿科技", Arrays.asList("科技", "技术", "数字", "互联网", "物联网", "区块链", "云计算", "大数据", "硬件", "软件", "产品", "科技成果", "科研突破", "元宇宙", "Web3.0", "量子计算", "6G技术"));
         TAG_KEYWORDS.put("人工智能", Arrays.asList("人工智能", "AI", "机器学习", "深度学习", "神经网络", "算法", "大模型", "ChatGPT", "智能机器人", "自然语言处理", "计算机视觉", "AIGC", "文心一言", "通义千问", "星链智擎"));
         TAG_KEYWORDS.put("金融财经", Arrays.asList("金融", "经济", "宏观经济", "微观经济", "投资", "股票", "理财", "银行", "保险", "基金", "债券", "金融市场", "金融政策", "数字人民币", "绿色金融", "金融科技监管"));
