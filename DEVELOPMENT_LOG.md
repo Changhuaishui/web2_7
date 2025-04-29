@@ -195,6 +195,61 @@
 - 前端开发：[chen]
 - 技术支持：[2021011100@bistu.edu.cn]
 
+## 2025-04-29 - DeepSeek模型集成用于文章摘要生成
+
+### 主要更新内容
+1. 集成DeepSeek API用于文章摘要生成
+2. 文章表增加summary字段存储摘要
+3. 前端实现摘要显示和手动触发功能
+4. 优化API调用逻辑，避免重复调用
+
+### 开发过程
+
+#### 1. 初始环境配置
+- 在`application.properties`中添加DeepSeek API配置
+- 创建`DeepSeekService`接口和实现类，提供摘要生成功能
+
+#### 2. 数据库表结构更新
+- 为`article_table`表添加`summary`字段存储摘要
+- 创建`07_add_summary_column.sql`脚本，用于给已有表结构添加字段
+- 创建`06_clear_table_data.sql`脚本，提供清空表数据但保留表结构功能
+- 修复`01_create_tables.sql`中缺少表名的BUG
+
+#### 3. 后端功能实现
+- 实现`DeepSeekServiceImpl`，调用DeepSeek API生成摘要
+- 更新`ArticleMapper`接口，添加摘要更新方法
+- 修改`DatabasePipeline`，爬取文章后自动生成摘要
+- 创建`SummaryController`，提供手动生成摘要API
+
+#### 4. 前端功能实现
+- 修改`ArticleDetail.vue`，添加摘要显示区域
+- 实现"生成摘要"按钮及相关逻辑
+- 优化前端交互提示，区分已有摘要和新生成摘要
+
+### 遇到的问题及解决方案
+
+#### BUG1: 模型名称错误
+- **问题**：DeepSeekServiceImpl中使用的模型名称"deepseek-v3"不存在
+- **解决**：通过查询DeepSeek API文档，确认正确的模型名称是"deepseek-chat"
+
+#### BUG2: ChatController引用错误
+- **问题**：`ChatController`尝试调用不存在的`generateChatResponse`方法
+- **解决**：在`DeepSeekService`接口和实现类中添加该方法
+
+#### BUG3: 数据库表结构错误
+- **问题**：`article_full_html`表创建语句缺少表名
+- **解决**：修复SQL语句，正确添加表名
+
+#### BUG4: 重复调用API问题
+- **问题**：即使文章已有摘要，点击生成摘要按钮仍会调用API
+- **解决**：修改`SummaryController`，先检查数据库中是否已有摘要，如有则直接返回
+
+### 开发心得
+1. 集成第三方API时，务必仔细查阅API文档，特别是模型名称等关键参数
+2. 数据库脚本应当更加严谨，SQL语句要完整
+3. 在涉及付费API调用时，应当尽量避免重复调用，节约资源
+4. 前后端交互中，适当的错误处理和提示信息很重要
+
 ## 4月21日更新 - 爬虫图片下载功能优化
 
 ### 功能更新
