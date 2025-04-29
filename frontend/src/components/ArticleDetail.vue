@@ -16,6 +16,7 @@ export default {
     const headImage = ref(null)
     const loading = ref(true)
     const articleTags = ref([])
+    const generateSummaryLoading = ref(false)
 
     // 格式化日期时间
     const formatDate = (dateStr) => {
@@ -45,7 +46,8 @@ export default {
             ...response.data,
             author: response.data.author || '未知',
             accountName: response.data.accountName || '未知',
-            publishTime: response.data.publishTime || null
+            publishTime: response.data.publishTime || null,
+            summary: response.data.summary || null
           }
           console.log('文章数据:', article.value);
           
@@ -164,6 +166,35 @@ export default {
       }
     }
 
+    const generateSummary = async () => {
+      if (!article.value || !article.value.id) {
+        ElMessage.warning('无法生成摘要：缺少文章ID');
+        return;
+      }
+      
+      generateSummaryLoading.value = true;
+      try {
+        const response = await axios.post(`/api/articles/${article.value.id}/summarize`);
+        
+        if (response.data.success) {
+          article.value.summary = response.data.summary;
+          
+          if (response.data.isExisting) {
+            ElMessage.info('已加载现有摘要');
+          } else {
+            ElMessage.success('摘要生成成功');
+          }
+        } else {
+          ElMessage.error('摘要生成失败：' + response.data.message);
+        }
+      } catch (error) {
+        console.error('生成摘要失败:', error);
+        ElMessage.error('生成摘要失败：' + (error.response?.data?.message || error.message));
+      } finally {
+        generateSummaryLoading.value = false;
+      }
+    }
+
     onMounted(() => {
       loadArticle()
     })
@@ -174,7 +205,9 @@ export default {
       formatDate,
       headImage,
       loading,
-      articleTags
+      articleTags,
+      generateSummary,
+      generateSummaryLoading
     }
   }
 }
@@ -218,6 +251,22 @@ export default {
       
       <div v-if="headImage" class="article-head-image">
         <img :src="headImage" alt="文章头图" />
+      </div>
+      
+      <div v-if="article.summary" class="article-summary">
+        <h3>文章摘要</h3>
+        <div class="summary-content">{{ article.summary }}</div>
+      </div>
+      
+      <div v-else class="article-summary-generate">
+        <el-button 
+          type="primary" 
+          @click="generateSummary" 
+          :loading="generateSummaryLoading"
+          plain
+        >
+          生成文章摘要
+        </el-button>
       </div>
       
       <div class="article-content" v-html="article.content"></div>
@@ -283,6 +332,30 @@ export default {
 .article-content {
   line-height: 1.8;
   font-size: 16px;
+}
+
+.article-summary {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-left: 4px solid #409EFF;
+  margin: 20px 0;
+  border-radius: 4px;
+}
+
+.article-summary-generate {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.article-summary h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #409EFF;
+}
+
+.summary-content {
+  line-height: 1.6;
+  color: #333;
 }
 
 .article-footer {

@@ -60,7 +60,7 @@ public interface ArticleMapper {
 
     // 获取所有文章（按发布时间倒序，排除已删除的）
     @Select("SELECT id, ulid, title, author, url, source_url AS sourceUrl, account_name AS accountName, " +
-            "publish_time AS publishTime, content, images, is_deleted AS isDeleted " +
+            "publish_time AS publishTime, content, images, is_deleted AS isDeleted, summary " +
             "FROM article_table WHERE is_deleted = false " +
             "ORDER BY publish_time DESC")
     List<Article> findAllOrderByPublishTime();
@@ -94,10 +94,10 @@ public interface ArticleMapper {
     @Select("SELECT * FROM article_table ORDER BY publish_time DESC")
     List<Article> findAllArticlesIncludeDeleted();
 
-    // 根据ID获取文章（与findAllOrderByPublishTime保持一致的字段映射）
+    // 根据ID获取文章
     @Select("SELECT id, ulid, title, author, url, source_url AS sourceUrl, account_name AS accountName, " +
-            "publish_time AS publishTime, content, images, is_deleted AS isDeleted " +
-            "FROM article_table WHERE id = #{id} AND is_deleted = false")
+            "publish_time AS publishTime, content, images, is_deleted AS isDeleted, summary " +
+            "FROM article_table WHERE id = #{id} AND is_deleted = false LIMIT 1")
     Article findById(Integer id);
 
     // 插入文章HTML内容
@@ -107,4 +107,8 @@ public interface ArticleMapper {
     // 获取文章HTML内容，使用关联表article_full_html，article_id作为查询参数
     @Select("SELECT full_html FROM article_full_html WHERE article_id = #{articleId}")
     String getArticleHtml(@Param("articleId") Integer articleId);
+
+    // 更新文章摘要
+    @Update("UPDATE article_table SET summary = #{summary} WHERE id = #{id}")
+    int updateArticleSummary(@Param("id") Integer id, @Param("summary") String summary);
 }

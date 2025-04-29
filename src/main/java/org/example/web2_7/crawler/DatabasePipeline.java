@@ -14,6 +14,7 @@ package org.example.web2_7.crawler;
 import org.example.web2_7.Dao.ArticleMapper;
 import org.example.web2_7.pojo.Article;
 import org.example.web2_7.service.ArticleSearchService;
+import org.example.web2_7.service.DeepSeekService;
 import org.example.web2_7.service.LuceneIndexService;
 import org.example.web2_7.utils.UlidUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,9 @@ public class DatabasePipeline implements Pipeline {
     
     @Autowired  // Lucene索引服务
     private LuceneIndexService luceneIndexService;
+    
+    @Autowired  // DeepSeek服务
+    private DeepSeekService deepSeekService;
 
     // 日期时间格式正则表达式
     private static final Pattern DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}.*");
@@ -226,6 +230,30 @@ public class DatabasePipeline implements Pipeline {
                             insertedArticle.getUrl()
                         );
                         logger.info("Updated LuceneIndexService index for article ID: {}", articleId);
+                        
+                        // 调用DeepSeek生成文章摘要
+                        try {
+                            // 获取文章内容
+                            String articleContent = insertedArticle.getContent();
+                            if (articleContent != null && !articleContent.trim().isEmpty()) {
+                                // 调用DeepSeek API生成摘要
+                                String summary = deepSeekService.summarizeText(articleContent);
+                                logger.info("文章摘要已生成: {}", summary);
+                                
+                                // 将摘要输出到控制台
+                                System.out.println("=== 文章摘要 ===");
+                                System.out.println(summary);
+                                System.out.println("===============");
+                                
+                                // 将摘要保存到数据库
+                                articleMapper.updateArticleSummary(articleId, summary);
+                                logger.info("文章摘要已保存到数据库, 文章ID: {}", articleId);
+                            } else {
+                                logger.warn("文章内容为空，无法生成摘要，文章ID: {}", articleId);
+                            }
+                        } catch (Exception e) {
+                            logger.error("生成文章摘要失败，文章ID: {}", articleId, e);
+                        }
                     } catch (Exception e) {
                         logger.error("Failed to update search index for article ID: {}", articleId, e);
                     }

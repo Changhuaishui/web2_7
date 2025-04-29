@@ -139,6 +139,7 @@ public class CrawlerController {
             result.put("publishTime", article.getPublishTime());
             result.put("content", article.getContent());
             result.put("images", article.getImages());
+            result.put("summary", article.getSummary());
             
             if (fullHtml != null) {
                 result.put("fullHtml", fullHtml);

@@ -35,6 +35,7 @@ public class Article {
     private String content;  // 文章内容
     private String images;  // 文章图片
     private Boolean isDeleted = false;  // 是否删除，逻辑删除，标记1/0
+    private String summary;  // 文章摘要
 
     public String getUlid() {
         return ulid;
@@ -74,5 +75,13 @@ public class Article {
 
     public Boolean getIsDeleted() {
         return isDeleted;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 }
