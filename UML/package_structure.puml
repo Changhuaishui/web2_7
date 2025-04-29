@@ -1,0 +1,91 @@
+@startuml
+
+skinparam {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+title Web2.7项目包结构图
+
+package "org.example.web2_7" {
+    package "controller" {
+        [CrawlerController]
+        [ArticleController]
+        [ArticleSearchController]
+        [ImageController]
+        [TagController]
+        [HomeController]
+    }
+    
+    package "service" {
+        package "impl" {
+            [ArticleServiceImpl]
+            [CrawlerServiceImpl]
+            [TagServiceImpl]
+        }
+        [ArticleService]
+        [CrawlerService]
+        [TagService]
+        [ArticleSearchService]
+        [LuceneIndexService]
+    }
+    
+    package "crawler" {
+        [WeChatArticleSpider]
+        [DatabasePipeline]
+        [ConsolePipeline]
+    }
+    
+    package "Dao" {
+        [ArticleMapper]
+        [ArticleDao]
+    }
+    
+    package "pojo" {
+        [Article]
+        [ArticleFullHtml]
+    }
+    
+    package "utils" {
+        [LuceneIndexManager]
+        [ULIDGenerator]
+    }
+    
+    package "config" {
+        [WebConfig]
+    }
+}
+
+controller --> service
+service --> Dao
+service --> utils
+service --> crawler
+crawler --> Dao
+crawler --> utils
+
+note right of controller
+  控制器层 - 处理HTTP请求响应
+end note
+
+note right of service
+  服务层 - 业务逻辑处理
+end note
+
+note right of crawler
+  爬虫层 - 文章爬取和解析
+end note
+
+note right of Dao
+  数据访问层 - 数据库交互
+end note
+
+note right of pojo
+  实体对象 - 数据传输载体
+end note
+
+note right of utils
+  工具类 - 提供通用功能
+end note
+
+@enduml 

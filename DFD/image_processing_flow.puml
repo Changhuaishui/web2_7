@@ -1,0 +1,67 @@
+@startuml
+
+skinparam {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+title 图片处理数据流图
+
+actor "用户" as User
+rectangle "前端界面" as Frontend
+rectangle "图片控制器" as ImageController
+rectangle "爬虫服务" as CrawlerService
+rectangle "微信文章爬虫" as WeChatSpider
+rectangle "ULID生成器" as ULIDGenerator
+folder "图片存储" as ImageStorage {
+    folder "按文章ULID组织" as ArticleFolder
+}
+rectangle "数据管道" as Pipeline
+database "MySQL数据库" as Database
+
+' 图片爬取和存储流程
+User --> Frontend : "提交文章URL"
+Frontend --> CrawlerService : "爬取请求"
+CrawlerService --> WeChatSpider : "解析文章"
+WeChatSpider --> ULIDGenerator : "获取文章和图片ULID"
+WeChatSpider --> WeChatSpider : "提取图片URL"
+WeChatSpider --> ImageStorage : "下载和保存图片"
+WeChatSpider --> Pipeline : "传递ULID和图片路径"
+Pipeline --> Database : "存储图片信息"
+
+' 图片访问流程
+User --> Frontend : "浏览文章"
+Frontend --> ImageController : "请求图片"
+ImageController --> Database : "查询图片ULID"
+ImageController --> ImageStorage : "获取图片"
+ImageStorage --> ImageController : "图片数据"
+ImageController --> Frontend : "返回图片"
+Frontend --> User : "显示图片"
+
+note right of WeChatSpider
+  提取图片URL
+  检测图片格式
+  生成图片ULID
+  保持原始格式
+end note
+
+note right of ImageController
+  路径格式: /articleUlid/imageUlid.ext
+  支持不同图片格式
+  动态设置Content-Type
+end note
+
+note right of ImageStorage
+  文件系统存储
+  按文章ULID组织目录
+  保持原始格式
+end note
+
+note right of ULIDGenerator
+  生成时间排序的唯一ID
+  为图片生成ID
+  替代随机文件名
+end note
+
+@enduml 
