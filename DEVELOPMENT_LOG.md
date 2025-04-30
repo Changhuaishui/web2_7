@@ -604,6 +604,48 @@ int insertArticleHtml(@Param("articleId") Integer articleId, @Param("fullHtml") 
 2. 优化爬虫性能，提高爬取速度
 3. 增加更多的异常处理逻辑，提高系统稳定性
 
+## 2025-04-30 - 修复文章内容过长导致的数据库存储问题
+
+### 问题描述
+在爬取某些内容较长的微信公众号文章时，出现数据库存储错误：
+```
+Data truncation: Data too long for column 'content' at row 1
+```
+
+这是因为数据库表中`article_table`的`content`字段类型为TEXT，最大只能存储约64KB数据，而一些长文章的内容加上图片占位符超出了这个限制。
+
+### 解决方案
+1. 修改数据库表结构，将以下字段类型从TEXT升级为MEDIUMTEXT：
+   - `content` - 存储文章内容
+   - `image_mappings` - 存储图片映射JSON数据
+   
+2. 创建数据库更新脚本：
+   - 新增`08_update_content_field.sql`脚本，用于更新现有数据库表字段类型
+   - 更新`recreate_tables.sql`脚本，在创建新表时使用MEDIUMTEXT类型
+
+3. 执行更新：
+   ```sql
+   ALTER TABLE article_table MODIFY COLUMN content MEDIUMTEXT NOT NULL;
+   ALTER TABLE article_table MODIFY COLUMN image_mappings MEDIUMTEXT;
+   ```
+
+### 技术说明
+- TEXT类型最多存储约64KB数据
+- MEDIUMTEXT类型最多可存储约16MB数据
+- 对于更大的内容，可以考虑LONGTEXT类型（最大4GB）
+- 此修改不会影响现有数据，仅增加字段容量
+
+### 测试验证
+1. 执行SQL脚本更新字段类型
+2. 重新爬取之前失败的长文章
+3. 验证数据可以正确存储和显示
+4. 确认所有图片能够正常显示
+
+### 经验总结
+1. 在设计数据库时，需要预估字段可能存储的最大数据量
+2. 对于存储HTML内容或包含大量占位符的文本，应采用更大容量的字段类型
+3. 对于可能会变化的数据类型，可以采用脚本化的数据库版本管理，便于后续升级
+
 ## 2025-04-30 - 修复微信公众号文章中图片显示问题
 
 ### 功能更新内容
