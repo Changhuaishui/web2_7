@@ -603,3 +603,129 @@ int insertArticleHtml(@Param("articleId") Integer articleId, @Param("fullHtml") 
 1. 考虑对失效链接进行记录存储，方便后续分析
 2. 优化爬虫性能，提高爬取速度
 3. 增加更多的异常处理逻辑，提高系统稳定性
+
+## 2025-04-30 - 修复微信公众号文章中图片显示问题
+
+### 功能更新内容
+1. 修复数据库结构问题，添加缺失的`ulid`和`image_mappings`字段
+2. 优化爬虫中的图片处理逻辑，确保占位符ID与下载的图片文件名一致
+3. 增强`ImageController`的图片查找能力，改进图片请求路径处理
+4. 创建完整的数据库重建脚本`recreate_tables.sql`，统一表结构
+
+### 问题分析
+
+#### 数据库结构问题
+- 数据库表中缺少了必要的`ulid`和`image_mappings`字段，导致启动应用时出现"Unknown column 'ulid' in 'field list'"错误
+- SQL语句同时存在于代码和数据库脚本中，导致不一致性
+- 数据库中表结构不完整，缺少外键约束和索引
+
+#### 图片处理逻辑问题
+- `WeChatArticleSpider.java`中图片处理逻辑不一致，占位符中的图片ID与下载的图片文件名不匹配
+- 当下载图片和生成占位符时使用不同的ID，导致无法正确关联和显示图片
+- 图片路径信息存储不完整，前端无法准确请求到正确的图片路径
+
+#### 图片请求路径问题
+- 前端请求图片的路径与后端处理路径不匹配
+- `ImageController`的图片查找逻辑不够健壮，无法处理多种图片请求格式
+- 缺少适当的错误处理和回退机制，当图片不存在时没有合适的替代方案
+
+### 修复过程
+
+#### 1. 数据库结构修复
+1. 创建完整的数据库重建脚本`recreate_tables.sql`，确保包含所有必要字段：
+   - 添加`ulid`字段存储文章唯一标识符
+   - 添加`image_mappings`字段存储图片位置映射
+   - 为`article_full_html`表添加`url_mapping`字段存储URL映射关系
+   - 添加必要的索引和约束，提高查询性能
+
+2. 修改`ArticleMapper.java`中的SQL语句，确保与数据库结构一致：
+   ```java
+   @Insert("INSERT INTO article_table (ulid, title, author, url, source_url, account_name, publish_time, content, images, image_mappings, is_deleted) " +
+           "VALUES (#{ulid}, #{title}, #{author}, #{url}, #{sourceUrl}, #{accountName}, #{publishTime}, #{content}, #{images}, #{imageMappings}, #{isDeleted})")
+   ```
+
+#### 2. 图片处理逻辑修复
+1. 修改`WeChatArticleSpider.java`中的图片处理流程：
+   - 为每张图片生成唯一的ULID标识符
+   - 确保占位符ID与实际下载的图片文件名一致
+   - 完善图片URL到本地路径的映射关系存储
+   ```java
+   // 使用之前生成的ULID，确保与占位符一致
+   String imageId = imageUrlToUlidMap.get(imageUrl);
+   if (imageId == null) {
+       // 生成新ID
+       imageId = UlidUtils.generate();
+   }
+   ```
+
+2. 优化图片文件名和存储结构：
+   - 使用`articleUlid`创建图片子文件夹
+   - 使用`imageId`作为图片文件名，保证唯一性
+   - 添加适当的文件扩展名处理
+
+#### 3. 图片控制器增强
+1. 增强`ImageController`的图片查找能力：
+   - 优先使用精确路径查找图片
+   - 添加多层回退策略，包括按ID查找、按索引查找和使用替代图片
+   - 改进错误处理，提供更明确的日志信息
+   ```java
+   // 首先尝试精确查找指定的图片
+   File exactImageFile = Paths.get(IMAGE_ROOT_DIR, articleUlid, imageUlid + extension).toFile();
+   
+   // 如果精确匹配的图片不存在，则尝试查找类似名称的图片
+   if (!exactImageFile.exists() && imageFolder.exists() && imageFolder.isDirectory()) {
+       // 尝试多种查找策略...
+   }
+   ```
+
+### 遇到的问题及解决方案
+
+#### 问题1: SQL错误
+- **问题**: 启动应用时出现"Unknown column 'ulid' in 'field list'"错误
+- **原因**: 数据库表中缺少必要字段
+- **解决**: 执行完整的重建表脚本，确保所有必要字段存在
+
+#### 问题2: 图片显示不一致
+- **问题**: 文章中的图片占位符无法正确关联到实际图片
+- **原因**: 图片ID生成逻辑不一致
+- **解决**: 修改`WeChatArticleSpider.java`，确保为图片生成唯一ID并在整个处理流程中保持一致
+
+#### 问题3: 图片查找失败
+- **问题**: 前端请求图片时返回404错误
+- **原因**: 路径格式不一致或图片文件不存在
+- **解决**: 增强`ImageController`，添加多层回退策略
+
+### 测试验证
+1. 数据库结构验证:
+   - 执行重建表脚本
+   - 验证所有必要字段和约束存在
+   - 成功运行应用，无SQL错误
+
+2. 爬取新文章测试:
+   - 爬取新文章并验证图片处理
+   - 确认图片正确下载并分类存储
+   - 检查图片占位符与实际图片ID一致
+
+3. 前端显示测试:
+   - 浏览文章列表和详情页
+   - 验证所有图片正确显示
+   - 测试各种图片请求格式
+
+### 总结与经验
+1. **数据库设计**:
+   - 数据库结构应当集中管理，避免分散在代码中的SQL定义
+   - 使用版本化的数据库迁移脚本，便于跟踪变更
+
+2. **图片处理**:
+   - 为媒体资源生成唯一ID时，需要确保在整个处理流程中保持一致
+   - 建立清晰的映射关系，关联原始URL、处理后的ID和存储路径
+
+3. **错误处理**:
+   - 实现多层回退策略，当首选方案失败时有替代方案
+   - 提供详细的日志信息，便于问题诊断
+
+### 后续优化方向
+1. 考虑实现图片缓存机制，提高图片加载速度
+2. 添加图片压缩处理，优化存储空间和加载时间
+3. 考虑使用统一的图片命名规则，简化图片查找逻辑
+4. 探索使用云存储服务存储图片，提高可靠性和访问速度

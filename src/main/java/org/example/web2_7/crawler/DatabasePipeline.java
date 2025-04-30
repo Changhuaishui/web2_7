@@ -198,6 +198,42 @@ public class DatabasePipeline implements Pipeline {
                 }
             }
 
+            // 设置图片映射信息
+            String imageInfo = resultItems.get("imageInfo");
+            if (imageInfo != null && !imageInfo.isEmpty()) {
+                article.setImageMappings(imageInfo);
+                logger.info("保存图片映射信息成功，大小：{} 字节", imageInfo.length());
+                
+                // 检查映射信息是否有效
+                try {
+                    com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                    Map<String, Object> mappings = mapper.readValue(imageInfo, Map.class);
+                    logger.info("图片映射信息有效，包含 {} 个图片映射", mappings.size());
+                    
+                    // 检查文章内容中的占位符
+                    String articleContent = article.getContent();
+                    int placeholderCount = 0;
+                    
+                    for (String imageId : mappings.keySet()) {
+                        String placeholder = "[[IMG:" + imageId + "]]";
+                        if (articleContent.contains(placeholder)) {
+                            placeholderCount++;
+                        }
+                    }
+                    
+                    logger.info("文章内容中找到 {} 个占位符", placeholderCount);
+                    
+                    if (placeholderCount == 0) {
+                        logger.warn("警告：文章内容中没有找到占位符，图片可能无法正确显示");
+                    }
+                    
+                } catch (Exception e) {
+                    logger.error("解析图片映射信息失败", e);
+                }
+            } else {
+                logger.warn("没有找到图片映射信息");
+            }
+
             // 检查文章是否已存在
             Article existingArticle = articleMapper.findByUrl(url);
             if (existingArticle != null) {
@@ -211,11 +247,21 @@ public class DatabasePipeline implements Pipeline {
                 // 获取新插入文章的ID
                 Article insertedArticle = articleMapper.findByUrl(url);
                 if (insertedArticle != null) {
-                    // 插入HTML内容
+                    // 获取HTML内容和URL映射
                     Integer articleId = insertedArticle.getId();
                     logger.info("Inserting HTML content for article ID: {}", articleId);
-                    articleMapper.insertArticleHtml(articleId, fullHtml);
-                    logger.info("Successfully inserted article and HTML content for URL: {}", url);
+                    
+                    // 检查是否有URL映射数据
+                    String urlMapping = resultItems.get("urlMapping");
+                    if (urlMapping != null && !urlMapping.isEmpty()) {
+                        // 使用包含URL映射的方法插入数据
+                        articleMapper.insertArticleHtmlWithUrlMapping(articleId, fullHtml, urlMapping);
+                        logger.info("Successfully inserted article with HTML content and URL mapping for URL: {}", url);
+                    } else {
+                        // 使用原来的方法插入数据
+                        articleMapper.insertArticleHtml(articleId, fullHtml);
+                        logger.info("Successfully inserted article and HTML content for URL: {}", url);
+                    }
                     
                     // 添加到搜索索引
                     try {
@@ -257,10 +303,14 @@ public class DatabasePipeline implements Pipeline {
                     } catch (Exception e) {
                         logger.error("Failed to update search index for article ID: {}", articleId, e);
                     }
+                } else {
+                    logger.error("Failed to retrieve inserted article by URL: {}", url);
                 }
+            } else {
+                logger.error("Failed to insert article: {}", url);
             }
         } catch (Exception e) {
-            logger.error("Error processing article", e);
+            logger.error("Error processing article in pipeline: ", e);
         }
     }
 }

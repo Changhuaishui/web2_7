@@ -24,6 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 
 import java.io.File;
 import java.util.List;
@@ -31,7 +33,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping("/api/crawler")
+@RequestMapping("/api")
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class CrawlerController {
 
@@ -46,7 +48,7 @@ public class CrawlerController {
     @Autowired
     private LuceneIndexService luceneIndexService;
 
-    @PostMapping("/crawl")    // 提交爬取任务
+    @PostMapping("/crawler/crawl")    // 提交爬取任务
     public ResponseEntity<?> crawlArticle(@RequestBody Map<String, String> request) {
         String url = request.get("url");
         if (url == null || url.isEmpty()) {
@@ -67,13 +69,13 @@ public class CrawlerController {
         }
     }
 
-    @GetMapping("/articles")    // 获取所有文章
+    @GetMapping("/crawler/articles")    // 获取所有文章
     public ResponseEntity<List<Article>> getArticles() {
         return ResponseEntity.ok(articleMapper.findAllOrderByPublishTime());
     }
 
     // 获取文章基本信息，访问MySQL的article_table表，查询id的记录
-    @GetMapping("/articles/{id}")
+    @GetMapping("/crawler/articles/{id}")
     public ResponseEntity<?> getArticleById(@PathVariable Integer id) {
         try {
             Article article = articleMapper.findById(id);
@@ -86,7 +88,7 @@ public class CrawlerController {
         }
     }
 
-    @PostMapping("/articles/detail")  // 获取文章详情的POST接口
+    @PostMapping("/crawler/articles/detail")  // 获取文章详情的POST接口
     public ResponseEntity<?> getArticleDetailByUrl(@RequestBody Map<String, String> request) {
         try {
             String url = request.get("url");
@@ -141,6 +143,40 @@ public class CrawlerController {
             result.put("images", article.getImages());
             result.put("summary", article.getSummary());
             
+            // 添加图片映射信息
+            if (article.getImageMappings() != null && !article.getImageMappings().isEmpty()) {
+                result.put("imageMappings", article.getImageMappings());
+                logger.info("添加图片映射信息到API返回, 大小: {} 字节", article.getImageMappings().length());
+                
+                // 调试 - 检查映射信息是否有效
+                try {
+                    com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                    Map<String, Object> mappings = mapper.readValue(article.getImageMappings(), Map.class);
+                    logger.info("返回的图片映射信息有效，包含 {} 个图片映射", mappings.size());
+                    
+                    // 检查文章内容中的占位符
+                    String content = article.getContent();
+                    int placeholderCount = 0;
+                    
+                    for (String imageId : mappings.keySet()) {
+                        String placeholder = "[[IMG:" + imageId + "]]";
+                        if (content.contains(placeholder)) {
+                            placeholderCount++;
+                        }
+                    }
+                    
+                    logger.info("文章内容中找到 {} 个占位符", placeholderCount);
+                    
+                    if (placeholderCount == 0) {
+                        logger.warn("警告：API返回的文章内容中没有找到占位符，图片可能无法正确显示");
+                    }
+                } catch (Exception e) {
+                    logger.error("解析图片映射信息失败", e);
+                }
+            } else {
+                logger.warn("文章没有图片映射信息，ID: {}", article.getId());
+            }
+            
             if (fullHtml != null) {
                 result.put("fullHtml", fullHtml);
             }
@@ -153,12 +189,12 @@ public class CrawlerController {
         }
     }
 
-    @GetMapping("/articles/account/{accountName}")  // 根据账号名获取文章
+    @GetMapping("/crawler/articles/account/{accountName}")  // 根据账号名获取文章
     public ResponseEntity<List<Article>> getArticlesByAccount(@PathVariable String accountName) {
         return ResponseEntity.ok(articleMapper.findByAccountName(accountName));
     }
 
-    @DeleteMapping("/articles/{url}")  // 删除文章
+    @DeleteMapping("/crawler/articles/{url}")  // 删除文章
     @Transactional
     public ResponseEntity<?> deleteArticle(@PathVariable String url) {
         try {
@@ -237,7 +273,7 @@ public class CrawlerController {
     }
 
     // 获取文章HTML内容
-    @GetMapping("/{id}/html")
+    @GetMapping("/crawler/{id}/html")
     public ResponseEntity<?> getArticleHtml(@PathVariable Integer id) {
         try {
             logger.info("接收到获取文章HTML请求, ID: {}", id);
@@ -276,7 +312,7 @@ public class CrawlerController {
      * 根据文章标题查找对应的头图并返回
      * 更新支持ULID格式的图片路径
      */
-    @GetMapping("/image/{articleId}")
+    @GetMapping("/crawler/image/{articleId}")
     public ResponseEntity<?> getArticleImage(@PathVariable Integer articleId) {
         try {
             logger.info("接收到获取文章头图请求, ID: {}", articleId);
@@ -362,12 +398,28 @@ public class CrawlerController {
     
     /**
      * 直接提供图片访问
+     * 注意：该路径已被弃用，仅保留用于向前兼容
+     * 新的图片访问请使用：/api/images/{articleUlid}/{imageUlid} 
      */
-    @GetMapping("/images/{folder}/{filename:.+}")
+    @GetMapping("/crawler/images/{folder}/{filename:.+}")
     public ResponseEntity<Resource> getImage(
             @PathVariable String folder,
             @PathVariable String filename) {
         try {
+            logger.info("接收到旧路径图片请求 (已弃用): /api/crawler/images/{}/{}", folder, filename);
+            
+            // 检查是否可能是ULID格式
+            if (folder.length() >= 20 && filename.contains(".")) {
+                // 可能是ULID格式，重定向到新API
+                String redirectUrl = "/api/images/" + folder + "/" + filename;
+                logger.info("重定向到新API路径: {}", redirectUrl);
+                
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Location", redirectUrl);
+                return new ResponseEntity<>(headers, HttpStatus.TEMPORARY_REDIRECT);
+            }
+            
+            // 继续使用旧的图片访问逻辑
             File imageFile = new File("image/" + folder, filename);
             if (!imageFile.exists()) {
                 logger.warn("未找到图片文件: {}", imageFile.getAbsolutePath());
@@ -393,7 +445,7 @@ public class CrawlerController {
                 contentType = "image/svg+xml";
             }
             
-            logger.info("提供图片访问: {}, Content-Type: {}", imageFile.getPath(), contentType);
+            logger.info("提供图片访问(旧API): {}, Content-Type: {}", imageFile.getPath(), contentType);
             
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
@@ -409,7 +461,7 @@ public class CrawlerController {
      * 处理爬虫检测到的失效链接
      * 当爬虫识别到文章链接无法访问时，调用此端点记录信息
      */
-    @GetMapping("/invalid-links")
+    @GetMapping("/crawler/invalid-links")
     public ResponseEntity<String> handleInvalidLink(@RequestParam("url") String url) {
         // 记录失效链接日志
         logger.warn("检测到失效链接: {}", url);
@@ -422,7 +474,7 @@ public class CrawlerController {
      * 检查链接状态
      * 返回链接是否可爬取的状态
      */
-    @PostMapping("/check-link")
+    @PostMapping("/crawler/check-link")
     public ResponseEntity<?> checkLinkStatus(@RequestBody Map<String, String> request) {
         String url = request.get("url");
         if (url == null || url.isEmpty()) {

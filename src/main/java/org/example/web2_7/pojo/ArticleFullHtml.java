@@ -12,5 +12,6 @@ public class ArticleFullHtml {
     private Integer id;            // 自增主键ID
     private Integer articleId;     // 关联到article_table的ID
     private String fullHtml;       // 文章完整HTML内容
+    private String urlMapping;     // 存储原始URL到本地路径的映射关系JSON
     private Date createdAt;        // 创建时间
 } 

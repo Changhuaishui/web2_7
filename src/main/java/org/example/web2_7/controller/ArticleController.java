@@ -2,6 +2,7 @@ package org.example.web2_7.controller;
 
 import org.example.web2_7.pojo.Article;
 import org.example.web2_7.Dao.ArticleMapper;
+import org.example.web2_7.service.ArticleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class ArticleController {
 
     @Autowired
     private ArticleMapper articleMapper;
+    
+    @Autowired
+    private ArticleService articleService;
 
     /**
      * 获取所有文章（按发布时间倒序）
@@ -159,6 +163,60 @@ public class ArticleController {
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             logger.error("获取所有文章图片信息失败", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * 获取文章HTML内容
+     * 返回处理后的HTML内容（图片URL已替换为本地路径）
+     */
+    @GetMapping("/{ulid}/html")
+    public ResponseEntity<Map<String, Object>> getArticleHtml(@PathVariable("ulid") String ulid) {
+        try {
+            Article article = articleMapper.findByUlid(ulid);
+            if (article == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // 获取处理后的HTML内容
+            String processedHtml = articleService.getProcessedArticleHtml(article.getId());
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("ulid", ulid);
+            result.put("title", article.getTitle());
+            result.put("html", processedHtml);
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("获取文章HTML内容失败: ULID={}", ulid, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    /**
+     * 获取原始文章HTML内容
+     * 返回未处理的原始HTML内容
+     */
+    @GetMapping("/{ulid}/raw-html")
+    public ResponseEntity<Map<String, Object>> getArticleRawHtml(@PathVariable("ulid") String ulid) {
+        try {
+            Article article = articleMapper.findByUlid(ulid);
+            if (article == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // 获取原始HTML内容
+            String rawHtml = articleService.getArticleHtml(article.getId());
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("ulid", ulid);
+            result.put("title", article.getTitle());
+            result.put("html", rawHtml);
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("获取文章原始HTML内容失败: ULID={}", ulid, e);
             return ResponseEntity.internalServerError().build();
         }
     }

@@ -34,6 +34,7 @@ public class Article {
     
     private String content;  // 文章内容
     private String images;  // 文章图片
+    private String imageMappings;  // 图片位置映射JSON信息
     private Boolean isDeleted = false;  // 是否删除，逻辑删除，标记1/0
     private String summary;  // 文章摘要
 
@@ -83,5 +84,13 @@ public class Article {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public String getImageMappings() {
+        return imageMappings;
+    }
+
+    public void setImageMappings(String imageMappings) {
+        this.imageMappings = imageMappings;
     }
 }

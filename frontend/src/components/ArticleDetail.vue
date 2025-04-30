@@ -1,10 +1,11 @@
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
+import ArticleContentProcessor from '@/utils/ArticleContentProcessor'
 
 dayjs.locale('zh-cn')
 
@@ -17,6 +18,7 @@ export default {
     const loading = ref(true)
     const articleTags = ref([])
     const generateSummaryLoading = ref(false)
+    const processedContent = ref('')
 
     // 格式化日期时间
     const formatDate = (dateStr) => {
@@ -50,6 +52,39 @@ export default {
             summary: response.data.summary || null
           }
           console.log('文章数据:', article.value);
+          
+          // 调试 - 检查图片映射信息
+          console.log('图片映射信息(imageMappings):', article.value.imageMappings);
+          
+          // 检查内容中是否有占位符格式
+          const placeholders = (article.value.content.match(/\[\[IMG:[^\]]+\]\]/g) || []);
+          console.log(`内容中包含 ${placeholders.length} 个图片占位符`);
+          
+          // 处理文章内容，合并图文
+          if (article.value.imageMappings) {
+            console.log('找到图片映射信息，开始处理图文内容');
+            try {
+              // 尝试解析映射信息
+              const mappings = JSON.parse(article.value.imageMappings);
+              console.log('解析后的映射信息:', mappings);
+              
+              // 计算占位符数量
+              const placeholderCount = (article.value.content.match(/\[\[IMG:[^\]]+\]\]/g) || []).length;
+              console.log(`文章内容中找到 ${placeholderCount} 个图片占位符`);
+              
+              processedContent.value = ArticleContentProcessor.processArticleContent(article.value);
+            } catch (error) {
+              console.error('处理图文内容时出错:', error);
+              processedContent.value = article.value.content;
+            }
+          } else if (placeholders.length > 0) {
+            // 没有映射信息但有占位符，尝试自动修复
+            console.log('没有图片映射信息，但发现占位符，尝试自动修复');
+            processedContent.value = ArticleContentProcessor.autoFixPlaceholders(article.value, placeholders);
+          } else {
+            console.log('没有图片映射信息，使用原始内容');
+            processedContent.value = article.value.content;
+          }
           
           // 加载文章头图
           await loadHeadImage();
@@ -113,7 +148,13 @@ export default {
         } else {
           // 旧格式，直接使用路径
           console.log('使用旧格式图片路径:', firstImagePath);
-          headImage.value = firstImagePath;
+          // 确保旧格式路径也使用正确的API前缀
+          if (firstImagePath && !firstImagePath.startsWith('/api/')) {
+            headImage.value = `/api/crawler/images/${firstImagePath}`;
+            console.log('使用旧格式图片路径(修正API前缀):', headImage.value);
+          } else {
+            headImage.value = firstImagePath;
+          }
         }
       } catch (error) {
         console.warn('无法加载文章头图:', error);
@@ -207,7 +248,8 @@ export default {
       loading,
       articleTags,
       generateSummary,
-      generateSummaryLoading
+      generateSummaryLoading,
+      processedContent
     }
   }
 }
@@ -269,7 +311,7 @@ export default {
         </el-button>
       </div>
       
-      <div class="article-content" v-html="article.content"></div>
+      <div class="article-content" v-html="processedContent"></div>
       
       <div class="article-footer">
         <el-button type="primary" @click="openArticle">
@@ -305,6 +347,8 @@ export default {
   width: 100%;
   height: auto;
   display: block;
+  object-fit: contain;
+  max-height: 400px;
 }
 
 .article-meta {
@@ -361,5 +405,15 @@ export default {
 .article-footer {
   margin-top: 30px;
   text-align: center;
+}
+
+/* 添加全局图片样式，确保所有图片适应容器宽度 */
+:deep(.article-content img) {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 10px auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 </style> 

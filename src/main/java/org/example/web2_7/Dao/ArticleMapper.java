@@ -23,6 +23,7 @@ import org.apache.ibatis.annotations.*;
 import org.example.web2_7.pojo.Article;
 import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Map;
 
 
 /*
@@ -37,8 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Mapper
 public interface ArticleMapper {
     // 插入文章
-    @Insert("INSERT INTO article_table (ulid, title, author, url, source_url, account_name, publish_time, content, images, is_deleted) " +
-            "VALUES (#{ulid}, #{title}, #{author}, #{url}, #{sourceUrl}, #{accountName}, #{publishTime}, #{content}, #{images}, #{isDeleted})")
+    @Insert("INSERT INTO article_table (ulid, title, author, url, source_url, account_name, publish_time, content, images, image_mappings, is_deleted) " +
+            "VALUES (#{ulid}, #{title}, #{author}, #{url}, #{sourceUrl}, #{accountName}, #{publishTime}, #{content}, #{images}, #{imageMappings}, #{isDeleted})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insertArticle(Article article);
 
@@ -60,7 +61,7 @@ public interface ArticleMapper {
 
     // 获取所有文章（按发布时间倒序，排除已删除的）
     @Select("SELECT id, ulid, title, author, url, source_url AS sourceUrl, account_name AS accountName, " +
-            "publish_time AS publishTime, content, images, is_deleted AS isDeleted, summary " +
+            "publish_time AS publishTime, content, images, image_mappings AS imageMappings, is_deleted AS isDeleted, summary " +
             "FROM article_table WHERE is_deleted = false " +
             "ORDER BY publish_time DESC")
     List<Article> findAllOrderByPublishTime();
@@ -96,17 +97,29 @@ public interface ArticleMapper {
 
     // 根据ID获取文章
     @Select("SELECT id, ulid, title, author, url, source_url AS sourceUrl, account_name AS accountName, " +
-            "publish_time AS publishTime, content, images, is_deleted AS isDeleted, summary " +
+            "publish_time AS publishTime, content, images, image_mappings AS imageMappings, is_deleted AS isDeleted, summary " +
             "FROM article_table WHERE id = #{id} AND is_deleted = false LIMIT 1")
     Article findById(Integer id);
 
     // 插入文章HTML内容
     @Insert("INSERT INTO article_full_html (article_id, full_html) VALUES (#{articleId}, #{fullHtml})")
     int insertArticleHtml(@Param("articleId") Integer articleId, @Param("fullHtml") String fullHtml);
+    
+    // 插入文章HTML内容和URL映射
+    @Insert("INSERT INTO article_full_html (article_id, full_html, url_mapping) VALUES (#{articleId}, #{fullHtml}, #{urlMapping})")
+    int insertArticleHtmlWithUrlMapping(@Param("articleId") Integer articleId, @Param("fullHtml") String fullHtml, @Param("urlMapping") String urlMapping);
 
     // 获取文章HTML内容，使用关联表article_full_html，article_id作为查询参数
     @Select("SELECT full_html FROM article_full_html WHERE article_id = #{articleId}")
     String getArticleHtml(@Param("articleId") Integer articleId);
+    
+    // 获取文章URL映射
+    @Select("SELECT url_mapping FROM article_full_html WHERE article_id = #{articleId}")
+    String getArticleUrlMapping(@Param("articleId") Integer articleId);
+    
+    // 获取文章HTML内容和URL映射
+    @Select("SELECT full_html, url_mapping FROM article_full_html WHERE article_id = #{articleId}")
+    Map<String, String> getArticleHtmlAndUrlMapping(@Param("articleId") Integer articleId);
 
     // 更新文章摘要
     @Update("UPDATE article_table SET summary = #{summary} WHERE id = #{id}")

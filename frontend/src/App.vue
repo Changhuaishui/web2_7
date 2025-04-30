@@ -294,7 +294,7 @@ export default {
     <el-container>
       <el-header>
         <div class="header-container">
-          <div class="logo">微信文章爬虫</div>
+          <div class="logo">公众号文章采集系统</div>
           <el-menu
             mode="horizontal"
             router

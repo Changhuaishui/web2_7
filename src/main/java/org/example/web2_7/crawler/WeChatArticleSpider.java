@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import org.jsoup.select.Selector;
 import org.jsoup.nodes.Attribute;
 import org.example.web2_7.utils.UlidUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class WeChatArticleSpider implements PageProcessor {
     // 设置网站信息，为了避免被网站ban，设置User-Agent和Referer等头信息
@@ -46,6 +47,8 @@ public class WeChatArticleSpider implements PageProcessor {
             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
             .addHeader("Accept-Language", "zh-CN,zh;q=0.9")
             .addHeader("Referer", "https://mp.weixin.qq.com/");
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // 运行爬虫，runSpider()方法会启动一个线程，运行爬虫。
     public static void runSpider() {
@@ -96,12 +99,98 @@ public class WeChatArticleSpider implements PageProcessor {
                 return;
             }
 
-            // 清理HTML内容
-            String fullHtml = cleanHtml(contentElem);
+            // 保存原始HTML
+            Element originalContentElem = contentElem.clone();
+            String fullHtml = cleanHtml(originalContentElem);
             if (fullHtml.isEmpty()) {
                 page.setSkip(true);
                 return;
             }
+
+            // 分析正文中的图片，为每张图片生成唯一标识符并记录位置
+            Elements imgs = contentElem.select("img[data-src], img[src]");
+            Map<String, Object> imageInfo = new HashMap<>();
+            // 存储图片URL和对应的ULID
+            Map<String, String> imageUrlToUlidMap = new HashMap<>();
+            
+            System.out.println("在内容中找到 " + imgs.size() + " 张图片需要处理");
+            
+            // 先生成所有图片的ULID，以便稍后下载
+            for (int i = 0; i < imgs.size(); i++) {
+                Element img = imgs.get(i);
+                String imgUrl = img.attr("data-src");
+                if (imgUrl.isEmpty()) {
+                    imgUrl = img.attr("src");
+                }
+                
+                if (!imgUrl.isEmpty()) {
+                    if (!imgUrl.startsWith("http")) {
+                        imgUrl = "https:" + imgUrl;
+                    }
+                    
+                    String cleanedUrl = cleanWeChatUrl(imgUrl);
+                    String imageId = UlidUtils.generate();
+                    System.out.println("为图片 #" + i + " 生成ID: " + imageId);
+                    
+                    // 记录图片位置、原始URL和ID映射
+                    Map<String, Object> imgData = new HashMap<>();
+                    imgData.put("index", i);
+                    imgData.put("id", imageId);
+                    imgData.put("originalUrl", cleanedUrl);
+                    
+                    // 添加到映射信息
+                    imageInfo.put(imageId, imgData);
+                    
+                    // 记录URL到ULID的映射，以便下载时使用
+                    imageUrlToUlidMap.put(cleanedUrl, imageId);
+                }
+            }
+            
+            // 替换内容中的图片为占位符
+            for (int i = 0; i < imgs.size(); i++) {
+                Element img = imgs.get(i);
+                String imgUrl = img.attr("data-src");
+                if (imgUrl.isEmpty()) {
+                    imgUrl = img.attr("src");
+                }
+                
+                if (!imgUrl.isEmpty()) {
+                    if (!imgUrl.startsWith("http")) {
+                        imgUrl = "https:" + imgUrl;
+                    }
+                    
+                    String cleanedUrl = cleanWeChatUrl(imgUrl);
+                    String imageId = imageUrlToUlidMap.get(cleanedUrl);
+                    if (imageId != null) {
+                        // 创建图片在HTML中的标记
+                        String placeholder = "[[IMG:" + imageId + "]]";
+                        System.out.println("图片 #" + i + " 占位符: " + placeholder);
+                        
+                        // 替换HTML中的图片为占位符
+                        img.after(placeholder);
+                        img.remove();
+                        
+                        System.out.println("图片 #" + i + " 替换完成");
+                    }
+                }
+            }
+            
+            // 保存处理后的文本内容
+            String processedContent = contentElem.html();
+            
+            // 调试 - 检查处理后的内容是否包含占位符
+            int placeholderCount = 0;
+            for (String imageId : imageInfo.keySet()) {
+                String placeholder = "[[IMG:" + imageId + "]]";
+                if (processedContent.contains(placeholder)) {
+                    placeholderCount++;
+                }
+            }
+            System.out.println("处理后的内容中找到 " + placeholderCount + " 个占位符");
+            
+            // 保存图片映射信息
+            String imageInfoJson = objectMapper.writeValueAsString(imageInfo);
+            System.out.println("图片映射信息JSON大小: " + imageInfoJson.length() + " 字节");
 
             // 提取标题
             String title = doc.select("meta[property=og:title]").attr("content");
@@ -134,7 +223,6 @@ public class WeChatArticleSpider implements PageProcessor {
 
             // 提取图片
             List<String> imageUrls = new ArrayList<>();
-            Elements imgs = contentElem.select("img[data-src], img[src]");
             for (Element img : imgs) {
                 String imgUrl = img.attr("data-src");
                 if (imgUrl.isEmpty()) {
@@ -160,6 +248,9 @@ public class WeChatArticleSpider implements PageProcessor {
             // 存储图片ULID映射
             Map<String, String> imageUlidMap = new HashMap<>();
             
+            // 新增：存储原始URL到本地路径的映射
+            Map<String, String> originalUrlToLocalPathMap = new HashMap<>();
+            
             // 存储结果
             page.putField("url", url);
             page.putField("sourceUrl", originalUrl);
@@ -167,11 +258,12 @@ public class WeChatArticleSpider implements PageProcessor {
             page.putField("author", author);
             page.putField("accountName", accountName);
             page.putField("publishTime", publishTime);
-            page.putField("content", content);
+            page.putField("content", processedContent);  // 使用处理后的内容
             page.putField("imageUrls", imageUrls);
             page.putField("headImageUrl", headImageUrl);
             page.putField("fullHtml", fullHtml);
             page.putField("ulid", articleUlid);  // 添加文章ULID
+            page.putField("imageInfo", imageInfoJson);  // 添加图片映射信息
 
             // 创建以ULID命名的文件夹并下载图片
             if (!imageUrls.isEmpty() || headImageUrl != null) {
@@ -197,6 +289,10 @@ public class WeChatArticleSpider implements PageProcessor {
                         imageUlidMap.put("head", headImageUlid);
                         imageUlidMap.put("head_ext", headImageExtension);
                         
+                        // 新增：记录头图URL到本地路径的映射
+                        String headImageLocalPath = "/image/" + articleUlid + "/" + headImageFileName;
+                        originalUrlToLocalPathMap.put(headImageUrl, headImageLocalPath);
+                        
                         System.out.println("正在下载文章头图: " + headImageUrl);
                         downloadImage(headImageUrl, new File(articleFolder, headImageFileName));
                         System.out.println("文章头图下载完成: " + headImageFileName);
@@ -206,21 +302,34 @@ public class WeChatArticleSpider implements PageProcessor {
                     }
                 }
 
-                // 下载文章内容中的图片，使用ULID命名
+                // 下载文章内容中的图片，使用与占位符一致的ULID
                 List<String> imageUlids = new ArrayList<>();
                 for (int i = 0; i < imageUrls.size(); i++) {
                     try {
                         String imageUrl = imageUrls.get(i);
-                        String imageUlid = UlidUtils.generate();
+                        // 使用之前生成的ULID，确保与占位符一致
+                        String imageId = imageUrlToUlidMap.get(imageUrl);
+                        if (imageId == null) {
+                            // 如果没有找到映射，说明这张图片不在内容中，生成新的ULID
+                            imageId = UlidUtils.generate();
+                            System.out.println("图片URL " + imageUrl + " 未在内容中找到，生成新ID: " + imageId);
+                        } else {
+                            System.out.println("使用内容占位符中的图片ID: " + imageId + " 下载图片: " + imageUrl);
+                        }
+                        
                         // 从URL或Content-Type确定图片扩展名
                         String imageExtension = getImageExtension(imageUrl);
-                        String imageFileName = imageUlid + imageExtension;
-                        imageUlids.add(imageUlid);
-                        imageUlidMap.put(String.valueOf(i), imageUlid);
+                        String imageFileName = imageId + imageExtension;
+                        imageUlids.add(imageId);
+                        imageUlidMap.put(String.valueOf(i), imageId);
                         imageUlidMap.put(String.valueOf(i) + "_ext", imageExtension);
                         
-                        downloadImage(imageUrl, 
-                            new File(articleFolder, imageFileName));
+                        // 新增：记录图片URL到本地路径的映射
+                        String imageLocalPath = "/image/" + articleUlid + "/" + imageFileName;
+                        originalUrlToLocalPathMap.put(imageUrl, imageLocalPath);
+                        
+                        downloadImage(imageUrl, new File(articleFolder, imageFileName));
+                        System.out.println("图片 " + imageUrl + " 下载完成，保存为: " + imageFileName);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -229,6 +338,10 @@ public class WeChatArticleSpider implements PageProcessor {
                 // 将图片ULID列表添加到Page对象
                 page.putField("imageUlids", imageUlids);
                 page.putField("imageUlidMap", imageUlidMap);
+                
+                // 新增：将URL映射关系添加到Page对象
+                String urlMappingJson = objectMapper.writeValueAsString(originalUrlToLocalPathMap);
+                page.putField("urlMapping", urlMappingJson);
             }
         } catch (Exception e) {
             page.setSkip(true);

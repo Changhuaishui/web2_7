@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 /**
  * 图片控制器
@@ -61,38 +62,115 @@ public class ImageController {
             if (imageUlid.contains(".")) {
                 // 如果路径中包含扩展名，保留原扩展名
                 extension = imageUlid.substring(imageUlid.lastIndexOf('.'));
-            } else {
-                // 如果没有扩展名，尝试从article.images中查找
-                String images = article.getImages();
-                if (images != null && !images.isEmpty()) {
-                    String[] imagePaths = images.split(",");
-                    for (String path : imagePaths) {
-                        if (path.contains(imageUlid)) {
-                            // 找到匹配的图片路径
-                            int extIndex = path.lastIndexOf('.');
-                            if (extIndex > 0) {
-                                extension = path.substring(extIndex);
-                                break;
+                // 移除扩展名，以获取纯粹的imageUlid
+                imageUlid = imageUlid.substring(0, imageUlid.lastIndexOf('.'));
+            }
+            
+            // 构建图片路径
+            Path imageFolderPath = Paths.get(IMAGE_ROOT_DIR, articleUlid);
+            File imageFolder = imageFolderPath.toFile();
+            
+            // 首先尝试精确查找指定的图片
+            File exactImageFile = Paths.get(IMAGE_ROOT_DIR, articleUlid, imageUlid + extension).toFile();
+            
+            // 如果精确匹配的图片不存在，则尝试查找类似名称的图片
+            if (!exactImageFile.exists() && imageFolder.exists() && imageFolder.isDirectory()) {
+                logger.warn("指定的图片文件不存在: {}，尝试查找类似名称的图片", exactImageFile.getPath());
+                
+                // 如果imageUlid是数字ID，可能是文章内容中的占位符ID
+                final String imageId = imageUlid; // 创建final副本用于lambda
+                boolean isNumericId = imageId.matches("\\d+");
+                if (isNumericId) {
+                    logger.info("检测到数字图片ID: {}，尝试在文章目录中查找对应的图片文件", imageId);
+                    
+                    // 尝试查找包含该数字ID的文件
+                    File[] matchingFiles = imageFolder.listFiles((dir, name) -> 
+                        (name.contains(imageId) || name.startsWith(imageId)) && 
+                        (name.toLowerCase().endsWith(".jpg") || 
+                         name.toLowerCase().endsWith(".jpeg") || 
+                         name.toLowerCase().endsWith(".png") || 
+                         name.toLowerCase().endsWith(".gif") || 
+                         name.toLowerCase().endsWith(".webp")));
+                    
+                    if (matchingFiles != null && matchingFiles.length > 0) {
+                        exactImageFile = matchingFiles[0];
+                        logger.info("找到匹配数字ID的图片: {}", exactImageFile.getName());
+                    } else {
+                        logger.warn("未找到匹配数字ID {}的图片文件", imageId);
+                    }
+                }
+                
+                // 如果仍未找到匹配的图片，尝试按索引查找图片
+                if (!exactImageFile.exists()) {
+                    logger.info("尝试按索引查找图片，目录: {}", imageFolder.getPath());
+                    
+                    File[] allImages = imageFolder.listFiles((dir, name) -> 
+                        name.toLowerCase().endsWith(".jpg") || 
+                        name.toLowerCase().endsWith(".jpeg") || 
+                        name.toLowerCase().endsWith(".png") || 
+                        name.toLowerCase().endsWith(".gif") || 
+                        name.toLowerCase().endsWith(".webp"));
+                    
+                    if (allImages != null && allImages.length > 0) {
+                        // 对文件按名称排序
+                        Arrays.sort(allImages);
+                        
+                        // 尝试将imageUlid解析为索引
+                        try {
+                            int index = Integer.parseInt(imageUlid);
+                            // 确保索引在有效范围内
+                            if (index >= 0 && index < allImages.length) {
+                                exactImageFile = allImages[index];
+                                logger.info("按索引{}找到图片: {}", index, exactImageFile.getName());
+                            } else if (allImages.length > 0) {
+                                // 如果索引超出范围，使用第一张图片
+                                exactImageFile = allImages[0];
+                                logger.info("索引{}超出范围(0-{})，使用第一张图片: {}", 
+                                           index, allImages.length-1, exactImageFile.getName());
+                            }
+                        } catch (NumberFormatException e) {
+                            // 如果imageUlid不是有效的数字，使用第一张图片
+                            if (allImages.length > 0) {
+                                exactImageFile = allImages[0];
+                                logger.info("无法解析图片ID为索引，使用第一张图片: {}", exactImageFile.getName());
                             }
                         }
                     }
                 }
-                // 添加默认扩展名
-                imageUlid = imageUlid + extension;
+                
+                // 如果仍未找到特定图片，则使用目录中的任何图片
+                if (!exactImageFile.exists()) {
+                    logger.warn("未找到特定图片，尝试使用目录中的任意图片");
+                    
+                    File[] availableImages = imageFolder.listFiles((dir, name) -> 
+                        name.toLowerCase().endsWith(".jpg") || 
+                        name.toLowerCase().endsWith(".jpeg") || 
+                        name.toLowerCase().endsWith(".png") || 
+                        name.toLowerCase().endsWith(".gif") || 
+                        name.toLowerCase().endsWith(".webp"));
+                    
+                    if (availableImages != null && availableImages.length > 0) {
+                        // 使用目录中的第一张图片作为替代
+                        exactImageFile = availableImages[0];
+                        logger.info("找到替代图片: {}", exactImageFile.getName());
+                        
+                        // 更新扩展名以匹配实际文件
+                        String fileName = exactImageFile.getName();
+                        if (fileName.contains(".")) {
+                            extension = fileName.substring(fileName.lastIndexOf('.'));
+                        }
+                    }
+                }
             }
-
-            // 构建图片路径
-            Path imagePath = Paths.get(IMAGE_ROOT_DIR, articleUlid, imageUlid);
-            File file = imagePath.toFile();
-
+            
             // 验证图片是否存在
-            if (!file.exists() || !file.isFile()) {
-                logger.warn("图片文件不存在: {}", imagePath);
+            if (!exactImageFile.exists() || !exactImageFile.isFile()) {
+                logger.warn("图片文件不存在且无法找到替代图片: {}", exactImageFile.getPath());
                 return ResponseEntity.notFound().build();
             }
 
             // 返回图片资源
-            Resource resource = new FileSystemResource(file);
+            Resource resource = new FileSystemResource(exactImageFile);
             HttpHeaders headers = new HttpHeaders();
             
             // 根据文件扩展名设置正确的Content-Type
@@ -110,7 +188,7 @@ public class ImageController {
             
             headers.setContentType(mediaType);
 
-            logger.info("图片获取成功: {}, Content-Type: {}", imagePath, mediaType);
+            logger.info("图片获取成功: {}, Content-Type: {}", exactImageFile.getPath(), mediaType);
             return new ResponseEntity<>(resource, headers, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("获取图片时发生错误", e);

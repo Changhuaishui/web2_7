@@ -161,7 +161,13 @@ export default {
             } else {
               // 旧格式，使用兼容API
               console.log(`文章${articleId}使用旧API路径获取头图: ${firstImagePath}`);
-              articleImages.value[articleId] = firstImagePath;
+              // 确保旧格式路径也使用正确的API前缀
+              if (firstImagePath && !firstImagePath.startsWith('/api/')) {
+                articleImages.value[articleId] = `/api/crawler/images/${firstImagePath}`;
+                console.log(`文章${articleId}使用旧格式图片路径(修正API前缀):`, articleImages.value[articleId]);
+              } else {
+                articleImages.value[articleId] = firstImagePath;
+              }
             }
           }
         } else {
@@ -328,11 +334,6 @@ export default {
       }
     }
 
-    // 添加查看HTML方法
-    const viewHtml = (id) => {
-      router.push(`/html/${id}`)
-    }
-
     // 重建搜索索引
     const rebuildSearchIndex = async () => {
       try {
@@ -374,7 +375,6 @@ export default {
       deleteArticle,
       formatDate,
       openArticle,
-      viewHtml,
       filterByTag,
       rebuildSearchIndex
     }
@@ -481,13 +481,6 @@ export default {
                   @click="openArticle(article)"
                 >
                   阅读原文
-                </el-button>
-                <el-button
-                  type="warning"
-                  size="small"
-                  @click="viewHtml(article.id)"
-                >
-                  显示原HTML
                 </el-button>
                 <el-button
                   size="small"

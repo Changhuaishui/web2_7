@@ -11,12 +11,6 @@ const routes = [
     name: 'ArticleDetail',
     component: () => import('@/components/ArticleDetail.vue'),
     props: true
-  },
-  {
-    path: '/html/:id',
-    name: 'ArticleHtml',
-    component: () => import('@/views/ArticleHtml.vue'),
-    props: true
   }
 ]
 
