@@ -31,7 +31,7 @@ public class ArticleSearchService {
     public ArticleSearchService(LuceneIndexManager indexManager, ArticleMapper articleMapper) {
         this.indexManager = indexManager;
         this.articleMapper = articleMapper;
-        this.analyzer = new IKAnalyzer(true);
+        this.analyzer = new IKAnalyzer(false);
     }
 
     @PostConstruct
@@ -58,17 +58,20 @@ public class ArticleSearchService {
         }
 
         try {
-            // 定义搜索字段
-            String[] fields = {"title", "content", "author", "accountName"};
+            // 定义搜索字段及其权重
+            String[] fields = {"title^2.0", "content", "author", "accountName", "fullText^1.5"};
             
             // 创建多字段查询解析器
             MultiFieldQueryParser parser = new MultiFieldQueryParser(fields, analyzer);
             
-            // 设置查询解析器的默认操作为OR
+            // 设置查询解析器的默认操作为OR，提高召回率
             parser.setDefaultOperator(QueryParser.Operator.OR);
             
+            // 处理特殊字符而不是直接转义
+            keyword = preprocessKeyword(keyword);
+            
             // 解析查询
-            Query query = parser.parse(QueryParser.escape(keyword));
+            Query query = parser.parse(keyword);
             
             // 执行搜索
             IndexReader reader = null;
@@ -154,5 +157,38 @@ public class ArticleSearchService {
                 reader.close();
             }
         }
+    }
+
+    /**
+     * 预处理关键词，增强中文搜索的准确性
+     * 1. 处理搜索关键词中的特殊字符
+     * 2. 处理常见中文标点符号
+     * 3. 保留空格以支持词组搜索
+     */
+    private String preprocessKeyword(String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            return "";
+        }
+        
+        // 替换Lucene查询语法中的特殊字符
+        String[] specialChars = {"+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~", "*", "?", ":", "\\", "/"};
+        String result = keyword;
+        
+        for (String specialChar : specialChars) {
+            result = result.replace(specialChar, " ");
+        }
+        
+        // 替换中文标点符号为空格
+        result = result.replaceAll("[，。；：！？【】（）]", " ");
+        
+        // 去除多余空格
+        result = result.trim().replaceAll("\\s+", " ");
+        
+        // 如果处理后为空，返回原关键词的第一个字符
+        if (result.isEmpty() && !keyword.isEmpty()) {
+            result = String.valueOf(keyword.charAt(0));
+        }
+        
+        return result;
     }
 } 

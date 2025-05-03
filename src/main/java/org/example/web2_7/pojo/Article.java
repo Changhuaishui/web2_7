@@ -37,6 +37,7 @@ public class Article {
     private String imageMappings;  // 图片位置映射JSON信息
     private Boolean isDeleted = false;  // 是否删除，逻辑删除，标记1/0
     private String summary;  // 文章摘要
+    private String keywords;  // 文章关键词，逗号分隔
 
     public String getUlid() {
         return ulid;
@@ -92,5 +93,13 @@ public class Article {
 
     public void setImageMappings(String imageMappings) {
         this.imageMappings = imageMappings;
+    }
+    
+    public String getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(String keywords) {
+        this.keywords = keywords;
     }
 }

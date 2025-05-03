@@ -143,6 +143,14 @@ public class CrawlerController {
             result.put("images", article.getImages());
             result.put("summary", article.getSummary());
             
+            // 添加关键词字段到返回结果
+            if (article.getKeywords() != null && !article.getKeywords().isEmpty()) {
+                result.put("keywords", article.getKeywords());
+                logger.info("文章ID: {}的关键词: {}", article.getId(), article.getKeywords());
+            } else {
+                logger.warn("文章ID: {}没有关键词", article.getId());
+            }
+            
             // 添加图片映射信息
             if (article.getImageMappings() != null && !article.getImageMappings().isEmpty()) {
                 result.put("imageMappings", article.getImageMappings());

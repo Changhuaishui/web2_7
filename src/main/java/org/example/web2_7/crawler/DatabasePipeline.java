@@ -16,6 +16,7 @@ import org.example.web2_7.pojo.Article;
 import org.example.web2_7.service.ArticleSearchService;
 import org.example.web2_7.service.DeepSeekService;
 import org.example.web2_7.service.LuceneIndexService;
+import org.example.web2_7.service.RelatedArticleService;
 import org.example.web2_7.utils.UlidUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -48,6 +50,9 @@ public class DatabasePipeline implements Pipeline {
     
     @Autowired  // DeepSeek服务
     private DeepSeekService deepSeekService;
+
+    @Autowired  // 相关文章服务
+    private RelatedArticleService relatedArticleService;
 
     // 日期时间格式正则表达式
     private static final Pattern DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}.*");
@@ -237,7 +242,96 @@ public class DatabasePipeline implements Pipeline {
             // 检查文章是否已存在
             Article existingArticle = articleMapper.findByUrl(url);
             if (existingArticle != null) {
-                logger.info("Article already exists: {}", url);
+                logger.info("文章已存在，URL: {}，更新内容而不是插入", url);
+                
+                // 更新现有文章信息
+                existingArticle.setTitle(title);
+                existingArticle.setContent(content);
+                existingArticle.setAuthor(article.getAuthor());
+                existingArticle.setAccountName(article.getAccountName());
+                
+                if (sourceUrl != null && !sourceUrl.isEmpty() && !sourceUrl.equals("javascript:;")) {
+                    existingArticle.setSourceUrl(sourceUrl);
+                }
+                
+                if (article.getPublishTime() != null) {
+                    existingArticle.setPublishTime(article.getPublishTime());
+                }
+                
+                if (article.getImages() != null && !article.getImages().isEmpty()) {
+                    existingArticle.setImages(article.getImages());
+                }
+                
+                if (article.getImageMappings() != null && !article.getImageMappings().isEmpty()) {
+                    existingArticle.setImageMappings(article.getImageMappings());
+                }
+                
+                // 添加更新文章的方法调用
+                try {
+                    // 更新文章基本信息
+                    articleMapper.updateArticle(existingArticle);
+                    logger.info("更新了文章基本信息, 文章ID: {}", existingArticle.getId());
+                    
+                    // 更新文章内容
+                    String articleHtml = articleMapper.getArticleHtml(existingArticle.getId());
+                    if (articleHtml == null) {
+                        // 如果文章HTML记录不存在，则插入
+                        articleMapper.insertArticleHtml(existingArticle.getId(), fullHtml);
+                        logger.info("插入了新的文章HTML内容, 文章ID: {}", existingArticle.getId());
+                    } else if (!articleHtml.equals(fullHtml)) {
+                        // 如果HTML内容已变更，则更新
+                        articleMapper.updateArticleHtml(existingArticle.getId(), fullHtml);
+                        logger.info("更新了文章HTML内容, 文章ID: {}", existingArticle.getId());
+                    }
+                    
+                    // 检查是否有URL映射数据并更新
+                    String urlMapping = resultItems.get("urlMapping");
+                    if (urlMapping != null && !urlMapping.isEmpty()) {
+                        String existingMapping = articleMapper.getArticleUrlMapping(existingArticle.getId());
+                        if (existingMapping == null) {
+                            if (articleHtml == null) {
+                                // 如果没有HTML记录，则插入HTML和URL映射
+                                articleMapper.insertArticleHtmlWithUrlMapping(existingArticle.getId(), fullHtml, urlMapping);
+                                logger.info("插入了新的文章HTML内容和URL映射, 文章ID: {}", existingArticle.getId());
+                            } else {
+                                // 如果有HTML记录但没有URL映射，则添加URL映射
+                                articleMapper.updateArticleUrlMapping(existingArticle.getId(), urlMapping);
+                                logger.info("添加了文章URL映射, 文章ID: {}", existingArticle.getId());
+                            }
+                        } else if (!existingMapping.equals(urlMapping)) {
+                            // 如果URL映射已变更，则更新
+                            articleMapper.updateArticleUrlMapping(existingArticle.getId(), urlMapping);
+                            logger.info("更新了文章URL映射, 文章ID: {}", existingArticle.getId());
+                        }
+                    }
+                    
+                    // 考虑更新或重新生成摘要和关键词
+                    if (existingArticle.getSummary() == null || existingArticle.getSummary().isEmpty() ||
+                        existingArticle.getKeywords() == null || existingArticle.getKeywords().isEmpty()) {
+                        try {
+                            // 获取文章内容
+                            String articleContent = existingArticle.getContent();
+                            if (articleContent != null && !articleContent.trim().isEmpty()) {
+                                // 调用DeepSeek API同时生成摘要和关键词
+                                String[] results = deepSeekService.generateSummaryAndKeywords(articleContent);
+                                String summary = results[0];
+                                String keywords = results[1];
+                                
+                                logger.info("已为现有文章重新生成摘要和关键词, 文章ID: {}", existingArticle.getId());
+                                
+                                // 将摘要和关键词保存到数据库
+                                articleMapper.updateArticleSummaryAndKeywords(existingArticle.getId(), summary, keywords);
+                                logger.info("已更新文章摘要和关键词, 文章ID: {}", existingArticle.getId());
+                            }
+                        } catch (Exception e) {
+                            logger.error("为现有文章生成摘要和关键词失败, 文章ID: {}", existingArticle.getId(), e);
+                        }
+                    }
+                    
+                    logger.info("文章更新成功，URL: {}, ID: {}", url, existingArticle.getId());
+                } catch (Exception e) {
+                    logger.error("更新现有文章失败, URL: {}, ID: {}", url, existingArticle.getId(), e);
+                }
                 return;
             }
 
@@ -277,28 +371,42 @@ public class DatabasePipeline implements Pipeline {
                         );
                         logger.info("Updated LuceneIndexService index for article ID: {}", articleId);
                         
-                        // 调用DeepSeek生成文章摘要
+                        // 调用DeepSeek同时生成文章摘要和关键词
                         try {
                             // 获取文章内容
                             String articleContent = insertedArticle.getContent();
                             if (articleContent != null && !articleContent.trim().isEmpty()) {
-                                // 调用DeepSeek API生成摘要
-                                String summary = deepSeekService.summarizeText(articleContent);
-                                logger.info("文章摘要已生成: {}", summary);
+                                // 调用DeepSeek API同时生成摘要和关键词
+                                String[] results = deepSeekService.generateSummaryAndKeywords(articleContent);
+                                String summary = results[0];
+                                String keywords = results[1];
                                 
-                                // 将摘要输出到控制台
+                                logger.info("文章摘要已生成: {}", summary);
+                                logger.info("文章关键词已生成: {}", keywords);
+                                
+                                // 将摘要和关键词输出到控制台
                                 System.out.println("=== 文章摘要 ===");
                                 System.out.println(summary);
+                                System.out.println("=== 文章关键词 ===");
+                                System.out.println(keywords);
                                 System.out.println("===============");
                                 
-                                // 将摘要保存到数据库
-                                articleMapper.updateArticleSummary(articleId, summary);
-                                logger.info("文章摘要已保存到数据库, 文章ID: {}", articleId);
+                                // 将摘要和关键词保存到数据库
+                                articleMapper.updateArticleSummaryAndKeywords(articleId, summary, keywords);
+                                logger.info("文章摘要和关键词已保存到数据库, 文章ID: {}", articleId);
+                                
+                                // 尝试爬取相关文章
+                                try {
+                                    int relatedCount = relatedArticleService.crawlAndSaveRelatedArticles(articleId, keywords);
+                                    logger.info("已为文章ID: {}爬取并保存{}篇相关文章", articleId, relatedCount);
+                                } catch (Exception e) {
+                                    logger.error("爬取相关文章时出错，文章ID: {}", articleId, e);
+                                }
                             } else {
-                                logger.warn("文章内容为空，无法生成摘要，文章ID: {}", articleId);
+                                logger.warn("文章内容为空，无法生成摘要和关键词，文章ID: {}", articleId);
                             }
                         } catch (Exception e) {
-                            logger.error("生成文章摘要失败，文章ID: {}", articleId, e);
+                            logger.error("生成文章摘要和关键词失败，文章ID: {}", articleId, e);
                         }
                     } catch (Exception e) {
                         logger.error("Failed to update search index for article ID: {}", articleId, e);
