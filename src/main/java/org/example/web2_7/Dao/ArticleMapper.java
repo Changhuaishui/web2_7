@@ -97,7 +97,7 @@ public interface ArticleMapper {
 
     // 根据ID获取文章
     @Select("SELECT id, ulid, title, author, url, source_url AS sourceUrl, account_name AS accountName, " +
-            "publish_time AS publishTime, content, images, image_mappings AS imageMappings, is_deleted AS isDeleted, summary " +
+            "publish_time AS publishTime, content, images, image_mappings AS imageMappings, is_deleted AS isDeleted, summary, keywords " +
             "FROM article_table WHERE id = #{id} AND is_deleted = false LIMIT 1")
     Article findById(Integer id);
 
@@ -124,4 +124,30 @@ public interface ArticleMapper {
     // 更新文章摘要
     @Update("UPDATE article_table SET summary = #{summary} WHERE id = #{id}")
     int updateArticleSummary(@Param("id") Integer id, @Param("summary") String summary);
+    
+    // 更新文章关键词
+    @Update("UPDATE article_table SET keywords = #{keywords} WHERE id = #{id}")
+    int updateArticleKeywords(@Param("id") Integer id, @Param("keywords") String keywords);
+    
+    // 同时更新文章摘要和关键词
+    @Update("UPDATE article_table SET summary = #{summary}, keywords = #{keywords} WHERE id = #{id}")
+    int updateArticleSummaryAndKeywords(@Param("id") Integer id, @Param("summary") String summary, @Param("keywords") String keywords);
+    
+    // 更新文章基本信息
+    @Update("UPDATE article_table SET title = #{title}, author = #{author}, source_url = #{sourceUrl}, " +
+            "account_name = #{accountName}, publish_time = #{publishTime}, content = #{content}, " +
+            "images = #{images}, image_mappings = #{imageMappings} WHERE id = #{id}")
+    int updateArticle(Article article);
+    
+    // 更新文章HTML的URL映射
+    @Update("UPDATE article_full_html SET url_mapping = #{urlMapping} WHERE article_id = #{articleId}")
+    int updateArticleUrlMapping(@Param("articleId") Integer articleId, @Param("urlMapping") String urlMapping);
+    
+    // 更新文章HTML内容和URL映射
+    @Update("UPDATE article_full_html SET full_html = #{fullHtml}, url_mapping = #{urlMapping} WHERE article_id = #{articleId}")
+    int updateArticleHtmlAndUrlMapping(@Param("articleId") Integer articleId, @Param("fullHtml") String fullHtml, @Param("urlMapping") String urlMapping);
+    
+    // 更新文章HTML内容
+    @Update("UPDATE article_full_html SET full_html = #{fullHtml} WHERE article_id = #{articleId}")
+    int updateArticleHtml(@Param("articleId") Integer articleId, @Param("fullHtml") String fullHtml);
 }
