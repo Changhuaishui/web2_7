@@ -34,7 +34,7 @@ public class LuceneIndexManager {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public LuceneIndexManager() throws IOException {
-        this.analyzer = new IKAnalyzer(true);  // 使用IK分词器，开启智能分词
+        this.analyzer = new IKAnalyzer(false);  // 使用IK分词器，设置为细粒度分词模式，提高召回率
         Path indexPath = Paths.get(INDEX_DIR);  
         this.directory = FSDirectory.open(indexPath);
     }
@@ -56,11 +56,18 @@ public class LuceneIndexManager {
         
         // 添加字段，设置是否存储和分词
         doc.add(new StringField("id", String.valueOf(article.getId()), Field.Store.YES));
+        
+        // 使用TextField存储并索引标题和内容，保留原字段名称以便于查询
         doc.add(new TextField("title", article.getTitle(), Field.Store.YES));
         doc.add(new TextField("content", article.getContent(), Field.Store.YES));
-        doc.add(new StringField("author", article.getAuthor(), Field.Store.YES));
-        doc.add(new StringField("accountName", article.getAccountName(), Field.Store.YES));
-        doc.add(new StringField("url", article.getUrl(), Field.Store.YES));
+        
+        // 为支持中文搜索，添加额外的全文字段，合并标题和内容以增强相关性
+        String fullText = article.getTitle() + " " + article.getContent();
+        doc.add(new TextField("fullText", fullText, Field.Store.NO));
+        
+        doc.add(new StringField("author", article.getAuthor() != null ? article.getAuthor() : "", Field.Store.YES));
+        doc.add(new StringField("accountName", article.getAccountName() != null ? article.getAccountName() : "", Field.Store.YES));
+        doc.add(new StringField("url", article.getUrl() != null ? article.getUrl() : "", Field.Store.YES));
         doc.add(new StringField("sourceUrl", article.getSourceUrl() != null ? article.getSourceUrl() : "", Field.Store.YES));
         
         // 处理发布时间，添加用于排序的SortedDocValuesField

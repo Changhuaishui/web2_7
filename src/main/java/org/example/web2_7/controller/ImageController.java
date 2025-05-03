@@ -73,7 +73,27 @@ public class ImageController {
             // 首先尝试精确查找指定的图片
             File exactImageFile = Paths.get(IMAGE_ROOT_DIR, articleUlid, imageUlid + extension).toFile();
             
-            // 如果精确匹配的图片不存在，则尝试查找类似名称的图片
+            // 如果精确匹配的图片不存在，尝试查找不同扩展名的同一图片
+            if (!exactImageFile.exists()) {
+                logger.warn("指定的图片文件不存在: {}，尝试查找不同扩展名的同一图片", exactImageFile.getPath());
+                
+                // 尝试常见的图片扩展名
+                for (String ext : new String[]{"jpg", "jpeg", "png", "gif", "webp", "bmp"}) {
+                    if (extension.substring(1).equalsIgnoreCase(ext)) {
+                        continue; // 跳过已尝试的扩展名
+                    }
+                    
+                    File altExtFile = Paths.get(IMAGE_ROOT_DIR, articleUlid, imageUlid + "." + ext).toFile();
+                    if (altExtFile.exists()) {
+                        exactImageFile = altExtFile;
+                        extension = "." + ext;
+                        logger.info("找到不同扩展名的同一图片: {}", exactImageFile.getName());
+                        break;
+                    }
+                }
+            }
+            
+            // 如果仍未找到匹配的图片，则尝试查找类似名称的图片
             if (!exactImageFile.exists() && imageFolder.exists() && imageFolder.isDirectory()) {
                 logger.warn("指定的图片文件不存在: {}，尝试查找类似名称的图片", exactImageFile.getPath());
                 
