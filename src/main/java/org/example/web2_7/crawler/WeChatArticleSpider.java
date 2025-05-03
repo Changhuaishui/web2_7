@@ -143,6 +143,11 @@ public class WeChatArticleSpider implements PageProcessor {
                     
                     // 记录URL到ULID的映射，以便下载时使用
                     imageUrlToUlidMap.put(cleanedUrl, imageId);
+                    
+                    // 从URL预先获取扩展名并记录，确保一致性
+                    String predictedExtension = getImageExtension(cleanedUrl);
+                    imageInfo.put(imageId + "_ext", predictedExtension);
+                    System.out.println("预测图片 #" + i + " 扩展名: " + predictedExtension);
                 }
             }
             
@@ -283,9 +288,26 @@ public class WeChatArticleSpider implements PageProcessor {
                 if (headImageUrl != null && !headImageUrl.isEmpty()) {
                     try {
                         String headImageUlid = UlidUtils.generate();
-                        // 从URL或Content-Type确定图片扩展名
+                        System.out.println("为头图生成ULID: " + headImageUlid);
+                        
+                        // 记录头图URL到ULID的映射
+                        imageUrlToUlidMap.put(headImageUrl, headImageUlid);
+                        
+                        // 获取头图扩展名
                         String headImageExtension = getImageExtension(headImageUrl);
                         String headImageFileName = headImageUlid + headImageExtension;
+                        
+                        // 记录头图映射信息
+                        Map<String, Object> headImgData = new HashMap<>();
+                        headImgData.put("index", "head");
+                        headImgData.put("id", headImageUlid);
+                        headImgData.put("originalUrl", headImageUrl);
+                        headImgData.put("extension", headImageExtension);
+                        imageInfo.put(headImageUlid, headImgData);
+                        
+                        // 记录头图扩展名，确保内外一致
+                        imageInfo.put(headImageUlid + "_ext", headImageExtension);
+                        
                         imageUlidMap.put("head", headImageUlid);
                         imageUlidMap.put("head_ext", headImageExtension);
                         
@@ -317,8 +339,18 @@ public class WeChatArticleSpider implements PageProcessor {
                             System.out.println("使用内容占位符中的图片ID: " + imageId + " 下载图片: " + imageUrl);
                         }
                         
-                        // 从URL或Content-Type确定图片扩展名
-                        String imageExtension = getImageExtension(imageUrl);
+                        // 优先使用之前预测的扩展名，确保一致性
+                        String imageExtension;
+                        Object predictedExt = imageInfo.get(imageId + "_ext");
+                        if (predictedExt != null) {
+                            imageExtension = predictedExt.toString();
+                            System.out.println("使用预测的扩展名: " + imageExtension + " 用于图片ID: " + imageId);
+                        } else {
+                            // 回退到通过URL或Content-Type获取扩展名
+                            imageExtension = getImageExtension(imageUrl);
+                            System.out.println("找不到预测扩展名，通过URL获取扩展名: " + imageExtension + " 用于图片ID: " + imageId);
+                        }
+                        
                         String imageFileName = imageId + imageExtension;
                         imageUlids.add(imageId);
                         imageUlidMap.put(String.valueOf(i), imageId);
