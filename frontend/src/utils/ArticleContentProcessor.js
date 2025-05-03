@@ -55,8 +55,13 @@ export default {
           // 使用新的基于ULID的图片路径 - 确保路径格式与ImageController.java期望的格式一致
           // ImageController期望格式: /api/images/{articleUlid}/{imageUlid}
           // 图片ID可能是简单数字或复杂字符串，统一使用ULID格式
-          imagePath = `/api/images/${article.ulid}/${imageId}.jpg`;
-          console.log(`为图片 ${imageId} 生成规范化路径: ${imagePath}`);
+          
+          // 检查是否有扩展名信息
+          const extension = imgData.extension || '.jpg';
+          
+          // 构建图片URL
+          imagePath = `/api/images/${article.ulid}/${imageId}${extension}`;
+          console.log(`为图片 ${imageId} 生成规范化路径(扩展名${extension}): ${imagePath}`);
         } else {
           // 兼容旧的图片路径格式
           const imageIndex = imgData.index;
@@ -132,14 +137,16 @@ export default {
       const imageId = match[1];
       console.log(`找到占位符 ${placeholder}，图片ID: ${imageId}`);
       
-      // 构建图片HTML元素
+      // 尝试自动修复没有映射信息但有占位符的文章内容
       let imagePath;
       if (article.ulid) {
         // 使用新的基于ULID的图片路径 - 确保路径格式与ImageController.java期望的格式一致
         // ImageController期望格式: /api/images/{articleUlid}/{imageUlid}
         // 图片ID可能是简单数字或复杂字符串，统一使用ULID格式
-        imagePath = `/api/images/${article.ulid}/${imageId}.jpg`;
-        console.log(`为图片 ${imageId} 生成规范化路径: ${imagePath}`);
+        
+        // 不指定扩展名，让服务器端自动匹配
+        imagePath = `/api/images/${article.ulid}/${imageId}`;
+        console.log(`为图片 ${imageId} 生成规范化路径(自动修复): ${imagePath}`);
       } else {
         // 兼容旧的图片路径格式
         const images = article.images ? article.images.split(',') : [];
