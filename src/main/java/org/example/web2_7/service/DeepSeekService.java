@@ -15,6 +15,22 @@ public interface DeepSeekService {
     String summarizeText(String textToSummarize);
     
     /**
+     * 根据文本内容生成关键词
+     * 
+     * @param textContent 文本内容
+     * @return 生成的关键词，以逗号分隔
+     */
+    String generateKeywords(String textContent);
+    
+    /**
+     * 同时生成摘要和关键词
+     * 
+     * @param textContent 文本内容
+     * @return 包含摘要和关键词的数组，索引0为摘要，索引1为关键词
+     */
+    String[] generateSummaryAndKeywords(String textContent);
+    
+    /**
      * 生成聊天回复
      * 
      * @param message 用户消息
