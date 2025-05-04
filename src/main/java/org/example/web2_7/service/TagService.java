@@ -297,6 +297,11 @@ public class TagService {
             lowerTitle.contains("音乐") || lowerTitle.contains("演唱会")) {
             return "娱乐休闲";
         }
+        if (lowerTitle.contains("楼市") || lowerTitle.contains("房价") ||
+            lowerTitle.contains("房产") || lowerTitle.contains("装修") ||
+            lowerTitle.contains("楼盘") || lowerTitle.contains("恒大")) {
+            return "房产家居";
+        }
         
         if (lowerTitle.contains("股票") || lowerTitle.contains("基金") || 
             lowerTitle.contains("财经") || lowerTitle.contains("经济") ||
