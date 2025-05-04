@@ -6,13 +6,13 @@
 本系统主要提供微信公众号文章的爬取、管理、搜索和标签功能。以下是主要功能的截图展示：
 
 ### 首页
-![功能截图](image\README\1.png)
+![功能截图](https://raw.githubusercontent.com/Changhuaishui/web2_7/master/image/README/1.png)
 
 ### 详情页1
-![文章管理截图](image\README\2.png)
+![文章管理截图](https://raw.githubusercontent.com/Changhuaishui/web2_7/master/image/README/2.png)
 
 ### 详情页2
-![搜索功能截图](image\README\3.png)
+![搜索功能截图](https://raw.githubusercontent.com/Changhuaishui/web2_7/master/image/README/3.png)
 
 
 
@@ -433,6 +433,5 @@ npm run build
 - 开发者：[chen]
 - 技术支持：[2021011100@bistu.edu.cn]
 
-## 许可证
-本项目采用 MIT 许可证
+
 
