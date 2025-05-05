@@ -3,7 +3,10 @@
 ## 项目简介
 本项目是一个基于 Spring Boot 和 Vue.js 的微信公众号文章爬虫系统，实现了文章的爬取、存储、搜索和标签管理等功能。系统采用前后端分离架构，后端使用 Java 开发，前端使用 Vue.js 框架。
 ## 功能介绍
-本系统主要提供微信公众号文章的爬取、管理、搜索和标签功能。以下是主要功能的截图展示：
+本系统主要提供微信公众号文章的爬取、管理、搜索和标签功能。以下是功能演示视频和主要功能的截图展示：
+
+### 功能演示视频
+[https://www.bilibili.com/video/BV1LqV6z4EEd/?share_source=copy_web&vd_source=289e94bde278ed942d54eaf0108f4aa5]
 
 ### 首页
 ![功能截图](https://raw.githubusercontent.com/Changhuaishui/web2_7/master/image/README/1.png)
