@@ -1,21 +1,6 @@
- 版权所有 © 2025 [chen] - 保留所有权利
-
-   1. 授权范围：本软件仅授权用于查看、学习和评阅目的。
-
-   2. 限制条款：
-      - 严禁修改、改编或反编译本软件的任何部分
-      - 严禁重新分发本软件的全部或部分内容
-      - 严禁将本软件用于任何商业目的
-      - 严禁删除或修改本许可证声明
-
-   3. 免责声明：本软件按"原样"提供，不提供任何形式的保证。
-
-   4. 终止条款：违反本许可条款的任何行为将自动终止您的使用权限。
-
-
 MIT License
 
-Copyright (c) [2025] [chen]
+Copyright (c) 2025 Chen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,5 +19,21 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-   [chen]
-   [2021011100@bistu.edu.cn]
+
+----- 附加条款 -----
+
+本项目为毕业设计作品，除上述MIT许可外，还受以下限制条款约束：
+
+1. 授权范围：本软件仅授权用于查看、学习和评阅目的。
+
+2. 限制条款：
+   - 严禁修改、改编或反编译本软件的任何部分
+   - 严禁重新分发本软件的全部或部分内容
+   - 严禁将本软件用于任何商业目的
+   - 严禁删除或修改本许可证声明
+
+3. 免责声明：本软件按"原样"提供，不提供任何形式的保证。
+
+4. 终止条款：违反本许可条款的任何行为将自动终止您的使用权限。
+
+联系方式：2021011100@bistu.edu.cn
