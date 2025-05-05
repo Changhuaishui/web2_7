@@ -3942,6 +3942,7 @@ public ResponseEntity<?> getArticleById(@PathVariable Integer id) {
    - `/api/crawler/${id}/html` 返回 `{title: string, fullHtml: string}`
 
 3. 错误处理：
+   - 
    - 文章不存在时返回404
    - HTML内容不存在时返回404
    - 其他错误返回500
