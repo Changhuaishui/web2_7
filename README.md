@@ -212,6 +212,80 @@ frontend/
 8. **用户体验优化**
    - 全局错误捕获和友好的错误提示
 
+## 数据库设计
+
+系统使用MySQL数据库，采用了简洁高效的数据结构设计：
+
+### 数据库表关系
+```
++------------------+       +--------------------+       +------------------+
+| article_table    |       | article_full_html  |       | related_articles |
++------------------+       +--------------------+       +------------------+
+| id (PK)          |<----->| article_id (FK)    |       | id (PK)          |
+| ulid             |       | full_html          |       | article_id (FK)  |
+| title            |       | url_mapping        |       | related_url      |
+| author           |       | created_at         |       | title            |
+| url              |       +--------------------+       | created_at       |
+| source_url       |                                    +------------------+
+| account_name     |
+| publish_time     |
+| content          |
+| images           |
+| image_mappings   |
+| summary          |
+| keywords         |
+| is_deleted       |
+| created_at       |
+| updated_at       |
++------------------+
+```
+
+### 主要表说明
+
+1. **article_table**：存储文章基本信息
+   - 核心字段：标题、作者、URL、正文内容、公众号名称、发布时间
+   - 特殊字段：ULID唯一标识（用于前端URL路由）、图片映射JSON、文章摘要、关键词
+   - 索引优化：为标题、作者、URL、发布时间等字段创建索引提升查询性能
+
+2. **article_full_html**：存储文章完整HTML内容
+   - 与article_table形成一对一关系，通过article_id外键关联
+   - 避免大量HTML内容影响主表查询性能
+   - URL映射功能：存储原始URL到本地路径的映射，支持图片资源本地化
+
+3. **related_articles**：存储相关文章信息
+   - 与article_table形成一对多关系，一篇文章可有多个相关文章
+   - 存储相关文章URL和标题，便于快速展示
+   - 独特约束：article_id和related_url组合唯一，防止重复添加相同相关文章
+
+### 数据库功能特点
+
+1. **数据完整性保障**
+   - 外键关系使用CASCADE删除规则，删除文章自动删除相关记录
+   - 唯一约束确保数据不重复，如URL和ULID唯一性约束
+   - 合理设计字段类型和长度，MEDIUMTEXT存储大文本提高性能
+
+2. **查询性能优化**
+   - 关键字段建立索引提高查询速度
+   - 表结构拆分避免大字段影响查询性能
+   - 符合范式设计减少数据冗余
+
+3. **灵活的数据处理**
+   - 逻辑删除功能（is_deleted字段），保护数据不被意外删除
+   - 时间戳自动维护（created_at和updated_at字段）
+   - JSON字段存储复杂结构数据（如image_mappings）
+
+4. **标签系统特性**
+   - 标签生成完全通过Java代码中的TagService动态计算
+   - 不依赖独立的标签表，降低数据库复杂度
+   - 采用高效的缓存机制提升标签操作性能
+
+5. **数据库工具支持**
+   - 提供完整的数据库维护脚本，包括查询、清空和重建功能
+   - 支持数据库结构查询和优化工具
+   - 数据完整性检查工具，发现和修复数据不一致问题
+
+> 详细的数据库设计文档和SQL脚本可在 `src/main/resources/schema/` 目录中查看
+
 ## 安装部署
 ### 环境要求
 - JDK 17+
