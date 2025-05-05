@@ -1566,3 +1566,550 @@ lowerTitle.contains("大奖赛")
 1. 考虑添加更多赛车运动类别的关键词，如勒芒24小时耐力赛、拉力赛、摩托车赛等
 2. 为其他体育项目也添加更丰富的专业术语，进一步提高标签识别能力
 3. 探索使用机器学习模型，通过训练数据学习不同体育项目的特征词汇
+
+## 2025-04-15 - Vue3+Element Plus项目Bug修复总结
+
+### 问题描述
+
+项目中存在以下关键问题：
+
+1. **路由跳转后页面空白**：从首页导航到文章详情页面(`/article/1`)时，页面内容未正常显示
+2. **Element Plus菜单计算错误**：控制台报错`Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'`
+3. **重复导航被阻止**：初始化导航时出现`检测到重复导航，已阻止`的警告
+4. **中文内容编码问题**：API返回的中文数据在前端显示为乱码(`æå¤ªé³`)
+5. **CSS兼容性警告**：控制台显示多个CSS兼容性问题
+
+### 问题原因分析
+
+#### 1. 路由空白页问题
+
+主要原因是组件加载流程中存在的几个关键缺陷：
+
+- `ArticleDetail`组件中的加载状态检查过早阻止了数据获取
+- `fetchArticle`函数在首次调用时被`loading.value`状态拦截
+- 组件挂载时添加了不必要的延迟，导致请求未能正常发出
+
+```javascript
+// 错误代码：过早的加载状态检查
+const fetchArticle = async () => {
+  // 如果已经在加载中，则不重复请求
+  if (loading.value) {
+    console.warn('文章详情正在加载中，忽略重复请求');
+    return;
+  }
+  // ...
+}
+```
+
+#### 2. Element Plus菜单计算错误
+
+Element Plus的菜单组件在计算宽度时尝试获取不存在或未完全渲染的DOM元素样式：
+
+- 错误发生在`menu.ts:180`行的`calcMenuItemWidth`函数中
+- 具体错误：`getComputedStyle`被调用时传入了非DOM元素
+- 问题在初始渲染和路由切换时都会发生
+
+#### 3. 重复导航问题
+
+路由守卫配置过于严格，导致初始导航和刷新页面时被错误地拦截：
+
+```javascript
+// 初始错误的路由守卫
+router.beforeEach((to, from, next) => {
+  if (to.path === from.path && JSON.stringify(to.params) === JSON.stringify(from.params)) {
+    return next(false); // 阻止所有重复路径，包括初始导航
+  }
+  next();
+});
+```
+
+#### 4. 中文内容编码问题
+
+API响应中文内容出现乱码，原因是：
+
+- 后端API响应头未正确设置`charset=utf-8`
+- 前端请求配置未明确指定编码
+- 代理服务器未处理字符编码转换
+
+#### 5. CSS兼容性问题
+
+项目中使用了一些特定浏览器前缀的CSS属性，但未添加标准属性或其他浏览器前缀：
+
+- `-moz-appearance`缺少标准的`appearance`属性
+- `-ms-touch-action`缺少标准的`touch-action`属性
+- `user-select`缺少Safari支持的`-webkit-user-select`前缀
+
+### 解决方案
+
+#### 1. 修复路由空白页问题
+
+1. 移除`fetchArticle`函数中的加载状态检查，确保首次调用能正常执行：
+
+```javascript
+// 修复后的代码：移除过早的状态检查
+const fetchArticle = async (retry = 0) => {
+  // 移除此处的加载状态检查，确保首次调用能正常执行
+  try {
+    loading.value = true;
+    // ...其他代码
+  } catch (e) {
+    // ...错误处理
+  }
+}
+```
+
+2. 在`onMounted`钩子中直接调用数据获取，不添加额外延迟：
+
+```javascript
+// 直接获取数据，不添加延迟
+console.log('直接获取文章数据，ID:', route.params.id);
+fetchArticle().catch(err => {
+  console.error('常规获取数据失败，尝试备用方法', err);
+  // 如果常规方法失败，尝试硬编码ID
+  setTimeout(tryFetchWithHardcodedId, 500);
+});
+```
+
+#### 2. 修复Element Plus菜单计算错误
+
+1. 添加全局的`getComputedStyle`调用保护：
+
+```javascript
+// 防止getComputedStyle错误
+const originalGetComputedStyle = window.getComputedStyle;
+window.getComputedStyle = function(element, pseudoElt) {
+  if (!element || element.nodeType !== 1) {
+    console.warn('阻止对非DOM元素调用getComputedStyle', element);
+    return {}; // 返回空对象而不是抛出错误
+  }
+  return originalGetComputedStyle(element, pseudoElt);
+};
+```
+
+2. 使用CSS强制设置菜单项宽度，避免动态计算：
+
+```css
+.el-menu-item {
+  /* 设置固定宽度，避免动态计算 */
+  min-width: 80px !important;
+  padding: 0 20px !important;
+}
+```
+
+3. 实现手动修复菜单滑条的函数：
+
+```javascript
+const fixElementPlusMenus = () => {
+  setTimeout(() => {
+    try {
+      const menuItems = document.querySelectorAll('.el-menu-item');
+      if (menuItems && menuItems.length > 0) {
+        menuItems.forEach(item => {
+          if (item && item.nodeType === 1) {
+            item.style.minWidth = '80px';
+            item.style.padding = '0 20px';
+            // 处理激活状态
+            // ...
+          }
+        });
+      }
+    } catch (err) {
+      console.error('菜单修复失败，但已安全处理', err);
+    }
+  }, 500);
+};
+```
+
+#### 3. 修复重复导航问题
+
+改进路由守卫，允许初始导航和刷新页面：
+
+```javascript
+router.beforeEach((to, from, next) => {
+  // 允许初始导航（首次加载或刷新页面时）
+  if (from.matched.length === 0) {
+    console.log('初始导航，允许通过');
+    return next();
+  }
+  
+  // 如果要去的路由与当前路由相同，且参数没有变化，则禁止导航
+  if (to.path === from.path && JSON.stringify(to.params) === JSON.stringify(from.params)) {
+    console.warn('检测到重复导航，已阻止');
+    return next(false);
+  }
+  
+  next();
+});
+```
+
+#### 4. 修复中文内容编码问题
+
+1. 修改请求配置，明确指定UTF-8编码：
+
+```javascript
+const request = axios.create({
+  headers: {
+    'Content-Type': 'application/json;charset=UTF-8',
+    'Accept': 'application/json;charset=UTF-8'
+  },
+  responseType: 'json',
+  responseEncoding: 'utf8'
+});
+```
+
+2. 在Vite代理配置中强制设置响应头：
+
+```javascript
+configure: (proxy, options) => {
+  proxy.on('proxyRes', function(proxyRes, req, res) {
+    // 强制设置内容类型和字符编码
+    proxyRes.headers['content-type'] = 'application/json; charset=utf-8';
+  });
+}
+```
+
+#### 5. 修复CSS兼容性问题
+
+添加标准属性和浏览器前缀：
+
+```css
+/* CSS兼容性修复 */
+.el-pagination .el-input__inner {
+  -moz-appearance: textfield;
+  /* 添加标准属性以支持更多浏览器 */
+  appearance: textfield;
+}
+
+a, button, input, /* 其他选择器 */ {
+  -ms-touch-action: manipulation;
+  /* 添加标准属性以支持更多浏览器 */
+  touch-action: manipulation;
+}
+
+.immersive-translate-link {
+  user-select: none;
+  /* 添加浏览器前缀以支持Safari */
+  -webkit-user-select: none;
+}
+```
+
+### 预防措施与最佳实践
+
+1. **前端组件生命周期管理**：
+   - 避免在组件挂载前添加不必要的延迟
+   - 确保依赖DOM的操作在DOM实际可用后执行
+   - 使用`nextTick`等机制确保DOM更新完成后再执行后续操作
+
+2. **路由导航守卫设计**：
+   - 路由守卫应考虑初始导航和刷新页面的情况
+   - 避免过于严格的导航限制，特别是对初始导航的处理
+
+3. **第三方库组件错误防护**：
+   - 对可能抛出错误的第三方库API调用添加防护措施
+   - 使用全局错误处理机制捕获未处理的异常
+
+4. **API请求和响应处理**：
+   - 明确指定请求和响应的字符编码
+   - 在前后端交互的多个环节添加编码一致性保障
+
+5. **CSS兼容性维护**：
+   - 使用标准属性和必要的浏览器前缀
+   - 考虑使用自动添加前缀的工具如AutoPrefixer
+
+## 2025-04-17 - 微信文章爬虫系统调试记录
+
+### 问题概述
+
+前端与后端交互过程中发现了两个关键问题：
+
+1. **405 Method Not Allowed 错误**：前端尝试访问文章详情页面时，出现 HTTP 405 错误，表明请求方法不被允许
+2. **MyBatis 主键生成异常**：后端在插入文章 HTML 内容时出现 "Could not determine which parameter to assign generated keys to" 错误
+
+### 问题分析
+
+#### 前端 405 错误分析
+
+通过分析发现：
+
+- 前端使用 `GET` 方法请求 `/api/crawler/articles/detail/{id}` 接口，但后端没有对应的 GET 映射
+- 响应头中 `allow: DELETE` 表明该路径只支持 DELETE 方法
+- 前端需要的详情接口与后端删除文章的接口路径冲突
+
+#### MyBatis 异常分析
+
+通过检查代码发现：
+
+- `ArticleMapper.java` 中的 `insertArticleHtml` 方法使用了错误的 `keyProperty` 值
+- 方法接收两个参数 `@Param("articleId") Integer articleId` 和 `@Param("fullHtml") String fullHtml`
+- 但 `@Options(useGeneratedKeys = true, keyProperty = "id")` 中 `keyProperty` 设为 "id"，而不是 "articleId"
+- MyBatis 无法将生成的主键赋值给正确的参数
+
+### 解决方案
+
+#### 1. 前端请求方法修复
+
+1. 在 `ArticleDetail.vue` 中修改请求方式：
+
+```javascript
+// 修改前
+const response = await axios.get(`/api/crawler/articles/detail/${route.params.id}`);
+
+// 修改后
+const response = await axios.post('/api/crawler/articles/detail', {
+  url: route.params.id
+});
+```
+
+2. 增强错误处理和日志输出：
+
+```javascript
+catch (error) {
+  console.error('加载文章失败:', error);
+  console.error('请求URL:', error.config?.url);
+  console.error('请求方法:', error.config?.method);
+  console.error('支持的方法:', error.response?.headers?.allow);
+  console.error('错误详情:', error.response?.data || error.message);
+  ElMessage.error('加载文章失败：' + (error.response?.data || error.message))
+}
+```
+
+#### 2. 后端接口调整
+
+1. 在 `CrawlerController.java` 中添加 POST 接口处理文章详情请求：
+
+```java
+@PostMapping("/articles/detail")
+public ResponseEntity<?> getArticleDetailByUrl(@RequestBody Map<String, String> request) {
+    try {
+        String url = request.get("url");
+        if (url == null || url.isEmpty()) {
+            return ResponseEntity.badRequest().body("URL不能为空");
+        }
+
+        System.out.println("收到文章详情请求，URL: " + url);
+        
+        // URL解码
+        String decodedUrl = java.net.URLDecoder.decode(url, "UTF-8");
+        System.out.println("URL解码后: " + decodedUrl);
+
+        // 尝试查找文章
+        Article article = articleMapper.findByUrl(decodedUrl);
+        
+        // 如果找不到，尝试不同的URL变体
+        if (article == null) {
+            System.out.println("未找到精确匹配，尝试其他变体");
+            String urlWithHttps = decodedUrl.startsWith("https://") ? decodedUrl : "https://" + decodedUrl;
+            String urlWithoutHttps = decodedUrl.replace("https://", "").replace("http://", "");
+            
+            article = articleMapper.findByUrl(urlWithHttps);
+            if (article == null) {
+                article = articleMapper.findByUrl(urlWithoutHttps);
+            }
+            
+            if (article == null) {
+                System.out.println("所有URL变体都未找到匹配的文章");
+                return ResponseEntity.status(404).body("未找到匹配的文章");
+            }
+        }
+
+        // 获取文章HTML内容
+        String fullHtml = null;
+        if (article.getId() != null) {
+            fullHtml = articleMapper.getArticleHtml(article.getId());
+        }
+        
+        // 构建返回对象
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("id", article.getId());
+        result.put("title", article.getTitle());
+        result.put("author", article.getAuthor());
+        result.put("url", article.getUrl());
+        result.put("sourceUrl", article.getSourceUrl());
+        result.put("accountName", article.getAccountName());
+        result.put("publishTime", article.getPublishTime());
+        result.put("content", article.getContent());
+        result.put("images", article.getImages());
+        
+        if (fullHtml != null) {
+            result.put("fullHtml", fullHtml);
+        }
+        
+        return ResponseEntity.ok(result);
+    } catch (Exception e) {
+        System.err.println("获取文章详情失败: " + e.getMessage());
+        e.printStackTrace();
+        return ResponseEntity.status(500).body("获取文章详情失败：" + e.getMessage());
+    }
+}
+```
+
+#### 3. MyBatis 主键生成修复
+
+1. 修改 `ArticleMapper.java` 中的 `insertArticleHtml` 方法：
+
+```java
+// 修改前
+@Insert("INSERT INTO article_full_html (article_id, full_html) VALUES (#{articleId}, #{fullHtml})")
+@Options(useGeneratedKeys = true, keyProperty = "id")
+int insertArticleHtml(@Param("articleId") Integer articleId, @Param("fullHtml") String fullHtml);
+
+// 修改后
+@Insert("INSERT INTO article_full_html (article_id, full_html) VALUES (#{articleId}, #{fullHtml})")
+@Options(useGeneratedKeys = true, keyProperty = "articleId")
+int insertArticleHtml(@Param("articleId") Integer articleId, @Param("fullHtml") String fullHtml);
+```
+
+2. 增强 `DatabasePipeline.java` 中的错误处理和日志：
+
+```java
+// 获取新插入文章的ID
+Article insertedArticle = articleMapper.findByUrl(url);
+if (insertedArticle != null) {
+    // 插入HTML内容
+    Integer articleId = insertedArticle.getId();
+    logger.info("Inserting HTML content for article ID: {}", articleId);
+    articleMapper.insertArticleHtml(articleId, fullHtml);
+    logger.info("Successfully inserted article and HTML content for URL: {}", url);
+}
+```
+
+### 架构分析总结
+
+通过这次调试，可以总结出系统架构的关键点：
+
+#### 前后端通信模式
+
+1. **前端配置（端口：5173）**：
+   - Vite 代理将 `/api` 请求转发到后端 `http://localhost:8081`
+   - 解决跨域问题并处理编码
+
+2. **后端配置（端口：8081）**：
+   - Spring Boot 应用监听 8081 端口
+   - 通过 `CorsConfig` 配置允许跨域请求
+
+3. **数据流路径**：
+   - 前端 → Vite 代理 → 后端 API → MyBatis → MySQL 数据库
+   - 全文检索通过 Lucene 索引实现
+
+#### REST API 设计
+
+- **GET /api/crawler/articles** - 获取所有文章
+- **POST /api/crawler/articles/detail** - 获取文章详情
+- **DELETE /api/crawler/articles/{url}** - 删除文章
+- **POST /api/crawler/crawl** - 提交爬取任务
+
+### 经验教训
+
+1. **HTTP 方法匹配**：确保前端请求方法与后端 API 设计一致
+2. **参数传递**：复杂参数（如 URL）应使用请求体传递，避免路径参数编码问题
+3. **MyBatis 配置**：多参数方法中 `keyProperty` 需指定正确的参数名
+4. **URL 处理**：处理包含特殊字符的 URL 时，需要正确编码和解码
+5. **错误处理**：加强日志记录，便于定位和解决问题
+
+### 后续优化方向
+
+1. 统一 API 设计规范，确保 RESTful 风格一致性
+2. 增强错误处理机制，提供更友好的用户提示
+3. 考虑使用 DTO 对象传递数据，避免直接暴露实体对象
+4. 完善文档，记录 API 设计和使用方法
+
+## 2025-04-18 - Debug日志：文章HTML内容获取功能修复
+
+### 问题描述
+
+在访问文章HTML内容时，前端报错：
+```
+GET http://localhost:5173/api/crawler/articles/2 405 (Method Not Allowed)
+```
+
+错误发生在 `ArticleHtml.vue` 的第52行：
+```javascript
+const articleResponse = await axios.get(`/api/crawler/articles/${id}`)
+```
+
+### 问题分析
+
+#### 1. 数据库结构
+```
+article_table       ────外键────>   article_full_html
+  id (PK)                         article_id (FK, UNI)
+（文章唯一标识）                    （关联文章主键）
+```
+
+#### 2. 前端请求流程
+1. 通过 `/api/crawler/articles/${id}` 获取文章基本信息
+2. 通过 `/api/crawler/${id}/html` 获取HTML内容
+
+#### 3. 后端API实现
+```java
+// CrawlerController.java
+
+// 获取所有文章
+@GetMapping("/articles")
+public ResponseEntity<List<Article>> getArticles() { ... }
+
+// 获取HTML内容
+@GetMapping("/{id}/html")
+public ResponseEntity<?> getArticleHtml(@PathVariable Integer id) { ... }
+```
+
+#### 4. 问题定位
+- 405错误（Method Not Allowed）表示请求的HTTP方法不被允许
+- 检查发现后端缺少获取单个文章的API接口：`GET /api/crawler/articles/{id}`
+- 虽然有获取HTML内容的接口，但是前端需要先获取文章基本信息
+
+### 解决方案
+
+1. 在`CrawlerController.java`中添加获取单个文章的接口：
+```java
+@GetMapping("/articles/{id}")
+public ResponseEntity<?> getArticleById(@PathVariable Integer id) {
+    try {
+        Article article = articleMapper.findById(id);
+        if (article == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(article);
+    } catch (Exception e) {
+        return ResponseEntity.status(500).body("获取文章失败：" + e.getMessage());
+    }
+}
+```
+
+2. 完整的数据流程：
+   - 前端通过 `/api/crawler/articles/${id}` 获取文章基本信息（从`article_table`）
+   - 后端返回文章基本信息
+   - 前端通过 `/api/crawler/${id}/html` 获取HTML内容（从`article_full_html`）
+   - 后端通过外键关系查询并返回HTML内容
+
+### 验证要点
+
+1. 数据库外键关系正确：
+   - `article_full_html.article_id` 正确关联到 `article_table.id`
+   - SQL查询使用正确的关联字段
+
+2. API响应格式：
+   - `/api/crawler/articles/${id}` 返回文章基本信息
+   - `/api/crawler/${id}/html` 返回 `{title: string, fullHtml: string}`
+
+3. 错误处理：
+   - 文章不存在时返回404
+   - HTML内容不存在时返回404
+   - 其他错误返回500
+
+### 经验总结
+
+1. API设计原则：
+   - 遵循RESTful设计规范
+   - 保持URL路径语义清晰
+   - 合理设计响应格式
+
+2. 数据流程设计：
+   - 保持前后端数据流程一致
+   - 确保数据库关联关系正确
+   - 合理处理错误情况
+
+3. Debug技巧：
+   - 通过HTTP状态码快速定位问题
+   - 检查API路径匹配
+   - 验证数据库查询逻辑
