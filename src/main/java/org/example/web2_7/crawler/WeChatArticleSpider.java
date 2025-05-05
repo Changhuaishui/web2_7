@@ -435,7 +435,7 @@ public class WeChatArticleSpider implements PageProcessor {
         }
     }
 
-    // 提取发布时间，有点bug
+    // 提取发布时间，有点bug，已修改
     // 
     private String extractPublishTime(Document doc) {
         String publishTime = "";
@@ -462,7 +462,7 @@ public class WeChatArticleSpider implements PageProcessor {
                 }
             }
 
-            // 2. 使用微信文章特定的选择器
+            // 2. 使用微信文章特定的选择器，主要解决办法，适配微信的多种选择器，用以针对不同的页面结构
             String[] selectors = {
                 "div#publish_time",                              // 标准发布时间div
                 "#publish_time",                                 // 发布时间ID
