@@ -8,12 +8,14 @@
 ### 首页
 ![功能截图](https://raw.githubusercontent.com/Changhuaishui/web2_7/master/image/README/1.png)
 
-### 详情页1
+### 详情页功能1
 ![文章管理截图](https://raw.githubusercontent.com/Changhuaishui/web2_7/master/image/README/2.png)
 
-### 详情页2
+### 详情页功能2
 ![搜索功能截图](https://raw.githubusercontent.com/Changhuaishui/web2_7/master/image/README/3.png)
 
+### 详情页功能3
+![推荐同类型公众号文章](https://raw.githubusercontent.com/Changhuaishui/web2_7/master/image/README/4.png)
 
 
 ## 开发日志（尚未整理完善）
