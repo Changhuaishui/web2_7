@@ -435,5 +435,10 @@ npm run build
 - 开发者：[chen]
 - 技术支持：[2021011100@bistu.edu.cn]
 
+## 系统截图
+
+### 系统主页面
+![系统主页面展示](image/README/4.png)
+
 
 
