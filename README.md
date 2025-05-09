@@ -5,6 +5,10 @@
 ## 功能介绍
 本系统主要提供微信公众号文章的爬取、管理、搜索和标签功能。以下是功能演示视频和主要功能的截图展示：
 
+### 设计文档
+[]
+[https://qq0fqhnu1rx.feishu.cn/docx/AZ1ZdmifuoTIm8x0YGJckc9snjh?from=from_copylink]
+
 ### 功能演示视频
 [https://www.bilibili.com/video/BV1LqV6z4EEd/?share_source=copy_web&vd_source=289e94bde278ed942d54eaf0108f4aa5]
 
