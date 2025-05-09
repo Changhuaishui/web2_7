@@ -1,0 +1,30 @@
+@startuml RESTful接口架构图精简版
+
+!theme plain
+skinparam componentStyle rectangle
+top to bottom direction
+skinparam Padding 8
+skinparam nodesep 15
+skinparam ranksep 20
+skinparam defaultFontSize 26
+
+title RESTful API架构设计（精简版）
+
+rectangle "前端层\n(Vue前端)" as VueClient
+rectangle "API层\n(统一网关)" as Gateway
+rectangle "业务层\n(核心服务)" as Services
+
+VueClient --> Gateway : HTTP请求\n(RESTful API)
+Gateway --> Services : 任务分发\n(爬虫/文章/AI/搜索/标签/图片)
+
+note right of Gateway
+  统一入口、路由分发
+  参数校验、跨域支持
+end note
+
+note right of Services
+  业务处理、REST接口
+  各模块协同
+end note
+
+@enduml 

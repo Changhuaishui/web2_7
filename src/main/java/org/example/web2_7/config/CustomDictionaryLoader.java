@@ -39,8 +39,8 @@ public class CustomDictionaryLoader {
      */
     private void loadCustomDictionary() {
         try {
-            Path customDictPath = Paths.get(dictionaryPath, "custom.dic");
-            Path stopwordsDictPath = Paths.get(dictionaryPath, "stopwords.dic");
+            Path customDictPath = Paths.get(dictionaryPath, "custom_main.dic");
+            Path stopwordsDictPath = Paths.get(dictionaryPath, "custom_stopword.dic");
             
             // 加载自定义词典
             List<String> customWords = readDictionaryFile(customDictPath);

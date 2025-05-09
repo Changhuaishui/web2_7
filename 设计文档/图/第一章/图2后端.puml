@@ -1,0 +1,24 @@
+@startuml
+!theme plain
+skinparam monochrome true
+skinparam defaultFontSize 26
+skinparam rectangle {
+  BorderColor Black
+  RoundCorner 15
+}
+
+rectangle "公众号信息采集系统" as Main {
+}
+
+rectangle "文章采集" as C1
+rectangle "内容抽取与存储" as C2
+rectangle "检索" as C3
+rectangle "AI内容分析" as C4
+rectangle "系统管理与接口" as C5
+
+Main -down-> C1
+Main -down-> C2
+Main -down-> C3
+Main -down-> C4
+Main -down-> C5
+@enduml

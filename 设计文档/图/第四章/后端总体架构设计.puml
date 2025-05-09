@@ -1,57 +1,52 @@
-@startuml
+@startuml backend-architecture
 !theme plain
-skinparam componentStyle rectangle
+skinparam dpi 300
+skinparam defaultTextAlignment center
+skinparam shadowing false
 skinparam linetype ortho
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam packageStyle rectangle
+skinparam packageBorderColor #555555
+skinparam packageFontColor #555555
+skinparam packageBackgroundColor transparent
 
-package "微信公众号文章采集与检索系统后端架构" {
-  [前端应用] as Frontend
-
-  package "表现层 (Controller)" {
-    [ArticleSearchController] as ASC
-    [CrawlerController] as CC
-    [ArticleController] as AC
-  }
-  
-  package "业务逻辑层 (Service)" {
-    [LuceneIndexService] as LIS
-    [ArticleSearchService] as ASS
-    [CrawlerService] as CS
-    [ArticleService] as AS
-  }
-  
-  package "数据访问层 (DAO)" {
-    [ArticleMapper] as AM
-    [POJO类] as POJO
-  }
-  
-  package "工具类 (Utils)" {
-    [文章内容处理器] as CP
-    [图片管理工具] as IMT
-  }
-  
-  database "MySQL数据库" as DB
-  
-  ' 连接关系
-  Frontend <--> CC
-  Frontend <--> AC
-  Frontend <--> ASC
-  
-  CC --> CS
-  AC --> AS
-  ASC --> ASS
-  ASC --> LIS
-  
-  CS --> AM
-  AS --> AM
-  ASS --> AM
-  LIS --> AM
-  
-  CS ..> IMT
-  AS ..> CP
-  
-  AM --> POJO
-  AM --> DB
+' 定义包
+package "表现层 (Controller)" as controller {
+  [CrawlerController（爬虫任务调度）] as cc
+  [ArticleController（文章管理）] as ac
+  [ArticleSearchController（文章检索）] as asc
+  [SummaryController（AI摘要生成）] as sc
+  [TagController（标签管理）] as tc
+  [ImageController（图片访问）] as ic
 }
 
-caption "后端总体架构设计与核心分层"
+package "业务逻辑层 (Service)" as service {
+  [CrawlerService（爬虫服务）] as cs
+  [ArticleService（文章服务）] as as1
+  [LuceneIndexService（索引服务）] as lis
+  [ArticleSearchService（检索服务）] as ass
+  [DeepSeekService（AI服务）] as dss
+  [RelatedArticleService（相关文章服务）] as ras
+  [TagService（标签服务）] as ts
+}
+
+package "数据访问层 (DAO)" as dao {
+  [ArticleMapper（文章数据访问）] as am
+  [RelatedArticleMapper（相关文章数据访问）] as ram
+  [TagMapper（标签数据访问）] as tm
+}
+
+package "实体类 (POJO)" as entity {
+  [Article（文章实体）] as a
+  [RelatedArticle（相关文章实体）] as ra
+  [ArticleFullHtml（文章HTML实体）] as afh
+}
+
+package "工具类 (Utils)" as utils {
+  [LuceneIndexManager（索引管理工具）] as lim
+  [HtmlImageProcessor（HTML处理工具）] as hip
+  [UlidGenerator（ID生成工具）] as ug
+}
+
 @enduml

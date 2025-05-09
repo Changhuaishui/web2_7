@@ -27,7 +27,7 @@ import java.util.Map;
 
 
 /*
- * mapper注解
+ * mybatis注解
  * 1. @Mapper注解：将接口映射到MyBatis的XML配置文件中
  * 2. @Insert注解：插入数据
  * 3. @Select注解：查询数据

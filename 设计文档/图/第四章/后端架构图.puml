@@ -1,0 +1,72 @@
+@startuml 微信公众号文章采集系统后端架构图
+
+!theme plain
+skinparam componentStyle rectangle
+top to bottom direction
+skinparam Padding 8
+skinparam nodesep 30
+skinparam ranksep 50
+
+title 后端系统架构设计
+
+rectangle "表现层 (Controller)" {
+    rectangle "文章管理" {
+        [ArticleController] as AC
+        [SummaryController] as SC
+        [TagController] as TC
+    }
+    rectangle "搜索服务" {
+        [ArticleSearchController] as ASC
+    }
+    rectangle "爬虫管理" {
+        [CrawlerController] as CC
+    }
+    rectangle "资源管理" {
+        [ImageController] as IC
+    }
+}
+
+rectangle "业务逻辑层 (Service)" {
+    rectangle "文章服务" {
+        [ArticleService] as AS
+        [TagService] as TS
+        [DeepSeekService] as DS
+    }
+    rectangle "搜索服务" {
+        [ArticleSearchService] as ASS
+        [LuceneIndexService] as LIS
+    }
+    rectangle "爬虫服务" {
+        [CrawlerService] as CS
+        [WeChatArticleSpider] as WAS
+    }
+}
+
+rectangle "数据访问层 (DAO/Mapper)" {
+    rectangle "数据库访问" {
+        [ArticleMapper] as AM
+        [TagMapper] as TM
+    }
+    rectangle "搜索引擎访问" {
+        [LuceneDao] as LD
+    }
+}
+
+rectangle "基础设施层" {
+    rectangle "存储服务" {
+        database "MySQL" as MySQL
+        database "Lucene" as Lucene
+        database "文件系统" as FS
+    }
+    rectangle "外部服务" {
+        [DeepSeek] as AI
+        [微信API] as WX
+    }
+    rectangle "工具组件" {
+        [图片处理] as HIP
+        [文本处理] as TP
+        [ID生成器] as UG
+    }
+}
+
+@enduml 

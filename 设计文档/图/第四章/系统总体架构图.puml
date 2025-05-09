@@ -1,0 +1,74 @@
+@startuml 微信公众号文章采集系统架构图
+
+!theme plain
+skinparam componentStyle rectangle
+top to bottom direction
+skinparam linetype polyline
+
+package "前端层 (Vue.js)" {
+    [用户界面] as UI
+    [路由管理] as Router
+    [状态管理] as Store
+}
+
+package "后端层 (Spring Boot)" {
+    package "Controller层" {
+        [文章控制器] as ArticleController
+        [爬虫控制器] as CrawlerController
+        [搜索控制器] as SearchController
+        [AI服务控制器] as AIController
+    }
+    
+    package "Service层" {
+        [文章服务] as ArticleService
+        [爬虫服务] as CrawlerService
+        [搜索服务] as SearchService
+        [AI服务] as AIService
+    }
+    
+    package "数据访问层" {
+        [数据库访问] as DAO
+        [搜索引擎访问] as SearchDAO
+    }
+}
+
+cloud "外部服务" {
+    [DeepSeek AI] as DeepSeek
+    [微信公众号] as WeChat
+}
+
+database "存储层" {
+    [MySQL] as MySQL
+    [Lucene索引] as Lucene
+    [文件存储] as FileStorage
+}
+
+' 前端与后端的交互
+UI -[#000000]-> Router
+Router -[#000000]-> Store
+Store -[#000000]-> ArticleController
+Store -[#000000]-> CrawlerController
+Store -[#000000]-> SearchController
+Store -[#000000]-> AIController
+
+' 控制器与服务层的交互
+ArticleController -[#000000]-> ArticleService
+CrawlerController -[#000000]-> CrawlerService
+SearchController -[#000000]-> SearchService
+AIController -[#000000]-> AIService
+
+' 服务层与数据访问层的交互
+ArticleService -[#000000]-> DAO
+CrawlerService -[#000000]-> DAO
+SearchService -[#000000]-> SearchDAO
+AIService -[#000000]-> DeepSeek
+
+' 数据访问层与存储层的交互
+DAO -[#000000]-> MySQL
+SearchDAO -[#000000]-> Lucene
+DAO -[#000000]-> FileStorage
+
+' 爬虫服务与外部系统的交互
+CrawlerService -[#000000]-> WeChat
+
+@enduml

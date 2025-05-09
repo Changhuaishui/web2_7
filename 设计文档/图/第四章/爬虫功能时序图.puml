@@ -1,0 +1,65 @@
+@startuml crawler-sequence
+!theme plain
+skinparam dpi 300
+skinparam defaultFontSize 26
+skinparam defaultTextAlignment center
+skinparam shadowing false
+skinparam linetype ortho
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor black
+    ParticipantBorderColor black
+    ParticipantBackgroundColor white
+    ParticipantFontColor black
+    ActorBorderColor black
+    ActorBackgroundColor white
+    ActorFontColor black
+}
+
+actor "用户" as User
+participant "CrawlerController" as CC
+participant "WeChatArticleSpider" as WAS
+participant "ImageDownloader" as ID
+participant "DatabasePipeline" as DP
+participant "LuceneIndexManager" as LIM
+database "MySQL" as DB
+
+User -> CC: 发起爬虫任务
+activate CC
+
+CC -> WAS: 执行爬虫任务
+activate WAS
+
+WAS -> WAS: 解析页面结构\n(使用XPath/CSS选择器)
+note right: 提取标题、正文等
+
+WAS -> ID: 处理图片资源
+activate ID
+ID -> ID: 生成ULID文件名
+ID -> ID: 构建存储目录
+ID -> ID: 异步下载图片
+ID --> WAS: 返回本地路径映射
+deactivate ID
+
+WAS -> DP: 保存结构化数据
+activate DP
+DP -> DB: 持久化数据
+DB --> DP: 确认保存
+DP --> WAS: 返回保存结果
+deactivate DP
+
+WAS -> LIM: 触发索引构建
+activate LIM
+LIM -> LIM: 更新Lucene索引
+LIM --> WAS: 索引更新完成
+deactivate LIM
+
+WAS --> CC: 返回爬取结果
+deactivate WAS
+
+CC --> User: 返回任务完成状态
+deactivate CC
+
+@enduml 

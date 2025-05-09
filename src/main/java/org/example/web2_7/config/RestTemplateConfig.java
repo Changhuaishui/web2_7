@@ -6,7 +6,9 @@ import org.springframework.web.client.RestTemplate;
 
 /**
  * RestTemplate配置
- * 用于在服务间调用API
+ * 用于对外部的服务调用API,对DeepSeek的API调用
+ * 具体是给springboot提供一个RestTemplate的bean，
+ * 使得能为web应用提供Restful服务，
  */
 @Configuration
 public class RestTemplateConfig {
@@ -16,6 +18,6 @@ public class RestTemplateConfig {
      */
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate();
+        return new RestTemplate();  //创建RestTemplate对象
     }
 } 

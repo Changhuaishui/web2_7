@@ -1,0 +1,42 @@
+@startuml frontend-architecture
+!theme plain
+skinparam dpi 300
+skinparam defaultTextAlignment center
+skinparam shadowing false
+skinparam linetype ortho
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam packageStyle rectangle
+skinparam packageBorderColor #555555
+skinparam packageFontColor #555555
+skinparam packageBackgroundColor transparent
+
+' 定义包
+package "视图层" as views {
+  rectangle "首页 (HomeView)" as hv
+  rectangle "文章详情 (ArticleDetailView)" as adv
+  rectangle "搜索结果 (SearchResultView)" as srv
+}
+
+package "组件层" as components {
+  rectangle "搜索框 (SearchBox)" as sb
+  rectangle "文章列表 (ArticleList)" as al
+  rectangle "标签筛选 (TagFilter)" as tf
+}
+
+package "数据层" as data {
+  rectangle "API服务 (ApiService)" as api
+  rectangle "状态管理 (Pinia)" as sm
+}
+
+package "工具层" as utils {
+  rectangle "请求封装 (Axios)" as rw
+  rectangle "工具函数 (Utils)" as tools
+}
+
+' 定义关系
+views --> components : 使用
+components --> data : 数据交互
+data --> utils : 调用
+
+@enduml 

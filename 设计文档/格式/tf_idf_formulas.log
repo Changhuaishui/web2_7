@@ -1,0 +1,817 @@
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.5.11)  18 MAY 2025 14:14
+entering extended mode
+ restricted \write18 enabled.
+ file:line:error style messages enabled.
+ %&-line parsing enabled.
+**tf_idf_formulas
+(./tf_idf_formulas.tex
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+(d:/texlive/2025/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2024/06/29 v1.4n Standard LaTeX document class
+(d:/texlive/2025/texmf-dist/tex/latex/base/size10.clo
+File: size10.clo 2024/06/29 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count192
+\c@section=\count193
+\c@subsection=\count194
+\c@subsubsection=\count195
+\c@paragraph=\count196
+\c@subparagraph=\count197
+\c@figure=\count198
+\c@table=\count199
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen141
+) (d:/texlive/2025/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2024/11/05 v2.17t AMS math features
+\@mathmargin=\skip51
+
+For additional information on amsmath, use the `?' option.
+(d:/texlive/2025/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2021/08/26 v2.01 AMS text
+ (d:/texlive/2025/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks17
+\ex@=\dimen142
+)) (d:/texlive/2025/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen143
+) (d:/texlive/2025/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count266
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count267
+\leftroot@=\count268
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count269
+\DOTSCASE@=\count270
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box52
+\strutbox@=\box53
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen144
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count271
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count272
+\dotsspace@=\muskip17
+\c@parentequation=\count273
+\dspbrk@lvl=\count274
+\tag@help=\toks18
+\row@=\count275
+\column@=\count276
+\maxfields@=\count277
+\andhelp@=\toks19
+\eqnshift@=\dimen145
+\alignsep@=\dimen146
+\tagshift@=\dimen147
+\tagwidth@=\dimen148
+\totwidth@=\dimen149
+\lineht@=\dimen150
+\@envbody=\toks20
+\multlinegap=\skip52
+\multlinetaggap=\skip53
+\mathdisplay@stack=\toks21
+LaTeX Info: Redefining \[ on input line 2953.
+LaTeX Info: Redefining \] on input line 2954.
+) (d:/texlive/2025/texmf-dist/tex/latex/cjk/texinput/CJKutf8.sty
+Package: CJKutf8 2021/10/16 4.8.5
+ (d:/texlive/2025/texmf-dist/tex/generic/iftex/ifpdf.sty
+Package: ifpdf 2019/10/25 v3.4 ifpdf legacy package. Use iftex instead.
+ (d:/texlive/2025/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+)) (d:/texlive/2025/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2024/02/08 v1.3d Input encoding file
+\inpenc@prehook=\toks22
+\inpenc@posthook=\toks23
+
+
+Package inputenc Warning: inputenc package ignored with utf8 based engines.
+
+) (d:/texlive/2025/texmf-dist/tex/latex/cjk/texinput/CJK.sty
+Package: CJK 2021/10/16 4.8.5
+ (d:/texlive/2025/texmf-dist/tex/latex/cjk/texinput/mule/MULEenc.sty
+Package: MULEenc 2021/10/16 4.8.5
+) (d:/texlive/2025/texmf-dist/tex/latex/cjk/texinput/CJK.enc
+File: CJK.enc 2021/10/16 4.8.5
+)
+\CJK@indent=\box54
+) (d:/texlive/2025/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
+)) (d:/texlive/2025/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+ (d:/texlive/2025/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks24
+) (d:/texlive/2025/texmf-dist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+)
+\Gm@cnth=\count278
+\Gm@cntv=\count279
+\c@Gm@tempcnt=\count280
+\Gm@bindingoffset=\dimen151
+\Gm@wd@mp=\dimen152
+\Gm@odd@mp=\dimen153
+\Gm@even@mp=\dimen154
+\Gm@layoutwidth=\dimen155
+\Gm@layoutheight=\dimen156
+\Gm@layouthoffset=\dimen157
+\Gm@layoutvoffset=\dimen158
+\Gm@dimlist=\toks25
+) (d:/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-xetex.def
+File: l3backend-xetex.def 2024-05-08 L3 backend support: XeTeX
+\g__graphics_track_int=\count281
+\l__pdf_internal_box=\box55
+\g__pdf_backend_annotation_int=\count282
+\g__pdf_backend_link_int=\count283
+) (./tf_idf_formulas.aux)
+\openout1 = `tf_idf_formulas.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C00/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C05/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C09/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C10/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C20/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C19/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C40/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C42/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C43/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C50/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C52/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C49/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C60/mj/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C61/mj/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C63/mj/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C64/mj/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C65/mj/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C70/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C31/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C32/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C33/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C34/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C35/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C36/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C37/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C80/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C81/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C01/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C11/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C21/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C41/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for C62/song/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+*geometry* verbose mode - [ preamble ] result:
+* driver: xetex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(71.13188pt, 455.24411pt, 71.13188pt)
+* v-part:(T,H,B)=(71.13188pt, 702.78308pt, 71.13188pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=455.24411pt
+* \textheight=702.78308pt
+* \oddsidemargin=-1.1381pt
+* \evensidemargin=-1.1381pt
+* \topmargin=-38.1381pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=10.0pt
+* \footskip=30.0pt
+* \marginparwidth=65.0pt
+* \marginparsep=11.0pt
+* \columnsep=10.0pt
+* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+(d:/texlive/2025/texmf-dist/tex/latex/cjk/texinput/UTF8/UTF8.bdg
+File: UTF8.bdg 2021/10/16 4.8.5
+) (d:/texlive/2025/texmf-dist/tex/latex/cjk/texinput/UTF8/UTF8.enc
+File: UTF8.enc 2021/10/16 4.8.5
+) (d:/texlive/2025/texmf-dist/tex/latex/cjk/texinput/UTF8/UTF8.chr
+File: UTF8.chr 2021/10/16 4.8.5
+)
+Missing character: There is no 算 (U+7B97) in font [lmroman17-regular]:mapping=tex-text;!
+Missing character: There is no 法 (U+6CD5) in font [lmroman17-regular]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman17-regular]:mapping=tex-text;!
+Missing character: There is no 学 (U+5B66) in font [lmroman17-regular]:mapping=tex-text;!
+Missing character: There is no 公 (U+516C) in font [lmroman17-regular]:mapping=tex-text;!
+Missing character: There is no 式 (U+5F0F) in font [lmroman17-regular]:mapping=tex-text;!
+Missing character: There is no 说 (U+8BF4) in font [lmroman17-regular]:mapping=tex-text;!
+Missing character: There is no 明 (U+660E) in font [lmroman17-regular]:mapping=tex-text;!
+Missing character: There is no 项 (U+9879) in font [lmroman12-regular]:mapping=tex-text;!
+Missing character: There is no 目 (U+76EE) in font [lmroman12-regular]:mapping=tex-text;!
+Missing character: There is no 组 (U+7EC4) in font [lmroman12-regular]:mapping=tex-text;!
+Missing character: There is no 算 (U+7B97) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 法 (U+6CD5) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 基 (U+57FA) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 本 (U+672C) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 公 (U+516C) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 式 (U+5F0F) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 频 (U+9891) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no （ (U+FF08) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no ） (U+FF09) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 频 (U+9891) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no （ (U+FF08) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ） (U+FF09) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 表 (U+8868) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 示 (U+793A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 在 (U+5728) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 出 (U+51FA) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 现 (U+73B0) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 频 (U+9891) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 率 (U+7387) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ： (U+FF1A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 其 (U+5176) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ： (U+FF1A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 表 (U+8868) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 示 (U+793A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 在 (U+5728) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 出 (U+51FA) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 现 (U+73B0) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 次 (U+6B21) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 表 (U+8868) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 示 (U+793A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 所 (U+6240) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 有 (U+6709) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 总 (U+603B) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 解 (U+89E3) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 释 (U+91CA) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 在 (U+5728) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 出 (U+51FA) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 现 (U+73B0) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 次 (U+6B21) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 所 (U+6240) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 有 (U+6709) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 总 (U+603B) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 逆 (U+9006) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 频 (U+9891) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 率 (U+7387) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no （ (U+FF08) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no ） (U+FF09) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 逆 (U+9006) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 频 (U+9891) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 率 (U+7387) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no （ (U+FF08) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ） (U+FF09) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 用 (U+7528) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 于 (U+4E8E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 衡 (U+8861) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 量 (U+91CF) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 重 (U+91CD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 要 (U+8981) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 性 (U+6027) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ： (U+FF1A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 其 (U+5176) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ： (U+FF1A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 表 (U+8868) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 示 (U+793A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 集 (U+96C6) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 合 (U+5408) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 总 (U+603B) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 表 (U+8868) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 示 (U+793A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 包 (U+5305) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 含 (U+542B) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 量 (U+91CF) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 加 (U+52A0) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 是 (U+662F) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 为 (U+4E3A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 了 (U+4E86) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 避 (U+907F) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 免 (U+514D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 母 (U+6BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 为 (U+4E3A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 解 (U+89E3) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 释 (U+91CA) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 总 (U+603B) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 包 (U+5305) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 含 (U+542B) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 该 (U+8BE5) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 量 (U+91CF) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 得 (U+5F97) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 得 (U+5F97) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 是 (U+662F) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 和 (U+548C) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 乘 (U+4E58) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 积 (U+79EF) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ： (U+FF1A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 其 (U+5176) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ： (U+FF1A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 解 (U+89E3) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 释 (U+91CA) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 频 (U+9891) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 逆 (U+9006) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 频 (U+9891) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 率 (U+7387) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 项 (U+9879) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 目 (U+76EE) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 改 (U+6539) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 进 (U+8FDB) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 公 (U+516C) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 式 (U+5F0F) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 题 (U+9898) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 重 (U+91CD) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 加 (U+52A0) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 对 (U+5BF9) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 于 (U+4E8E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 题 (U+9898) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 出 (U+51FA) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 现 (U+73B0) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ， (U+FF0C) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 我 (U+6211) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 们 (U+4EEC) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 增 (U+589E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 加 (U+52A0) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 了 (U+4E86) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 额 (U+989D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 外 (U+5916) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 重 (U+91CD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ： (U+FF1A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 其 (U+5176) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 是 (U+662F) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 题 (U+9898) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 重 (U+91CD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 系 (U+7CFB) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 。 (U+3002) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 解 (U+89E3) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 释 (U+91CA) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 得 (U+5F97) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 档 (U+6863) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 题 (U+9898) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 重 (U+91CD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 系 (U+7CFB) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 位 (U+4F4D) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 置 (U+7F6E) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 重 (U+91CD) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 对 (U+5BF9) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 于 (U+4E8E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 在 (U+5728) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 题 (U+9898) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 开 (U+5F00) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 头 (U+5934) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 出 (U+51FA) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 现 (U+73B0) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ， (U+FF0C) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 进 (U+8FDB) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 一 (U+4E00) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 步 (U+6B65) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 增 (U+589E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 加 (U+52A0) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 重 (U+91CD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ： (U+FF1A) in font [lmroman10-regular]:mapping=tex-text;!
+
+
+[1
+
+]
+Missing character: There is no 其 (U+5176) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 是 (U+662F) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 位 (U+4F4D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 置 (U+7F6E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 重 (U+91CD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 系 (U+7CFB) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 。 (U+3002) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 解 (U+89E3) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 释 (U+91CA) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 题 (U+9898) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 加 (U+52A0) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 得 (U+5F97) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 位 (U+4F4D) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 置 (U+7F6E) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 重 (U+91CD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 系 (U+7CFB) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 最 (U+6700) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 终 (U+7EC8) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 得 (U+5F97) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 对 (U+5BF9) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 于 (U+4E8E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 每 (U+6BCF) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 个 (U+4E2A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 类 (U+7C7B) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 别 (U+522B) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ， (U+FF0C) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 其 (U+5176) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 最 (U+6700) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 终 (U+7EC8) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 得 (U+5F97) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 为 (U+4E3A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ： (U+FF1A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 其 (U+5176) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ： (U+FF1A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 是 (U+662F) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 类 (U+7C7B) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 别 (U+522B) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 的 (U+7684) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 关 (U+5173) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 键 (U+952E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 集 (U+96C6) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 合 (U+5408) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 是 (U+662F) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 关 (U+5173) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 键 (U+952E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 匹 (U+5339) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 配 (U+914D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 重 (U+91CD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 是 (U+662F) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 一 (U+4E00) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 个 (U+4E2A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 指 (U+6307) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 示 (U+793A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 函 (U+51FD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ， (U+FF0C) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 表 (U+8868) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 示 (U+793A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 关 (U+5173) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 键 (U+952E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 是 (U+662F) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 否 (U+5426) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 在 (U+5728) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 题 (U+9898) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 匹 (U+5339) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 配 (U+914D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 解 (U+89E3) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 释 (U+91CA) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 词 ("8BCD) in font cmr7!
+Missing character: There is no 条 ("6761) in font cmr7!
+Missing character: There is no 标 ("6807) in font cmr7!
+Missing character: There is no 签 ("7B7E) in font cmr7!
+Missing character: There is no 关 ("5173) in font cmr7!
+Missing character: There is no 键 ("952E) in font cmr7!
+Missing character: There is no 词 ("8BCD) in font cmr7!
+Missing character: There is no 集 ("96C6) in font cmr7!
+Missing character: There is no 合 ("5408) in font cmr7!
+Missing character: There is no 位 (U+4F4D) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 置 (U+7F6E) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 加 (U+52A0) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 得 (U+5F97) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 条 (U+6761) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 关 (U+5173) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 键 (U+952E) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 匹 (U+5339) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 配 (U+914D) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 权 (U+6743) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 重 (U+91CD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 关 (U+5173) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 键 (U+952E) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 词 (U+8BCD) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 是 (U+662F) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 否 (U+5426) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 在 (U+5728) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 题 (U+9898) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 匹 (U+5339) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 配 (U+914D) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 阈 (U+9608) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 值 (U+503C) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 和 (U+548C) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 限 (U+9650) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 制 (U+5236) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 匹 (U+5339) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 配 (U+914D) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 阈 (U+9608) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 值 (U+503C) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 章 (U+7AE0) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 只 (U+53EA) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 有 (U+6709) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 在 (U+5728) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 得 (U+5F97) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 超 (U+8D85) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 过 (U+8FC7) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 阈 (U+9608) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 值 (U+503C) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 时 (U+65F6) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 才 (U+624D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 会 (U+4F1A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 被 (U+88AB) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 配 (U+914D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 该 (U+8BE5) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ： (U+FF1A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 其 (U+5176) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 是 (U+662F) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 匹 (U+5339) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 配 (U+914D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 阈 (U+9608) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 值 (U+503C) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 。 (U+3002) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 解 (U+89E3) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 释 (U+91CA) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 如 (U+5982) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 果 (U+679C) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 得 (U+5F97) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 匹 (U+5339) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 配 (U+914D) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 阈 (U+9608) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 值 (U+503C) in font [lmroman10-italic]:mapping=tex-text;!
+Missing character: There is no 则 (U+5219) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 为 (U+4E3A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 选 (U+9009) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 择 (U+62E9) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 该 (U+8BE5) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ， (U+FF0C) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 否 (U+5426) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 则 (U+5219) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 为 (U+4E3A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 。 (U+3002) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 最 (U+6700) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 大 (U+5927) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 数 (U+6570) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 限 (U+9650) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 制 (U+5236) in font [lmroman12-bold]:mapping=tex-text;!
+Missing character: There is no 每 (U+6BCF) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 篇 (U+7BC7) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 章 (U+7AE0) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 最 (U+6700) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 多 (U+591A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 被 (U+88AB) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 配 (U+914D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 个 (U+4E2A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no ， (U+FF0C) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 其 (U+5176) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 。 (U+3002) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 中 (U+4E2D) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 解 (U+89E3) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 释 (U+91CA) in font [lmroman10-bold]:mapping=tex-text;!
+Missing character: There is no 每 (U+6BCF) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 篇 (U+7BC7) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 文 (U+6587) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 章 (U+7AE0) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 最 (U+6700) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 多 (U+591A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 分 (U+5206) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 配 (U+914D) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 个 (U+4E2A) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 标 (U+6807) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 签 (U+7B7E) in font [lmroman10-regular]:mapping=tex-text;!
+Missing character: There is no 。 (U+3002) in font [lmroman10-regular]:mapping=tex-text;!
+
+
+[2] (./tf_idf_formulas.aux)
+ ***********
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+ ***********
+ ) 
+Here is how much of TeX's memory you used:
+ 3082 strings out of 473832
+ 42400 string characters out of 5733158
+ 444599 words of memory out of 5000000
+ 26141 multiletter control sequences out of 15000+600000
+ 562781 words of font info for 60 fonts, out of 8000000 for 9000
+ 1348 hyphenation exceptions out of 8191
+ 59i,9n,65p,227b,820s stack positions out of 10000i,1000n,20000p,200000b,200000s
+
+Output written on tf_idf_formulas.pdf (2 pages).

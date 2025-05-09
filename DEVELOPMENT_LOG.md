@@ -2003,6 +2003,7 @@ public ResponseEntity<?> getArticleById(@PathVariable Integer id) {
    - `/api/crawler/${id}/html` 返回 `{title: string, fullHtml: string}`
 
 3. 错误处理：
+   - 
    - 文章不存在时返回404
    - HTML内容不存在时返回404
    - 其他错误返回500
@@ -3963,3 +3964,85 @@ public ResponseEntity<?> getArticleById(@PathVariable Integer id) {
    - 通过HTTP状态码快速定位问题
    - 检查API路径匹配
    - 验证数据库查询逻辑
+
+## 2025-05-22 第二次更新
+### 改进的TF-IDF算法实现
+1. 算法优化
+   - 引入BM25算法的核心思想
+   - 添加文档长度归一化
+   - 实现词频饱和处理
+   - 优化IDF计算方式
+
+2. 计算公式
+   ```
+   TF-IDF = TF * IDF
+   其中：
+   TF = (raw_tf * (K1 + 1)) / (raw_tf + K1 * length_normalization)
+   length_normalization = 1 - B + B * (doc_length / avg_doc_length)
+   IDF = log((N - df + 0.5) / (df + 0.5) + 1)
+   ```
+   参数说明：
+   - K1 = 1.2：词频饱和参数
+   - B = 0.75：文档长度归一化参数
+   - N：总文档数
+   - df：包含该词的文档数
+   - doc_length：当前文档长度
+   - avg_doc_length：平均文档长度
+
+3. 主要改进点
+   - 标题权重增强：标题中的关键词获得额外0.8分，标题开头关键词额外0.5分
+   - 文档长度归一化：避免长文档获得过多权重
+   - 词频饱和处理：防止高频词过度影响
+   - 缓存机制优化：添加文档统计缓存
+
+4. 效果验证
+   - F1赛车相关文章识别准确率提升
+   - 标签匹配得分更合理
+   - 系统响应速度提升
+
+## 2025-05-22 - extractTags方法复杂度分析
+
+### 参数定义
+* $L_T$: 文章标题的长度 (`article.getTitle().length()`)
+* $L_C$: 文章内容的长度 (`article.getContent().length()`)
+* $L_{AKS}$: 从 `article.getKeywords()` 获取的关键词字符串的长度
+* $N_P$: 预定义标签的数量 (`PREDEFINED_TAGS.length`)，在此代码中为12
+* $N_{KPM}$: `TAG_KEYWORDS` 中单个预定义标签关联的最大关键词数量
+* $L_{KW}$: `TAG_KEYWORDS` 中关键词字符串的平均长度
+* $L_{tag}$: 标签字符串的平均长度
+* $M_{TA}$: `MAX_TAGS_PER_ARTICLE`，常数为5
+
+### 时间复杂度分析
+
+#### 缓存命中情况
+* 平均时间复杂度: $O(1)$
+
+#### 缓存未命中情况
+主导时间复杂度: $O(L_T + L_C + L_{AKS} + N_{KPM} \cdot L_T \cdot L_{KW})$
+
+主要贡献项：
+1. 文本预处理: $O(L_T + L_C)$
+2. 词频计算: $O(L_T + L_C)$
+3. TF-IDF计算: $O(N_{KPM} \cdot L_T \cdot L_{KW})$
+4. 日志记录: $O(N_{KPM} \cdot L_{KW})$
+
+### 空间复杂度分析
+
+主导空间复杂度: $O(L_T + L_C + L_{AKS} + N_{KPM} \cdot L_{KW})$
+
+主要贡献项：
+1. 文本副本: $O(L_T + L_C)$
+2. 词频哈希表: $O(L_T + L_C)$
+3. 匹配关键词结构: $O(N_{KPM} \cdot L_{KW})$
+4. 日志字符串: $O(L_T + N_{KPM} \cdot L_{KW})$
+
+### 性能瓶颈
+* TF-IDF计算中的嵌套循环和`String.contains()`操作
+* 关键词匹配过程中的字符串操作
+* 日志记录时的字符串构建
+
+### 优化建议
+1. 考虑使用更高效的字符串匹配算法
+2. 优化日志记录，减少不必要的字符串拼接
+3. 考虑使用缓存机制减少重复计算
+4. 可以考虑使用并行处理来优化TF-IDF计算

@@ -1,0 +1,38 @@
+@startuml AI功能模块数据流图
+!theme plain
+skinparam dpi 300
+skinparam handwritten false
+skinparam defaultFontSize 26
+skinparam defaultTextAlignment center
+skinparam shadowing false
+skinparam linetype ortho
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam rectangleBorderColor #555555
+skinparam databaseBorderColor #555555
+skinparam cloudBorderColor #555555
+skinparam actorBorderColor #555555
+
+' 定义实体
+actor "用户" as User
+rectangle "SummaryController" as Controller
+rectangle "DeepSeekServiceImpl" as Service
+rectangle "RelatedArticleService" as RelatedService
+database "文章数据库" as DB
+cloud "DeepSeek AI" as AI
+cloud "搜狗微信API" as SogouAPI
+
+' 主要数据流向
+User --> Controller : 1.请求分析
+Controller --> DB : 2.获取文章内容
+Controller --> Service : 3.请求AI处理
+Service --> AI : 4.提交长文本
+AI --> Service : 5.返回摘要和关键词
+Service --> DB : 6.保存分析结果
+Service --> RelatedService : 7.传递关键词
+RelatedService --> SogouAPI : 8.搜索相关文章
+SogouAPI --> RelatedService : 9.返回搜索结果
+RelatedService --> DB : 10.保存相关文章
+Controller --> User : 11.展示分析结果
+
+@enduml 

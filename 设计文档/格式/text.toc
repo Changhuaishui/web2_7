@@ -1,0 +1,54 @@
+\contentsline {section}{\numberline {第一章}引言}{1}{section.1}%
+\contentsline {subsection}{\numberline {1.1}项目背景发展及意义}{1}{subsection.1.1}%
+\contentsline {subsubsection}{\numberline {1.1.1}对微信公众号背景研究}{1}{subsubsection.1.1.1}%
+\contentsline {subsubsection}{\numberline {1.1.2}检索系统研究发展}{1}{subsubsection.1.1.2}%
+\contentsline {subsubsection}{\numberline {1.1.3}爬虫技术的研究发展}{2}{subsubsection.1.1.3}%
+\contentsline {subsubsection}{\numberline {1.1.4}目的与意义}{3}{subsubsection.1.1.4}%
+\contentsline {subsection}{\numberline {1.2}研究内容及方法}{3}{subsection.1.2}%
+\contentsline {subsubsection}{\numberline {1.2.1}研究内容}{3}{subsubsection.1.2.1}%
+\contentsline {subsubsection}{\numberline {1.2.2}研究方法}{3}{subsubsection.1.2.2}%
+\contentsline {subsection}{\numberline {1.3}本课题的研究现状}{4}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}本章小结}{4}{subsection.1.4}%
+\contentsline {section}{\numberline {第二章}相关技术概述}{6}{section.2}%
+\contentsline {subsection}{\numberline {2.1}系统架构简介}{6}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}系统开发核心技术}{6}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Java语言与Spring Boot框架}{6}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Vue.js前端框架与UI组件库}{6}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}MySQL关系型数据库}{6}{subsubsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.4}Maven项目构建工具}{6}{subsubsection.2.2.4}%
+\contentsline {subsubsection}{\numberline {2.2.5}Apache Lucene全文检索引擎}{6}{subsubsection.2.2.5}%
+\contentsline {subsection}{\numberline {2.3}微信公众号信息采集关键技术}{6}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}WebMagic爬虫框架}{6}{subsubsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.4}全文检索与数据处理技术}{6}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}Apache Lucene全文检索引擎}{6}{subsubsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.5}人工智能辅助技术应用}{6}{subsection.2.5}%
+\contentsline {subsubsection}{\numberline {2.5.1}DeepSeek AI模型API}{6}{subsubsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.6}本章小结}{6}{subsection.2.6}%
+\contentsline {section}{\numberline {第三章}系统设计与实现}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}系统总体架构与设计思想}{6}{subsection.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.1}后端总体架构设计与核心分层}{6}{subsubsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.2}数据库详细设计}{6}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}逻辑结构设计}{6}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}物理结构设计}{6}{subsubsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.3}核心功能模块详细设计与实现}{6}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}爬虫模块设计与实现}{6}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}搜索模块设计与实现}{6}{subsubsection.3.3.2}%
+\contentsline {subsubsection}{\numberline {3.3.3}AI摘要模块设计与实现}{6}{subsubsection.3.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.4}标签系统模块设计与实现}{6}{subsubsection.3.3.4}%
+\contentsline {subsection}{\numberline {3.4}核心模块接口设计}{6}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}开发环境、依赖与工具}{6}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}本章小结}{6}{subsection.3.6}%
+\contentsline {section}{\numberline {第四章}系统测试与结果分析}{6}{section.4}%
+\contentsline {subsection}{\numberline {4.1}测试方法与环境}{6}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}测试方法}{6}{subsubsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.2}测试环境}{6}{subsubsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.2}主要功能模块测试用例与结果}{6}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}文章爬取模块测试用例}{6}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}文章搜索模块测试用例}{6}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}AI增强功能测试用例}{6}{subsubsection.4.2.3}%
+\contentsline {subsubsection}{\numberline {4.2.4}前端界面与用户体验测试用例}{6}{subsubsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.3}测试总结与质量评估}{6}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}测试执行概况}{6}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}发现的主要问题}{6}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.3}测试结论}{6}{subsubsection.4.3.3}%
+\contentsline {section}{\numberline {第五章}参考文献}{6}{section.5}%

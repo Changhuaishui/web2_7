@@ -1,0 +1,75 @@
+@startuml
+' --- 皮肤参数设置，力求简洁，类似参考图 ---
+skinparam defaultTextAlignment center
+
+skinparam rectangle {
+    BorderColor Black
+    BackgroundColor White
+    Shadowing false
+    RoundCorner 0
+    Padding 10
+    FontSize 12 
+}
+
+skinparam line {
+    Color Black
+    Thickness 1
+}
+
+skinparam arrow {
+    Color Black
+    Thickness 1
+}
+
+hide empty members
+
+title 系统总体架构图
+
+' --- 1. 定义系统主模块 ---
+rectangle "微信公众号文章爬虫系统" as SystemMain
+
+' --- 2. 定义一级核心功能模块 ---
+rectangle "文章获取处理模块" as Mod_AcquireProcess
+rectangle "数据管理存储模块" as Mod_DataMgmt
+rectangle "用户交互模块" as Mod_UI
+
+' --- 连接主系统到一级模块 ---
+SystemMain -down- Mod_AcquireProcess
+SystemMain -down- Mod_DataMgmt
+SystemMain -down- Mod_UI
+
+' --- 3. 定义 "文章获取与处理模块" 的二级子模块 ---
+rectangle "内容爬取" as Sub_Crawl
+rectangle "内容解析与提取" as Sub_ParseExtract
+rectangle "AI辅助处理\n(摘要/关键词)" as Sub_AI_Process
+
+Mod_AcquireProcess -down- Sub_Crawl
+Mod_AcquireProcess -down- Sub_ParseExtract
+Mod_AcquireProcess -down- Sub_AI_Process
+
+' --- 4. 定义 "数据管理与存储模块" 的二级子模块 ---
+rectangle "文章数据持久化\n(数据库: MySQL)" as Sub_DBStore
+rectangle "搜索索引构建与维护\n(引擎: Lucene)" as Sub_IndexMgmt
+
+Mod_DataMgmt -down- Sub_DBStore
+Mod_DataMgmt -down- Sub_IndexMgmt
+
+' --- 5. 定义 "用户交互与展现模块" (前端) 的二级子功能 ---
+rectangle "文章搜索功能" as Sub_SearchUI
+rectangle "文章浏览功能\n(列表, 详情, 原始HTML)" as Sub_BrowseUI
+rectangle "标签筛选功能" as Sub_TagFilterUI
+
+Mod_UI -down- Sub_SearchUI
+Mod_UI -down- Sub_BrowseUI
+Mod_UI -down- Sub_TagFilterUI
+
+' --- (可选) 定义用户 Actor 及其与系统的交互 ---
+actor "用户" as UserActor
+UserActor -left-> Mod_UI : "访问与操作界面"
+
+
+' --- (可选) 尝试使用隐藏连接调整一级模块的横向布局 ---
+' Mod_AcquireProcess -[hidden]right- Mod_DataMgmt
+' Mod_DataMgmt -[hidden]right- Mod_UI
+
+@enduml

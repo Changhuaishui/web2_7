@@ -1,0 +1,71 @@
+@startuml 系统数据流图
+!theme plain
+skinparam dpi 300
+skinparam defaultTextAlignment center
+skinparam rectangleBorderThickness 1
+skinparam databaseBorderThickness 1
+skinparam arrowThickness 1.5
+skinparam linetype polyline
+skinparam shadowing false
+
+' 颜色定义
+!define USER_COLOR #E3F2FD
+!define PROCESS_COLOR #E8F5E9
+!define STORAGE_COLOR #FFF9C4
+!define EXTERNAL_COLOR #FFEBEE
+
+' 图例样式
+legend
+|= 图形 |= 含义 |
+|<#USER_COLOR>     | 外部实体 |
+|<#PROCESS_COLOR>  | 处理过程 |
+|<#STORAGE_COLOR>  | 数据存储 |
+|<#EXTERNAL_COLOR> | 外部服务 |
+endlegend
+
+' 分层定义
+package "用户交互层" {
+  actor "用户" as User #USER_COLOR
+}
+
+package "应用处理层" {
+  rectangle "文章采集模块" as Process1 #PROCESS_COLOR
+  rectangle "文章检索模块" as Process2 #PROCESS_COLOR
+  rectangle "智能分析模块" as Process3 #PROCESS_COLOR
+}
+
+package "数据存储层" {
+  database "关系数据库" as DB #STORAGE_COLOR {
+    frame "文章信息表"
+    frame "摘要信息表"
+  }
+  database "全文索引库" as LuceneDB #STORAGE_COLOR
+  database "文件存储" as FS #STORAGE_COLOR
+}
+
+package "外部服务层" {
+  cloud "AI服务" as AI #EXTERNAL_COLOR
+}
+
+' 数据流
+' 文章采集流程
+User --> Process1 : 1.提交文章URL
+Process1 --> DB : 2.存储文章元数据
+Process1 --> FS : 3.保存文章图片资源
+Process1 --> LuceneDB : 4.建立全文索引
+
+' 文章检索流程
+User --> Process2 : 5.提交检索关键词
+Process2 --> LuceneDB : 6.执行全文检索
+LuceneDB --> Process2 : 7.返回匹配结果
+Process2 --> User : 8.展示检索结果
+
+' AI摘要流程
+User --> Process3 : 9.请求智能分析
+Process3 --> DB : 10.获取文章内容
+Process3 --> AI : 11.请求AI分析
+AI --> Process3 : 12.返回摘要和关键词
+Process3 --> DB : 13.保存分析结果
+Process3 --> User : 14.展示分析结果
+
+@enduml 

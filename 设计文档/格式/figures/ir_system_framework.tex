@@ -1,0 +1,29 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\usepackage{ctex}
+\usetikzlibrary{shapes,arrows,positioning}
+
+\begin{document}
+\begin{tikzpicture}[
+    node distance=2cm,
+    block/.style={rectangle,draw,minimum width=2cm,minimum height=1cm,align=center},
+    database/.style={cylinder,draw,shape border rotate=90,aspect=0.3,minimum width=1.5cm,minimum height=2cm},
+    arrow/.style={->,>=stealth,thick}
+]
+
+% 主要组件
+\node[block] (user) at (0,0) {用户};
+\node[block,right=of user] (query) {查询处理};
+\node[database,right=of query] (index) {索引库};
+\node[block,below=2cm of query] (search) {检索系统};
+\node[database,left=of search] (docs) {文档集合};
+
+% 箭头和连接
+\draw[arrow] (user) -- node[above] {query} (query);
+\draw[arrow] (query) -- (index);
+\draw[arrow] (index) -- (search);
+\draw[arrow] (docs) -- (search);
+\draw[arrow] (search) -| node[near start,right] {排序过的\\结果} (user);
+
+\end{tikzpicture}
+\end{document} 

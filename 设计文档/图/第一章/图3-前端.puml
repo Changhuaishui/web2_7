@@ -1,0 +1,25 @@
+@startuml
+!theme plain
+skinparam monochrome true
+skinparam defaultFontSize 26
+skinparam rectangle {
+  BorderColor Black
+  RoundCorner 15
+}
+
+rectangle "前端交互模块" as Frontend
+
+
+rectangle "文章爬取" as F1
+rectangle "文章检索" as F2
+rectangle "文章浏览" as F3
+rectangle "标签筛选" as F4
+
+
+
+Frontend -down-> F1
+Frontend -down-> F2
+Frontend -down-> F3
+Frontend -down-> F4
+
+@enduml

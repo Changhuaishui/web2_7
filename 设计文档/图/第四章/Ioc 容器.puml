@@ -1,0 +1,24 @@
+@startuml
+' 隐藏底部的水印
+hide footbox
+
+' 应用 plain 主题，通常会去除填充颜色
+!theme plain
+
+' 定义各个组件/Bean，使用 rectangle 表示方框
+rectangle "main" as Main
+rectangle "articleController" as ArticleController
+rectangle "articleServiceImpl" as ArticleServiceImpl
+rectangle "articleMapper" as ArticleMapper
+
+' 定义它们之间的关系
+' 从 main 到 articleController 的虚线连接
+Main ..> ArticleController
+
+' 从 articleController 到 articleServiceImpl 的虚线连接，带 @Autowired 标签
+ArticleController ..> ArticleServiceImpl : @Autowired
+
+' 从 articleController 到 articleMapper 的虚线连接，带 @Autowired 标签
+ArticleController ..> ArticleMapper : @Autowired
+
+@enduml

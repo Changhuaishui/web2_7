@@ -1,0 +1,37 @@
+@startuml 系统数据流图(简化版)
+!theme plain
+skinparam dpi 300
+skinparam handwritten false
+skinparam defaultTextAlignment center
+skinparam shadowing false
+skinparam linetype ortho
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+
+' 定义实体
+actor "用户" as User
+rectangle "文章采集" as Process1 #lightgray
+rectangle "文章检索" as Process2 #lightgray
+rectangle "智能分析" as Process3 #lightgray
+database "数据库" as DB
+database "索引库" as LuceneDB
+database "文件存储" as FS
+cloud "AI服务" as AI
+
+' 主要数据流向
+User --> Process1 : 提交URL
+Process1 --> DB : 存储数据
+Process1 --> FS : 保存资源
+Process1 --> LuceneDB : 建立索引
+
+User --> Process2 : 检索请求
+Process2 <--> LuceneDB : 查询/返回
+Process2 --> User : 返回结果
+
+User --> Process3 : 分析请求
+Process3 --> DB : 读取内容
+Process3 <--> AI : 请求/响应
+Process3 --> DB : 保存结果
+Process3 --> User : 展示分析
+
+@enduml 

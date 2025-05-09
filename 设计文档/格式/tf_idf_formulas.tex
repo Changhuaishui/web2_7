@@ -1,0 +1,124 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{CJKutf8}
+\usepackage{geometry}
+\geometry{a4paper,margin=2.5cm}
+
+\title{TF-IDF算法数学公式说明}
+\author{Web2.7项目组}
+\date{\today}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\maketitle
+
+\section{TF-IDF算法基本公式}
+
+\subsection{词频（TF）}
+词频（Term Frequency）表示词条在文档中出现的频率：
+
+\[
+TF(t,d) = \frac{n_{t,d}}{\sum_{k} n_{k,d}}
+\]
+
+其中：
+\begin{itemize}
+\item $n_{t,d}$ 表示词条t在文档d中出现的次数
+\item $\sum_{k} n_{k,d}$ 表示文档d中所有词条的总数
+\item \textbf{中文解释:} \emph{词条在文档中出现的次数} / \emph{文档中所有词条的总数}
+\end{itemize}
+
+\subsection{逆文档频率（IDF）}
+逆文档频率（Inverse Document Frequency）用于衡量词条的重要性：
+
+\[
+IDF(t) = \log\frac{N}{df_t + 1}
+\]
+
+其中：
+\begin{itemize}
+\item $N$ 表示文档集合中的文档总数
+\item $df_t$ 表示包含词条t的文档数量
+\item 加1是为了避免分母为0
+\item \textbf{中文解释:} $\log($ \emph{文档总数} / (\emph{包含该词条的文档数量} + 1) $)$
+\end{itemize}
+
+\subsection{TF-IDF得分}
+TF-IDF得分是TF和IDF的乘积：
+
+\[
+TFIDF(t,d) = TF(t,d) \times IDF(t)
+\]
+
+其中：
+\begin{itemize}
+\item \textbf{中文解释:} \emph{词频(词条, 文档)} $\times$ \emph{逆文档频率(词条)}
+\end{itemize}
+
+\section{项目中的改进公式}
+
+\subsection{标题权重加权}
+对于标题中出现的词条，我们增加了额外的权重：
+
+\[
+Score_{title}(t) = TFIDF(t,d) \times (1 + \alpha_{title})
+\]
+
+其中 $\alpha_{title} = 0.8$ 是标题权重系数。
+\begin{itemize}
+\item \textbf{中文解释:} \emph{TF-IDF得分(词条,文档)} $\times$ (1 + \emph{标题权重系数})
+\end{itemize}
+
+\subsection{位置权重}
+对于在标题开头出现的词条，进一步增加权重：
+
+\[
+Score_{position}(t) = Score_{title}(t) \times (1 + \alpha_{position})
+\]
+
+其中 $\alpha_{position} = 0.5$ 是位置权重系数。
+\begin{itemize}
+\item \textbf{中文解释:} \emph{标题加权得分(词条)} $\times$ (1 + \emph{位置权重系数})
+\end{itemize}
+
+\subsection{最终标签得分}
+对于每个标签类别，其最终得分为：
+
+\[
+Score_{tag} = \sum_{t \in keywords} Score_{position}(t) + \beta_{match} \times IsMatch_{title}(t)
+\]
+
+其中：
+\begin{itemize}
+\item $keywords$ 是标签类别的关键词集合
+\item $\beta_{match} = 0.7$ 是关键词匹配权重
+\item $IsMatch_{title}(t)$ 是一个指示函数，表示关键词是否在标题中匹配
+\item \textbf{中文解释:} $\sum_{词条 \in 标签关键词集合}$ \emph{位置加权得分(词条)} + \emph{关键词匹配权重} $\times$ \emph{关键词是否在标题中匹配}
+\end{itemize}
+
+\section{阈值和限制}
+
+\subsection{标签匹配阈值}
+文章只有在标签得分超过阈值时才会被分配该标签：
+
+\[
+Selected_{tag} = \begin{cases} 
+1 & \text{if } Score_{tag} \geq \theta \\
+0 & \text{otherwise}
+\end{cases}
+\]
+
+其中 $\theta = 0.005$ 是标签匹配阈值。
+\begin{itemize}
+\item \textbf{中文解释:} 如果 \emph{标签得分} $\geq$ \emph{标签匹配阈值} 则为 1 (选择该标签)，否则为 0。
+\end{itemize}
+
+\subsection{最大标签数限制}
+每篇文章最多被分配 $k$ 个标签，其中 $k = 5$。
+\begin{itemize}
+\item \textbf{中文解释:} 每篇文章最多分配 5 个标签。
+\end{itemize}
+
+\end{CJK}
+\end{document} 

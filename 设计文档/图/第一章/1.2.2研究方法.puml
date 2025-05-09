@@ -1,0 +1,112 @@
+@startuml
+!theme plain
+skinparam monochrome true
+skinparam defaultFontSize 26
+
+skinparam {
+    ArrowColor Black
+    BorderColor Black
+}
+
+title 微信公众号文章采集系统 - 完整流程图
+
+' 定义参与者
+actor "用户" as User
+participant "前端界面" as Frontend
+participant "CrawlerController" as Controller
+participant "CrawlerService" as Service
+participant "WeChatArticleSpider" as Spider
+participant "DatabasePipeline" as Pipeline
+database "MySQL" as DB
+participant "LuceneIndexService" as Lucene
+participant "DeepSeekService" as DeepSeek
+participant "TFIDFCalculator" as TFIDF
+
+' 定义流程
+autonumber
+User -> Frontend : 输入微信文章URL
+Frontend -> Controller : 发送爬取请求
+Controller -> Service : 调用爬虫服务
+
+group 链接验证
+    Service -> Spider : 检查链接有效性
+    Spider -> Spider : 验证URL格式
+    alt 链接无效
+        Spider --> Service : 返回错误信息
+        Service --> Controller : 通知链接无效
+        Controller --> Frontend : 显示错误信息
+        Frontend --> User : 提示重新输入
+    end
+end
+
+group 数据采集
+    Service -> Spider : 创建爬虫实例
+    Spider -> Spider : 配置User-Agent和请求头
+    Spider -> Spider : 发送HTTP请求获取页面
+    Spider -> Spider : 解析HTML内容
+    Spider -> Spider : 提取文章信息\n(标题/作者/发布时间/正文/图片)
+end
+
+group 数据处理与存储
+    Spider -> Pipeline : 传递解析数据
+    Pipeline -> Pipeline : 数据清洗和结构化
+    Pipeline -> Pipeline : 下载和处理图片
+    Pipeline -> DB : 保存文章基本信息
+    Pipeline -> DB : 保存文章全文内容
+    Pipeline -> DB : 保存图片信息
+end
+
+group 智能处理
+    Pipeline -> DeepSeek : 请求AI处理
+    DeepSeek -> DeepSeek : 生成文章摘要
+    DeepSeek --> Pipeline : 返回摘要结果
+    
+    Pipeline -> TFIDF : 请求关键词分析
+    TFIDF -> TFIDF : 计算词频(TF)
+    TFIDF -> TFIDF : 计算逆文档频率(IDF)
+    TFIDF -> TFIDF : 提取关键词
+    TFIDF --> Pipeline : 返回关键词列表
+end
+
+group 搜索索引
+    Pipeline -> Lucene : 创建搜索索引
+    Lucene -> Lucene : 建立文章全文索引
+    Lucene -> Lucene : 标题索引
+    Lucene -> Lucene : 更新索引文件
+end
+
+group 结果返回
+    Pipeline --> Service : 处理完成通知
+    Service --> Controller : 返回处理结果
+    Controller --> Frontend : 发送成功响应
+    Frontend --> User : 显示处理完成
+end
+
+' 注释说明
+note right of Spider
+  使用WebMagic框架
+  处理反爬和超时
+end note
+
+note right of Pipeline
+  实现数据清洗
+  处理图片下载
+  管理数据流转
+end note
+
+note right of DeepSeek
+  调用DeepSeek API
+  生成智能摘要
+end note
+
+note right of TFIDF
+  实现TF-IDF算法
+  提取文章关键词
+end note
+
+note right of Lucene
+  使用IKAnalyzer分词
+  建立全文检索索引
+end note
+
+@enduml

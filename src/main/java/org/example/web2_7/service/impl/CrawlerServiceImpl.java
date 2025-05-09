@@ -4,10 +4,11 @@ package org.example.web2_7.service.impl;
  * 爬虫实现服务
  * 爬虫逻辑：
  * 1. 接收URL
- * 2. 创建爬虫实例
- * 3. 配置线程和数据管道
- * 4. 运行爬虫
- * 5. 保存爬取结果到数据库，并下载图片到以文章标题命名的文件夹中
+ * 2. 利用Jsoup连接URL，判断是否有效
+ * 3. 利用Webmagic创建爬虫实例
+ * 4. 配置线程和数据管道，先添加失效链接管道，再添加数据库管道
+ * 5. 运行爬虫
+ * 6. 保存爬取结果到数据库，并下载图片到以文件
  */
 import org.example.web2_7.service.CrawlerService;
 import org.example.web2_7.crawler.DatabasePipeline;
@@ -43,7 +44,7 @@ public class CrawlerServiceImpl implements CrawlerService {
             // 创建爬虫实例并配置
             Spider spider = Spider.create(new WeChatArticleSpider())
                     .addUrl(url)
-                    .thread(1)
+                    .thread(1)  // 设置线程数为1，可以支持多线程
                     .addPipeline(invalidLinkPipeline)  // 先添加失效链接管道
                     .addPipeline(databasePipeline);    // 再添加数据库管道
             
@@ -61,14 +62,15 @@ public class CrawlerServiceImpl implements CrawlerService {
     public boolean checkLinkStatus(String url) throws Exception {
         logger.info("检查链接状态: {}", url);
         
+        // 异常处理，判断URL是否有效
         try {
             // 直接使用Jsoup连接URL
             Document doc = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
-                    .timeout(10000)
+                    .timeout(10000)  // 保险起见，设置超时时间为10秒
                     .get();
             
-            // 检测微信失效链接
+            // 检测微信失效链接，返回异常信息
             Element invalidLinkElement = doc.selectFirst("div.weui-msg__title.warn");
             if (invalidLinkElement != null && invalidLinkElement.text().contains("临时链接已失效")) {
                 logger.warn("链接无效: {} - 原因: {}", url, invalidLinkElement.text());

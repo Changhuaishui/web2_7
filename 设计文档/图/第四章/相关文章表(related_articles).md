@@ -1,7 +1,9 @@
-| 字段名 | 数据类型 | 长度 | 允许空 | 约束 | 说明 |
-|--------|---------|------|--------|------|------|
-| id | INT | - | 否 | PRIMARY KEY, AUTO_INCREMENT | 自增主键ID |
-| article_id | INT | - | 否 | FOREIGN KEY | 源文章ID |
-| related_url | VARCHAR | 1024 | 否 | - | 相关文章URL |
-| title | VARCHAR | 255 | 是 | - | 相关文章标题 |
-| created_at | TIMESTAMP | - | 否 | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
+相关文章表(related_articles)
+
+| 字段名 | 数据类型 | 允许空 | 约束 | 说明 |
+|--------|----------|--------|------|------|
+| id | INT | 否 | 主键, 自动递增 | 自增主键ID |
+| article_id | INT | 否 | 外键 | 源文章ID |
+| related_url | VARCHAR | 否 | - | 相关文章URL |
+| title | VARCHAR | 是 | - | 相关文章标题 |
+| created_at | TIMESTAMP | 否 | 默认为当前时间 | 创建时间 |

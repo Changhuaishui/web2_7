@@ -1,4 +1,27 @@
 @startuml
+!theme plain
+skinparam monochrome true
+skinparam defaultFontSize 26
+skinparam activity {
+  BorderColor black
+  BackgroundColor white
+}
+skinparam control {
+  BorderColor black
+  BackgroundColor white
+}
+skinparam start {
+  BorderColor black
+  BackgroundColor white
+}
+skinparam end {
+  BorderColor black
+  BackgroundColor white
+}
+skinparam arrow {
+  Color black
+}
+
 title 微信公众号文章爬取和显示流程图
 start
 :输入URL点击"开始爬取"按钮;

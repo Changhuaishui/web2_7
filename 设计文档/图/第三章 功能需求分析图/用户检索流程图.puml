@@ -1,4 +1,27 @@
 @startuml
+!theme plain
+skinparam monochrome true
+skinparam defaultFontSize 26
+skinparam activity {
+  BorderColor black
+  BackgroundColor white
+}
+skinparam control {
+  BorderColor black
+  BackgroundColor white
+}
+skinparam start {
+  BorderColor black
+  BackgroundColor white
+}
+skinparam end {
+  BorderColor black
+  BackgroundColor white
+}
+skinparam arrow {
+  Color black
+}
+
 title 用户检索文章流程图
 start
 :点击搜索框;

@@ -37,46 +37,30 @@ public class LuceneConfig {
             Path dictPath = Paths.get(dictionaryPath);
             if (!Files.exists(dictPath)) {
                 Files.createDirectories(dictPath);
-                
-                // 创建一个默认的自定义词典文件
-                Path mainDict = dictPath.resolve("custom_main.dic");
-                if (!Files.exists(mainDict)) {
-                    List<String> defaultWords = List.of(
-                        "白山", "黑水", "长白山", "吉林省",
-                        "ChatGPT", "AIGC", "人工智能", 
-                        "大模型", "机器学习"
-                    );
-                    Files.write(mainDict, defaultWords);
-                    System.out.println("已创建默认自定义词典文件: " + mainDict);
-                }
-                
-                // 创建一个默认的停用词典文件
-                Path stopwordDict = dictPath.resolve("custom_stopword.dic");
-                if (!Files.exists(stopwordDict)) {
-                    List<String> defaultStopwords = List.of(
-                        "的", "了", "是", "在", "我", "有", "和", "就", 
-                        "不", "人", "都", "一", "一个", "上", "也", "很", 
-                        "到", "说", "要", "去", "你", "会", "着", "没有", 
-                        "看", "好", "自己", "这"
-                    );
-                    Files.write(stopwordDict, defaultStopwords);
-                    System.out.println("已创建默认停用词典文件: " + stopwordDict);
-                }
             }
             
             // 设置自定义词典路径
-            System.setProperty("dic.path", dictPath.toAbsolutePath().toString());
-            System.out.println("自定义词典路径: " + dictPath.toAbsolutePath());
+            String absolutePath = dictPath.toAbsolutePath().toString();
+            System.setProperty("dic.path", absolutePath);
+            System.out.println("自定义词典路径: " + absolutePath);
+            
+            // 检查词库文件
+            Path mainDict = dictPath.resolve("custom_main.dic");
+            if (Files.exists(mainDict)) {
+                System.out.println("词库文件存在: " + mainDict);
+                System.out.println("词库文件大小: " + Files.size(mainDict) + " 字节");
+            } else {
+                System.err.println("词库文件不存在: " + mainDict);
+            }
+            
+            // 重新初始化词典
+            Dictionary.initial(DefaultConfig.getInstance());
+            System.out.println("词典重新加载完成");
             
         } catch (Exception e) {
             System.err.println("初始化自定义词典失败: " + e.getMessage());
             e.printStackTrace();
         }
-        
-        // 初始化词典
-        org.wltea.analyzer.cfg.Configuration cfg = DefaultConfig.getInstance();
-        cfg.setUseSmart(useSmart);
-        Dictionary.initial(cfg);
     }
     
     /**

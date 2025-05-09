@@ -52,6 +52,10 @@ public class ArticleSearchService {
         }
     }
 
+    /*
+     * 搜索文章
+     * 
+     */
     public List<Article> searchArticles(String keyword) throws Exception {
         if (keyword == null || keyword.trim().isEmpty()) {
             return new ArrayList<>();
@@ -79,11 +83,8 @@ public class ArticleSearchService {
                 reader = indexManager.getIndexReader();
                 IndexSearcher searcher = new IndexSearcher(reader);
                 
-                // 创建排序器（按发布时间降序）
-                Sort sort = new Sort(new SortField("publishTime", SortField.Type.STRING, true));
-                
-                // 执行查询，获取前100条结果
-                TopDocs topDocs = searcher.search(query, 100, sort);
+                // 执行查询，获取前100条结果，按相关度排序
+                TopDocs topDocs = searcher.search(query, 100);
                 
                 List<Article> results = new ArrayList<>();
                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {

@@ -11,10 +11,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+/*@Service 注解用于标识一个类是 Spring 框架中的服务类，
+ * 此后，Spring 框架会自动将
+ *  ArticleServiceImpl 注入到需要使用 ArticleService 的地方，
+ * 实现了接口和实现类的解耦。
+ * 
+ */
 public class ArticleServiceImpl implements ArticleService {
     private static final Logger logger = LoggerFactory.getLogger(ArticleServiceImpl.class);
 
     @Autowired
+    /*
+     * @Autowired 注解用于自动装配 Bean，
+     * 此处是注入 ArticleDao的，
+     * 具体是ArticleDao的findById方法，
+     *
+     * 
+     * 
+     */
     private ArticleDao articleDao;
     
     @Autowired

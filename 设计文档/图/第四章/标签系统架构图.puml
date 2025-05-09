@@ -1,0 +1,38 @@
+@startuml 标签系统架构图
+!theme plain
+skinparam componentStyle rectangle
+top to bottom direction
+skinparam Padding 5
+skinparam nodesep 20
+skinparam ranksep 30
+skinparam defaultFontSize 26
+
+title 标签系统架构设计
+
+rectangle "表现层" as Controller {
+  rectangle "TagController" as TC
+}
+
+rectangle "业务逻辑层" as Service {
+  rectangle "TagService" as TS
+  rectangle "TFIDFCalculator" as TFIDF
+}
+
+rectangle "缓存层" as CacheLayer {
+  rectangle "文章-标签映射" as ATC
+  rectangle "标签-文章映射" as TAC
+}
+
+rectangle "数据层" as DataLayer {
+  rectangle "标签分类" as TC1
+  rectangle "关键词库" as KW
+}
+
+TC --> TS : 调用
+TS --> TFIDF : 使用
+TS --> ATC : 读写
+TS --> TAC : 读写
+TS --> TC1 : 读取
+TS --> KW : 读取
+
+@enduml 

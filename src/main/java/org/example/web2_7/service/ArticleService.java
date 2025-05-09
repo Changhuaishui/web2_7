@@ -1,5 +1,9 @@
 package org.example.web2_7.service;
-
+/*
+ * 文章服务接口
+ * 提供获取文章信息、原始HTML内容和处理后的HTML内容的方法
+ * 具体在impl包中实现
+ */
 import org.example.web2_7.pojo.Article;
 
 public interface ArticleService {

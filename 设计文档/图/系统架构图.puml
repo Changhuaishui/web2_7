@@ -1,0 +1,90 @@
+@startuml
+!theme plain
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam defaultFontName Microsoft YaHei
+skinparam defaultFontSize 14
+skinparam roundCorner 20
+skinparam componentStyle rectangle
+skinparam ArrowColor #666666
+skinparam linetype ortho
+
+' 定义颜色
+!define INTERFACE_BG #A9DCDF
+!define SERVICE_BG #C8E6C9
+!define STORAGE_BG #FFE0B2
+!define EXTERNAL_BG #E1BEE7
+
+' 标题
+title 基于TF-IDF的智能文章处理系统架构
+
+' 外部系统
+package "外部服务" {
+    [DeepSeek API] as DeepSeek #EXTERNAL_BG
+    interface "RESTful API" as API #INTERFACE_BG
+}
+
+' 核心服务层
+package "核心服务层" {
+    ' 文章处理服务
+    component "文章处理服务" as ArticleService #SERVICE_BG {
+        [文章采集模块] as Collector
+        [文章存储模块] as Storage
+        [文章索引模块] as Indexer
+    }
+    
+    ' 搜索服务
+    component "智能搜索服务" as SearchService #SERVICE_BG {
+        [TF-IDF计算器] as TFIDF
+        [搜索引擎] as SearchEngine
+    }
+    
+    ' AI增强服务
+    component "AI增强服务" as AIService #SERVICE_BG {
+        [摘要生成器] as Summarizer
+        [关键词提取器] as KeywordExtractor
+    }
+    
+    ' 标签管理服务
+    component "标签管理服务" as TagService #SERVICE_BG {
+        [标签分类器] as Classifier
+        [标签权重计算器] as WeightCalculator
+    }
+}
+
+' 数据存储层
+package "数据持久层" {
+    database "MySQL" as MySQL #STORAGE_BG
+    database "Lucene索引" as LuceneDB #STORAGE_BG
+    database "文件系统" as FileSystem #STORAGE_BG
+}
+
+' 关系连接
+' 服务间关系
+ArticleService --> SearchService : 提供文档
+SearchService --> TagService : 提供TF-IDF特征
+AIService --> TagService : 提供关键词
+TagService --> ArticleService : 更新标签
+
+' 存储关系
+ArticleService --> MySQL : 存储文章
+ArticleService --> FileSystem : 存储资源
+ArticleService --> LuceneDB : 建立索引
+SearchService --> LuceneDB : 检索文档
+TagService --> MySQL : 存储标签
+
+' 外部服务关系
+AIService --> DeepSeek : 调用
+API --> ArticleService : 请求处理
+API --> SearchService : 搜索请求
+API --> AIService : AI增强请求
+API --> TagService : 标签管理
+
+' 布局优化
+Collector -[hidden]right- Storage
+Storage -[hidden]right- Indexer
+TFIDF -[hidden]right- SearchEngine
+Summarizer -[hidden]right- KeywordExtractor
+Classifier -[hidden]right- WeightCalculator
+
+@enduml 

@@ -14,8 +14,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 文章控制器
- * 提供文章相关API
+ * RESTful API是Spring Boot提供的一种API开发方式，
+ * 通过@RestController注解
+ * 和@RequestMapping注解来定义API接口。
+ * /api/articles是文章API的根路径，目的是
+ * 
+ * 提供文章相关API，
+ * 为文章相关的操作提供统一的访问入口，
+ * 使得客户端可以通过该路径访问和操作文章资源。
  */
 @RestController
 @RequestMapping("/api/articles")
@@ -31,6 +37,7 @@ public class ArticleController {
 
     /**
      * 获取所有文章（按发布时间倒序）
+     * 用于首页的展示
      */
     @GetMapping
     public ResponseEntity<List<Article>> getAllArticles() {
@@ -44,7 +51,8 @@ public class ArticleController {
     }
 
     /**
-     * 根据ULID获取文章
+     * 根据ULID获取文章，
+     * 用于文章详情页的展示
      */
     @GetMapping("/{ulid}")
     public ResponseEntity<Article> getArticleByUlid(@PathVariable("ulid") String ulid) {
@@ -62,7 +70,8 @@ public class ArticleController {
 
     /**
      * 获取文章图片信息
-     * 返回文章ULID和关联的图片ULID列表
+     * 从数据库中获取文章ULID和关联的图片ULID列表
+     * 准备用于文章详情页的展示
      */
     @GetMapping("/{ulid}/images")
     public ResponseEntity<Map<String, Object>> getArticleImages(@PathVariable("ulid") String ulid) {
@@ -112,7 +121,8 @@ public class ArticleController {
 
     /**
      * 获取所有文章的ULID和图片ULID列表
-     * 提供给前端批量获取图片信息
+     * 将已获取的图片信息提供给前端
+     * 用于文章详情页的展示
      */
     @GetMapping("/images")
     public ResponseEntity<List<Map<String, Object>>> getAllArticleImages() {
@@ -170,6 +180,7 @@ public class ArticleController {
     /**
      * 获取文章HTML内容
      * 返回处理后的HTML内容（图片URL已替换为本地路径）
+     * 用于文章详情页的展示
      */
     @GetMapping("/{ulid}/html")
     public ResponseEntity<Map<String, Object>> getArticleHtml(@PathVariable("ulid") String ulid) {
