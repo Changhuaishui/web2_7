@@ -1,0 +1,40 @@
+@startuml
+!theme plain
+skinparam linetype ortho
+skinparam roundcorner 20
+skinparam dpi 100
+skinparam arrowFontSize 12
+
+' 外部实体
+rectangle "用户" as User #lightblue
+rectangle "AI服务" as AI #lightblue
+
+' 处理过程
+rectangle "文章采集处理" as Process1 #lightgreen
+rectangle "文章检索处理" as Process2 #lightgreen
+rectangle "AI摘要生成" as Process3 #lightgreen
+
+' 数据存储
+database "MySQL数据库" as DB #lightyellow
+database "Lucene索引" as LuceneDB #lightyellow
+database "文件系统" as FS #lightyellow
+
+' 数据流
+User -right-> Process1 : 1.输入文章URL
+Process1 -right-> DB : 2.存储文章信息
+Process1 -down-> FS : 3.保存图片资源
+Process1 -down-> LuceneDB : 4.建立索引
+
+User -down-> Process2 : 5.输入搜索关键词
+Process2 -right-> LuceneDB : 6.查询索引
+LuceneDB -left-> Process2 : 7.返回匹配文章
+Process2 -up-> User : 8.显示搜索结果
+
+User -down-> Process3 : 9.请求AI摘要
+Process3 -right-> DB : 10.获取文章内容
+Process3 -right-> AI : 11.请求生成摘要
+AI -left-> Process3 : 12.返回摘要和关键词
+Process3 -up-> DB : 13.保存摘要和关键词
+Process3 -up-> User : 14.展示AI分析结果
+
+@enduml

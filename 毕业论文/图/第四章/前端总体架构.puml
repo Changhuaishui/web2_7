@@ -1,0 +1,53 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam packagePadding 10
+
+package "信息公众号文章采集与检索系统前端架构" {
+  package "视图层 (Views)" {
+    [Home.vue]
+    [ArticleDetail.vue]
+    [Search.vue]
+    [ArticleHtml.vue]
+  }
+  
+  package "组件层 (Components)" {
+    [Search组件]
+    [标签组件]
+    [ArticleDetail组件]
+  }
+  
+  package "前端框架 (Vue.js)" {
+    [Vue Router]
+    [Axios]
+    [Element Plus]
+  }
+  
+  package "资源 (Assets)" {
+    [样式文件]
+    [图片资源]
+  }
+  
+  package "工具类 (Utils)" {
+    [日期格式化]
+    [文章内容处理器]
+  }
+  
+  [浏览器] as Browser
+  [后端API] as BackendAPI
+  
+  ' 简化连接关系，减少图宽度
+  Browser --> 前端框架
+  前端框架 --> 视图层
+  前端框架 --> BackendAPI
+  
+  视图层 ..> 组件层
+  视图层 ..> 资源
+  组件层 ..> 工具类
+}
+
+caption "前端总体架构设计与组件化"
+@enduml

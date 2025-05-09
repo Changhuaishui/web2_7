@@ -1,0 +1,41 @@
+@startuml
+!theme plain
+skinparam linetype polyline
+skinparam componentStyle rectangle
+skinparam dpi 100
+skinparam nodesep 70
+skinparam ranksep 70
+
+' 简化布局
+left to right direction
+
+' 定义主要组件，按层次排列
+actor "用户" as User
+rectangle "前端界面" as UI #lightblue
+rectangle "控制器层" as Controller #lightgreen
+rectangle "服务层" as Service #lightyellow
+rectangle "索引管理" as IndexManager #lightpink
+database "Lucene索引" as LuceneIndex
+database "MySQL" as MySQL
+
+' 定义主要流程 - 简化为两个主要路径
+
+' 搜索路径
+User --> UI : 1.输入关键词
+UI --> Controller : 2.请求搜索
+Controller --> Service : 3.处理请求
+Service --> IndexManager : 4.构建查询
+IndexManager --> LuceneIndex : 5.执行搜索
+IndexManager <-- LuceneIndex : 6.返回结果
+Service <-- IndexManager : 7.处理结果
+Controller <-- Service : 8.格式化数据
+UI <-- Controller : 9.展示结果
+User <-- UI : 10.查看搜索结果
+
+' 索引构建路径
+MySQL --> Service : A.提供文章数据
+Service --> IndexManager : B.处理文档
+IndexManager --> LuceneIndex : C.建立索引
+
+caption "图 4-X 搜索模块数据流图"
+@enduml

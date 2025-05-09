@@ -1,0 +1,42 @@
+@startuml
+!theme materia
+title 文章爬取流程时序图
+
+actor User as 用户
+participant "Frontend (Vue.js)" as FE
+participant "Backend API (Spring Boot)" as BE
+participant "Crawler Module" as Crawler
+database "Database (MySQL)" as DB
+participant "Search Index (Lucene)" as Index
+
+用户 -> FE : 1. 提交文章URL进行爬取
+activate FE
+
+FE -> BE : 2. 发送爬取请求 (POST /api/crawler/crawl)
+activate BE
+
+BE -> BE : 3. 检查URL是否已爬取 (查询数据库)
+BE -> Crawler : 4. 若未爬取，启动爬虫任务 (url)
+activate Crawler
+
+Crawler -> Crawler : 5. 抓取并解析文章页面
+Crawler -> DB : 6. 保存文章数据
+activate DB
+DB --> Crawler : 7. 数据保存成功
+deactivate DB
+
+Crawler -> Index : 8. 更新搜索索引
+activate Index
+Index --> Crawler : 9. 索引更新成功
+deactivate Index
+
+Crawler --> BE : 10. 返回爬取结果 (成功/失败)
+deactivate Crawler
+
+BE --> FE : 11. 返回任务状态
+deactivate BE
+
+FE --> 用户 : 12. 显示爬取结果
+deactivate FE
+
+@enduml

@@ -1,0 +1,84 @@
+@startuml
+' 皮肤参数设置，力求简洁，类似参考图
+skinparam defaultTextAlignment center
+skinparam rectangle {
+  BorderColor Black
+  BackgroundColor White
+  Shadowing false
+  RoundCorner 0
+  Padding 10
+  FontSize 12
+}
+skinparam line {
+  Color Black
+  Thickness 1
+}
+skinparam arrow {
+  Color Black
+  Thickness 1
+}
+
+hide empty members
+
+title 微信公众号文章爬虫系统结构功能图
+
+' --- 1. 定义系统主模块 ---
+rectangle "微信公众号文章\n爬虫系统" as SystemMain
+
+' --- 2. 定义一级核心功能模块 ---
+rectangle "文章采集模块" as Mod_Crawler
+rectangle "内容管理模块" as Mod_ContentMgmt
+rectangle "文章搜索模块" as Mod_Search
+rectangle "AI 增强模块" as Mod_AI
+rectangle "标签系统模块" as Mod_Tag
+rectangle "图片管理模块" as Mod_Image
+
+' --- 连接主系统到一级模块 ---
+SystemMain -down- Mod_Crawler
+SystemMain -down- Mod_ContentMgmt
+SystemMain -down- Mod_Search
+SystemMain -down- Mod_AI
+SystemMain -down- Mod_Tag
+SystemMain -down- Mod_Image
+
+' --- 3. 定义各模块的子功能/子模块 (根据您的功能设计和日志细化) ---
+
+' 文章采集模块子功能
+Mod_Crawler -down- rectangle "文章 URL 采集" as Sub_Crawl_URL
+Mod_Crawler -down- rectangle "内容解析与提取" as Sub_Crawl_Parse
+Mod_Crawler -down- rectangle "图片下载与处理" as Sub_Crawl_Image
+Mod_Crawler -down- rectangle "失效链接检测" as Sub_Crawl_Invalid
+
+' 内容管理模块子功能
+Mod_ContentMgmt -down- rectangle "文章列表展示" as Sub_CM_List
+Mod_ContentMgmt -down- rectangle "文章详情查看" as Sub_CM_Detail
+Mod_ContentMgmt -down- rectangle "文章删除" as Sub_CM_Delete
+Mod_ContentMgmt -down- rectangle "原始 HTML 查看" as Sub_CM_HTML
+
+' 文章搜索模块子功能
+Mod_Search -down- rectangle "全文检索" as Sub_Search_Fulltext
+Mod_Search -down- rectangle "多字段搜索" as Sub_Search_MultiField
+Mod_Search -down- rectangle "搜索索引管理" as Sub_Search_Index
+
+' AI 增强模块子功能
+Mod_AI -down- rectangle "智能摘要生成" as Sub_AI_Summary
+Mod_AI -down- rectangle "关键词提取" as Sub_AI_Keywords
+Mod_AI -down- rectangle "相关文章推荐" as Sub_AI_Related
+
+' 标签系统模块子功能
+Mod_Tag -down- rectangle "自动标签提取" as Sub_Tag_Extract
+Mod_Tag -down- rectangle "标签筛选" as Sub_Tag_Filter
+Mod_Tag -down- rectangle "标签缓存管理" as Sub_Tag_Cache
+
+' 图片管理模块子功能
+Mod_Image -down- rectangle "图片下载存储" as Sub_Image_Download
+Mod_Image -down- rectangle "图片路径映射" as Sub_Image_Mapping
+Mod_Image -down- rectangle "图片访问接口" as Sub_Image_Access
+
+' --- (可选) 连接子功能之间的关系，如果需要强调流程 ---
+' 例如：
+' Sub_Crawl_Parse --> Sub_CM_Detail : 提供解析内容
+' Sub_AI_Keywords --> Sub_Search_Fulltext : 提供关键词用于搜索
+' Sub_Tag_Extract --> Sub_Tag_Filter : 提供标签数据
+
+@enduml

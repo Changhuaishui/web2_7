@@ -1,0 +1,53 @@
+@startuml
+!theme materia
+
+title 文章采集与存储流程时序图
+
+actor User
+participant "前端页面\n(Vue.js)" as Frontend
+participant "后端Controller\n(CrawlerController)" as Controller
+participant "后端Service\n(CrawlerService)" as CrawlerService
+participant "WebMagic Spider" as Spider
+participant "PageProcessor\n(WeChatArticleSpider)" as PageProcessor
+participant "Pipeline\n(DatabasePipeline)" as DatabasePipeline
+database "MySQL Database" as Database
+participant "Lucene Index Service\n(LuceneIndexService)" as LuceneService
+
+User -> Frontend : 输入文章URL
+Frontend -> Controller : POST /api/crawler/crawl\n(url)
+activate Controller
+Controller -> CrawlerService : crawlArticle(url)
+activate CrawlerService
+CrawlerService -> Spider : create(WeChatArticleSpider)\naddUrl(url)\naddPipeline(DatabasePipeline)\nrun()
+activate Spider
+Spider -> PageProcessor : process(page)
+activate PageProcessor
+PageProcessor -> WechatPlatform : HTTP请求获取页面
+activate WechatPlatform
+WechatPlatform --> PageProcessor : 返回HTML内容
+deactivate WechatPlatform
+PageProcessor -> PageProcessor : 解析HTML\n提取数据\n生成ULID/图片映射
+PageProcessor -> Spider : 将数据放入Page对象
+deactivate PageProcessor
+Spider -> DatabasePipeline : process(resultItems)
+activate DatabasePipeline
+DatabasePipeline -> DatabasePipeline : 处理图片下载\n生成图片映射JSON
+DatabasePipeline -> Database : 插入/更新 Article\n插入/更新 ArticleFullHtml
+activate Database
+Database --> DatabasePipeline : 返回结果
+deactivate Database
+DatabasePipeline -> LuceneService : addToIndex(articleData)\nrebuildIndex() (根据需要)
+activate LuceneService
+LuceneService -> LuceneService : 构建/更新索引
+deactivate LuceneService
+DatabasePipeline --> CrawlerService : 处理完成
+deactivate DatabasePipeline
+Spider --> CrawlerService : 爬取任务结束
+deactivate Spider
+CrawlerService --> Controller : 返回结果
+deactivate CrawlerService
+Controller --> Frontend : 返回爬取状态
+deactivate Controller
+Frontend --> User : 显示状态信息
+
+@enduml

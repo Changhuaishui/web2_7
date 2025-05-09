@@ -1,0 +1,31 @@
+@startuml
+!theme plain
+skinparam handwritten false
+skinparam usecase {
+  BackgroundColor white
+  BorderColor black
+  ArrowColor black
+}
+
+left to right direction
+actor "用户" as User
+
+rectangle "微信公众号文章管理系统" {
+  ' 核心功能分组
+  usecase "文章采集" as Crawl
+  usecase "文章管理" as Manage
+  usecase "文章展示" as View
+  usecase "智能处理" as AI
+  
+  ' 直接关联用户与主要功能
+  User -- Crawl
+  User -- Manage
+  User -- View
+  User -- AI
+}
+
+note bottom of Crawl : URL输入与爬取、解析信息、下载图片
+note bottom of Manage : 文章列表、全文检索、标签筛选、删除文章
+note bottom of View : 详情浏览、相关推荐、原始HTML
+note bottom of AI : AI摘要生成、关键词提取、辅助推荐文章
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "微信公众号文章采集与检索系统后端架构" {
+  [前端应用] as Frontend
+
+  package "表现层 (Controller)" {
+    [ArticleSearchController] as ASC
+    [CrawlerController] as CC
+    [ArticleController] as AC
+  }
+  
+  package "业务逻辑层 (Service)" {
+    [LuceneIndexService] as LIS
+    [ArticleSearchService] as ASS
+    [CrawlerService] as CS
+    [ArticleService] as AS
+  }
+  
+  package "数据访问层 (DAO)" {
+    [ArticleMapper] as AM
+    [POJO类] as POJO
+  }
+  
+  package "工具类 (Utils)" {
+    [文章内容处理器] as CP
+    [图片管理工具] as IMT
+  }
+  
+  database "MySQL数据库" as DB
+  
+  ' 连接关系
+  Frontend <--> CC
+  Frontend <--> AC
+  Frontend <--> ASC
+  
+  CC --> CS
+  AC --> AS
+  ASC --> ASS
+  ASC --> LIS
+  
+  CS --> AM
+  AS --> AM
+  ASS --> AM
+  LIS --> AM
+  
+  CS ..> IMT
+  AS ..> CP
+  
+  AM --> POJO
+  AM --> DB
+}
+
+caption "后端总体架构设计与核心分层"
+@enduml

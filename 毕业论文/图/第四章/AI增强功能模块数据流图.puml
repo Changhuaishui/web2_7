@@ -1,0 +1,45 @@
+@startuml
+!theme plain
+skinparam linetype polyline
+skinparam dpi 100
+skinparam componentStyle rectangle
+
+' 主要组件
+component "前端界面" as Frontend #lightblue
+component "SummaryController" as Controller #lightgreen
+component "DeepSeekService" as AIService #lightyellow
+component "RelatedArticleService" as RelatedService #lightyellow
+database "MySQL数据库" as DB #lightgrey
+cloud "DeepSeek AI" as ExternalAI #lightpink
+cloud "搜狗微信搜索" as SogouAPI #lightpink
+
+' 数据流
+Frontend -right-> Controller : 1.请求AI摘要/关键词
+Controller -right-> AIService : 2.调用AI服务
+AIService -right-> ExternalAI : 3.构造请求调用API
+ExternalAI -left-> AIService : 4.返回AI生成结果
+AIService -left-> Controller : 5.处理AI响应
+Controller -down-> DB : 6.保存摘要/关键词
+Controller -right-> RelatedService :1
+RelatedService -right-> SogouAPI : 8.搜索相关文章
+SogouAPI -left-> RelatedService : 9.返回搜索结果
+RelatedService -left-> Controller : 7.请求相关文章 0.处理相关文章
+Controller -left-> Frontend : 11.返回完整结果
+
+note bottom of AIService
+  核心功能:
+  - 智能摘要生成
+  - 关键词提取
+  - Token超限处理
+  - 重试与截断机制
+end note
+
+note bottom of RelatedService
+  相关文章功能:
+  - 搜索API交互
+  - 防反爬策略
+  - URL解析与处理
+end note
+
+caption "图 4-X AI增强功能模块数据流图"
+@enduml

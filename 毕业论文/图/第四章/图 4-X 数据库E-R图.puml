@@ -1,0 +1,52 @@
+@startuml
+!theme plain
+skinparam linetype ortho
+skinparam roundcorner 5
+skinparam dpi 100
+skinparam rankdir TB
+
+' 定义表格
+entity "文章信息表(article_table)" as article {
+  * id : INT <<PK>>
+  --
+  * ulid : VARCHAR(26) <<UNIQUE>>
+  * title : VARCHAR(255)
+  author : VARCHAR(100)
+  * url : VARCHAR(1024) <<UNIQUE>>
+  source_url : VARCHAR(1024)
+  account_name : VARCHAR(100)
+  publish_time : DATETIME
+  * content : MEDIUMTEXT
+  images : TEXT
+  image_mappings : MEDIUMTEXT
+  summary : TEXT
+  keywords : VARCHAR(255)
+  * is_deleted : BOOLEAN
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "文章HTML表(article_full_html)" as html {
+  * id : INT <<PK>>
+  --
+  * article_id : INT <<FK>>
+  * full_html : MEDIUMTEXT
+  url_mapping : MEDIUMTEXT
+  * created_at : TIMESTAMP
+}
+
+entity "相关文章表(related_articles)" as related {
+  * id : INT <<PK>>
+  --
+  * article_id : INT <<FK>>
+  * related_url : VARCHAR(1024)
+  title : VARCHAR(255)
+  * created_at : TIMESTAMP
+}
+
+' 定义关系
+article ||--o{ html : "一对一"
+article ||--o{ related : "一对多"
+
+caption "图 4-X 数据库E-R图"
+@enduml

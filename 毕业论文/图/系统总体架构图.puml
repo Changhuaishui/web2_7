@@ -1,0 +1,85 @@
+@startuml
+!theme materia
+
+title 系统总体架构图
+
+rectangle "用户 (User)" as User
+
+rectangle "前端 (Frontend)" as Frontend {
+  component "Vue.js Framework" as Vue
+  component "Element Plus UI" as ElementPlus
+  component "Pages & Components" as Pages
+  component "API Client (Axios)" as AxiosClient
+}
+
+rectangle "后端 (Backend)" as Backend {
+  component "Spring Boot Application" as SpringBootApp
+  package "Controllers" as Controllers
+  package "Services" as Services
+  package "DAO/Mapper" as DAO
+  package "Crawler Module (WebMagic)" as Crawler
+  package "Lucene Module" as LuceneModule
+  package "AI Service Integration" as AIService
+}
+
+database "MySQL Database" as MySQL
+
+rectangle "外部服务 (External Services)" as External {
+  actor "微信公众号平台" as WechatPlatform
+  actor "搜狗微信搜索" as SogouSearch
+  cloud "DeepSeek AI API" as DeepSeekAPI
+}
+
+User --|> Frontend : 访问/交互
+
+Frontend --> Backend : HTTP/REST API
+Vue --|> Pages
+ElementPlus <|-- Pages
+Pages --|> AxiosClient
+AxiosClient --> Backend
+
+Backend --> MySQL : 数据存储/读取
+SpringBootApp --> Controllers
+SpringBootApp --> Services
+SpringBootApp --> DAO
+SpringBootApp --> Crawler
+SpringBootApp --> LuceneModule
+SpringBootApp --> AIService
+
+Controllers --> Services : 调用
+Services --> DAO : 数据操作
+Services --> Crawler : 触发爬取
+Services --> LuceneModule : 索引/搜索
+Services --> AIService : 调用AI功能
+
+Crawler --> WechatPlatform : 爬取文章
+
+LuceneModule --> MySQL : 读取数据构建索引
+LuceneModule --> Backend : 提供搜索接口
+
+AIService --> DeepSeekAPI : 调用AI能力
+
+Backend --> SogouSearch : (Optional) 搜索相关文章
+
+note left of Frontend
+用户界面层
+响应式设计
+组件化开发
+end note
+
+note right of Backend
+业务逻辑层
+数据处理
+系统集成
+end note
+
+note bottom of MySQL
+持久化存储
+文章、图片、关系数据
+end note
+
+note right of External
+第三方服务依赖
+end note
+
+@enduml

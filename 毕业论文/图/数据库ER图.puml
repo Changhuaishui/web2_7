@@ -1,0 +1,51 @@
+@startuml
+!theme materia
+
+' hide the spot
+hide circle
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity "文章 (article_table)" as Article {
+  + id [PK] : INT
+  + ulid [UK] : VARCHAR(26)
+  --
+  title : VARCHAR(255)
+  author : VARCHAR(100)
+  url : VARCHAR(1024)
+  source_url : VARCHAR(1024)
+  account_name : VARCHAR(100)
+  publish_time : DATETIME
+  content : MEDIUMTEXT
+  images : TEXT
+  image_mappings : MEDIUMTEXT
+  summary : TEXT
+  keywords : VARCHAR(255)
+  is_deleted : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "文章HTML (article_full_html)" as ArticleHTML {
+  + id [PK] : INT
+  # article_id [FK] : INT
+  --
+  full_html : MEDIUMTEXT
+  url_mapping : MEDIUMTEXT
+  created_at : TIMESTAMP
+}
+
+entity "相关文章 (related_articles)" as RelatedArticle {
+  + id [PK] : INT
+  # article_id [FK] : INT
+  --
+  related_url : VARCHAR(1024)
+  title : VARCHAR(255)
+  created_at : TIMESTAMP
+}
+
+Article "1" --o{ "0..N" RelatedArticle : "包含"
+Article "1" -- "1" ArticleHTML : "拥有HTML内容"
+
+@enduml
