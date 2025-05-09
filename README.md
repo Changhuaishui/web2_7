@@ -6,7 +6,7 @@
 本系统主要提供微信公众号文章的爬取、管理、搜索和标签功能。以下是功能演示视频和主要功能的截图展示：
 
 ### 设计文档
-[]
+[https://github.com/Changhuaishui/web2_7/blob/master/%E8%AE%BE%E8%AE%A1%E6%96%87%E6%A1%A3/5-8%E8%AE%BA%E6%96%87%E6%8F%90%E7%BA%B2-%E5%88%9D%E7%A8%BF.pdf]
 [https://qq0fqhnu1rx.feishu.cn/docx/AZ1ZdmifuoTIm8x0YGJckc9snjh?from=from_copylink]
 
 ### 功能演示视频
