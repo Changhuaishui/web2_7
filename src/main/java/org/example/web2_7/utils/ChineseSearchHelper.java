@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
+ * ------弃用--------
+ * 为后来准备，暂时用不上
  * 中文搜索辅助工具类
  * 提供中文关键词处理和优化搜索的功能
  */

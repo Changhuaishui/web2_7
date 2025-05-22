@@ -39,6 +39,9 @@ public class Article {
     private String summary;  // 文章摘要
     private String keywords;  // 文章关键词，逗号分隔
 
+    /*
+     * 或者用@data注解，生成getter和setter方法
+     */
     public String getUlid() {
         return ulid;
     }

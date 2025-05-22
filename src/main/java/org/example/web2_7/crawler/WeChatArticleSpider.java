@@ -75,6 +75,7 @@ public class WeChatArticleSpider implements PageProcessor {
                 return;
             }
 
+            //获取原始HTML
             Document doc = Jsoup.parse(page.getHtml().get());
             
             // 检测微信失效链接
@@ -83,13 +84,13 @@ public class WeChatArticleSpider implements PageProcessor {
                 // 设置失效链接标志
                 page.putField("isInvalidLink", true);
                 page.putField("url", url);
-                page.putField("invalidReason", "临时链接已失效");
+                page.putField("invalidReason", "临时链接已失效");//官方标志
                 // 跳过后续处理
                 page.setSkip(true);
                 return;
             }
 
-            // 提取完整HTML内容
+            // 提取完整HTML内容，方便后续按原效果展示
             Element contentElem = doc.selectFirst("div.rich_media_content");
             if (contentElem == null) {
                 contentElem = doc.selectFirst("div#js_content");
@@ -180,7 +181,7 @@ public class WeChatArticleSpider implements PageProcessor {
                 }
             }
             
-            // 保存处理后的文本内容
+            // 保存处理后的文本内容，方便后续显示
             String processedContent = contentElem.html();
             
             // 调试 - 检查处理后的内容是否包含占位符

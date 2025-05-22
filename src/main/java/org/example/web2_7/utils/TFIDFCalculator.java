@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
 
-/**
+/**为后来准备，暂时用不上
  * TF-IDF计算工具类
  * 用于计算文本关键词权重，实现更精准的搜索和排序
  */

@@ -7,13 +7,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 /**
  * 文章标签服务
  * 基于TF-IDF算法提取文章关键词作为标签
+ * 文章-->预处理-->计算TF-IDF-->排序匹配
  */
 @Service
+/*
+ * 注册为spring服务，可以被其他组件注入使用
+ */
 public class TagService {
     private static final Logger logger = LoggerFactory.getLogger(TagService.class);
     
@@ -24,10 +30,17 @@ public class TagService {
         "地域新闻", "医疗健康"
     };
     
-    // 分类关键词映射，用于基于内容识别标签
+    // 分类关键词映射，用于基于内容识别标签，其中TAG_KEYWORDS词元即为NKPM，单个标签的最大关键词数量。
     private static final Map<String, List<String>> TAG_KEYWORDS = new HashMap<>();
     
-    // TF-IDF算法相关参数
+    // 改进的TF-IDF算法参数
+    private static final float K1 = 1.2f;  // 改进的TF-IDF参数k1
+    private static final float B = 0.75f;  // 改进的TF-IDF参数b
+    private static final Map<String, Integer> documentFrequency = new ConcurrentHashMap<>();
+    private static final AtomicInteger totalDocuments = new AtomicInteger(0);
+    private static final AtomicReference<Double> averageDocLength = new AtomicReference<>(0.0);
+    
+    // TF-IDF算法相关参数，做阈值和最大标签数限制
     private static final double MATCH_THRESHOLD = 0.005; // 降低标签匹配阈值，使更多文章有标签
     private static final int MAX_TAGS_PER_ARTICLE = 5; // 每篇文章最多标签数
     
@@ -108,7 +121,24 @@ public class TagService {
     }
     
     /**
-     * 基于优化后的TF-IDF算法提取文章标签
+     * 5-10主要更新，也是核心算法实现：
+     * -------------
+     * 引入BM25对TF-IDF稍稍改进。
+     * 
+     * 目的：文章标签提取逻辑。
+     * 
+     * 5-22 TODO:
+     * -------------
+     * 实际上后续，直接对接LLMs得了，
+     * 得益于Transformer的注意力机制，强化了对自然语言理解与生成能力。
+     * 没准更准确。
+     * -------------
+     *        5-09  debug：
+     * ---------
+     * 搞清楚数据流向：文章 -> 标题和内容合并 -> 分词 -> 词频统计
+     * 搞清楚流程：输入文章 -> cache -> 文档统计 ->TF & IDF-> 计算 ->标签 -> 更新cache -》返回标签列表
+     * ---------
+     * 基于改进后的TF-IDF算法提取文章标签
      * 增加了缓存支持，避免重复计算
      */
     public List<String> extractTags(Article article) {
@@ -116,19 +146,24 @@ public class TagService {
             return Collections.emptyList();
         }
         
-        // 首先检查缓存中是否已存在该文章的标签
+        // 首先检查缓存文章的标签
         if (ARTICLE_TAGS_CACHE.containsKey(article.getId())) {
             logger.debug("从缓存获取文章ID={}的标签", article.getId());
             return ARTICLE_TAGS_CACHE.get(article.getId());
         }
         
+        // 更新文档统计
+        if (article.getId() != null) {
+            updateDocumentStatistics(article);
+        }
+        
         // 合并标题和内容，标题权重更高（重复5次）
         String title = article.getTitle().toLowerCase();
-        String titleWeighted = title + " " + title + " " + title + " " + title + " " + title; // 增加标题权重
+        String titleWeighted = title + " " + title + " " + title + " " + title + " " + title;
         String content = article.getContent() != null ? article.getContent().toLowerCase() : "";
         String fullText = titleWeighted + " " + content;
         
-        // 提取文章关键词
+        // 提取文章关键词（实际上用不上，删了就报错，保留）
         List<String> articleKeywords = article.getKeywords() != null 
             ? Arrays.asList(article.getKeywords().split(",")) 
             : new ArrayList<>();
@@ -136,8 +171,11 @@ public class TagService {
         // 分词并计算词频
         Map<String, Integer> wordFrequency = calculateWordFrequency(fullText);
         
-        // 计算每个标签的TF-IDF分数
+        // 计算每个标签的改进TF-IDF分数。
+        
+        //键值对关系：标签 -> 得分
         Map<String, Double> tagScores = new HashMap<>();
+        // 键值对关系：标签 -> 关键词列表
         Map<String, List<String>> matchedKeywords = new HashMap<>();
         
         for (String tag : PREDEFINED_TAGS) {
@@ -151,20 +189,26 @@ public class TagService {
                 String keywordLower = keyword.toLowerCase();
                 double keywordScore = 0.0;
                 
-                // 1. 检查文章词频中是否有关键词
                 if (wordFrequency.containsKey(keywordLower)) {
-                    // 改进TF-IDF计算方式
-                    double tf = (double) wordFrequency.get(keywordLower) / Math.max(50, wordFrequency.size()); // 标准化词频
-                    double idf = Math.log10(2 + keywordLower.length()); // 更合理的IDF计算
-                    double tfidf = tf * idf * 10; // 放大TF-IDF分数，避免过小
+                    // 改进的TF-IDF计算
+                    int rawTf = wordFrequency.get(keywordLower);
+                    double docLength = article.getContent().length();
+                    double avgDocLength = getAverageDocLength();
+                    double lengthNormalization = 1 - B + B * (docLength / avgDocLength);
                     
-                    keywordScore += tfidf;
+                    // 词频饱和处理
+                    double saturatedTf = (rawTf * (K1 + 1)) / (rawTf + K1 * lengthNormalization);
                     
-                    // 2. 检查标题是否直接包含关键词，提高权重
+                    // 改进的IDF计算
+                    double N = totalDocuments.get();
+                    double df = documentFrequency.getOrDefault(keywordLower, 0);
+                    double idf = Math.log((N - df + 0.5) / (df + 0.5) + 1);
+                    
+                    keywordScore = saturatedTf * idf;
+                    
+                    // 保持标题权重增强
                     if (title.contains(keywordLower)) {
-                        keywordScore += 0.8; // 标题匹配加权
-                        
-                        // 3. 关键词在标题开头，进一步提高权重
+                        keywordScore += 0.8;
                         if (title.startsWith(keywordLower)) {
                             keywordScore += 0.5;
                         }
@@ -173,22 +217,9 @@ public class TagService {
                     matches.add(keyword);
                 }
                 
-                // 4. 检查是否与文章关键词匹配
-                for (String articleKeyword : articleKeywords) {
-                    if (articleKeyword.toLowerCase().contains(keywordLower) || 
-                        keywordLower.contains(articleKeyword.toLowerCase())) {
-                        keywordScore += 0.7; // 关键词匹配加权
-                        if (!matches.contains(keyword)) {
-                            matches.add(keyword);
-                        }
-                        break;
-                    }
-                }
-                
                 tagScore += keywordScore;
             }
             
-            // 存储标签得分和匹配的关键词
             if (tagScore > 0 || !matches.isEmpty()) {
                 tagScores.put(tag, tagScore);
                 matchedKeywords.put(tag, matches);
@@ -201,7 +232,17 @@ public class TagService {
         
         List<String> selectedTags = new ArrayList<>();
         StringBuilder logMessage = new StringBuilder();
-        logMessage.append("文章「").append(article.getTitle()).append("」的标签匹配详情:\n");
+        logMessage.append("文章「").append(article.getTitle()).append("」的标签匹配流程:\n");
+        
+        // 记录TF-IDF计算结果
+        logMessage.append("1. TF-IDF算法计算结果:\n");
+        for (Map.Entry<String, Double> entry : sortedTags) {
+            String tag = entry.getKey();
+            double score = entry.getValue();
+            logMessage.append("   - 标签「").append(tag).append("」TF-IDF得分: ")
+                     .append(String.format("%.4f", score))
+                     .append("，匹配关键词: ").append(matchedKeywords.get(tag)).append("\n");
+        }
         
         for (Map.Entry<String, Double> entry : sortedTags) {
             String tag = entry.getKey();
@@ -210,38 +251,38 @@ public class TagService {
             // 只选择得分超过阈值的标签，且最多选择MAX_TAGS_PER_ARTICLE个
             if (score >= MATCH_THRESHOLD && selectedTags.size() < MAX_TAGS_PER_ARTICLE) {
                 selectedTags.add(tag);
-                
-                // 记录标签匹配详情
-                logMessage.append("- 标签「").append(tag).append("」(得分: ").append(String.format("%.4f", score))
-                         .append(")，匹配关键词: ").append(matchedKeywords.get(tag)).append("\n");
             }
         }
         
         // 如果没有匹配到任何标签，使用最高分标签或基于文章名智能匹配
         if (selectedTags.isEmpty()) {
+            logMessage.append("2. TF-IDF未匹配到标签，尝试其他匹配方式:\n");
             // 尝试从文章标题直接推断标签
             String inferredTag = inferTagFromTitle(article.getTitle());
             if (inferredTag != null) {
                 selectedTags.add(inferredTag);
-                logMessage.append("- 根据标题直接推断标签「").append(inferredTag).append("」\n");
+                logMessage.append("   - 通过标题关键词匹配到标签「").append(inferredTag).append("」\n");
             }
             // 如果还是为空，取最高分标签（如果有）
             else if (!sortedTags.isEmpty()) {
                 String topTag = sortedTags.get(0).getKey();
                 selectedTags.add(topTag);
-                logMessage.append("- 未达到阈值，但选择得分最高的标签「").append(topTag).append("」(得分: ")
+                logMessage.append("   - 选择TF-IDF最高分标签「").append(topTag).append("」(得分: ")
                          .append(String.format("%.4f", sortedTags.get(0).getValue()))
                          .append(")，匹配关键词: ").append(matchedKeywords.get(topTag)).append("\n");
             }
             // 最后兜底：如果仍然没有标签，选择"综合新闻"
             else {
                 selectedTags.add("综合新闻");
-                logMessage.append("- 无法匹配任何标签，默认选择「综合新闻」标签\n");
+                logMessage.append("   - 无法匹配任何标签，使用默认标签「综合新闻」\n");
             }
+        } else {
+            logMessage.append("2. TF-IDF匹配结果有效，直接采用\n");
         }
         
+        logMessage.append("最终选择的标签: ").append(selectedTags);
+        
         logger.info(logMessage.toString());
-        logger.info("文章「{}」最终选择的标签: {}", article.getTitle(), selectedTags);
         
         // 将结果保存到缓存中
         if (article.getId() != null) {
@@ -335,8 +376,33 @@ public class TagService {
         
         if (lowerTitle.contains("旅游") || lowerTitle.contains("景点") || 
             lowerTitle.contains("度假") || lowerTitle.contains("酒店") ||
-            lowerTitle.contains("旅行")) {
+            lowerTitle.contains("旅行") || lowerTitle.contains("出游") ||
+            lowerTitle.contains("民宿") || lowerTitle.contains("航班") ||
+            lowerTitle.contains("高铁") || lowerTitle.contains("火车") ||
+            lowerTitle.contains("公路") || lowerTitle.contains("自驾") ||
+            lowerTitle.contains("徒步") || lowerTitle.contains("户外") ||
+            lowerTitle.contains("探险") || lowerTitle.contains("风景") ||
+            lowerTitle.contains("名胜古迹") || lowerTitle.contains("网红打卡点") ||
+            lowerTitle.contains("自然景观") || lowerTitle.contains("特色小镇") ||
+            lowerTitle.contains("乡村旅游") || lowerTitle.contains("文化旅游")) {
             return "旅游出行";
+        }
+        // 生活消费标签判断
+        if (lowerTitle.contains("购物") || lowerTitle.contains("消费") || 
+            lowerTitle.contains("超市") || lowerTitle.contains("商场") || 
+            lowerTitle.contains("打折") || lowerTitle.contains("促销") || 
+            lowerTitle.contains("理财") || lowerTitle.contains("家居") || 
+            lowerTitle.contains("家电") || lowerTitle.contains("餐饮") || 
+            lowerTitle.contains("美食") || lowerTitle.contains("外卖") || 
+            lowerTitle.contains("理发") || lowerTitle.contains("装修") || 
+            lowerTitle.contains("租房") || lowerTitle.contains("买房") || 
+            lowerTitle.contains("物业") || lowerTitle.contains("快递") || 
+            lowerTitle.contains("物流") || lowerTitle.contains("生活费") || 
+            lowerTitle.contains("账单") || lowerTitle.contains("支付") || 
+            lowerTitle.contains("充值") || lowerTitle.contains("缴费") || 
+            lowerTitle.contains("交通卡") || lowerTitle.contains("公交") || 
+            lowerTitle.contains("地铁")) {
+            return "生活消费";
         }
         
         if (lowerTitle.contains("北京") || lowerTitle.contains("上海") || 
@@ -350,21 +416,23 @@ public class TagService {
     }
     
     /**
-     * 计算文本中词语的频率
+     * 计算文本中词语的频率，
+     * 主要是清洗工作。
+     *  
      */
     private Map<String, Integer> calculateWordFrequency(String text) {
         Map<String, Integer> wordFreq = new HashMap<>();
         
         if (text == null || text.isEmpty()) {
-            return wordFreq;
+            return wordFreq;  //null map
         }
         
-        // 改进分词（简单实现，按空格和常见标点符号分割）
+        // 1、过滤条件：分词处理（简单实现，按空格和常见标点符号分割）
         String[] words = text.split("\\s+|[,.。，、；:：\"'\\(\\)（）\\[\\]【】《》?？!！]+");
         
         for (String word : words) {
             word = word.trim().toLowerCase();
-            // 过滤空词和停用词，允许长度>=2的词
+            // 2、过滤条件：空词和停用词，允许长度>=2的词
             if (word.length() >= 2 && !STOP_WORDS.contains(word)) {
                 wordFreq.put(word, wordFreq.getOrDefault(word, 0) + 1);
             }
@@ -381,6 +449,9 @@ public class TagService {
         logger.info("清除标签缓存");
         TAG_ARTICLES_CACHE.clear();
         ARTICLE_TAGS_CACHE.clear();
+        documentFrequency.clear();
+        totalDocuments.set(0);
+        averageDocLength.set(0.0);
     }
     
     /**
@@ -436,5 +507,34 @@ public class TagService {
         
         logger.info("标签「{}」筛选结果: {}篇文章", tag, filteredArticles.size());
         return filteredArticles;
+    }
+    
+    // 添加新的辅助方法
+    private double getAverageDocLength() {
+        return averageDocLength.get();
+    }
+    
+    private void updateDocumentStatistics(Article article) {
+        // 更新文档频率
+        Set<String> terms = new HashSet<>();
+        String content = article.getContent().toLowerCase();
+        String[] words = content.split("\\s+|[,.。，、；:：\"'\\(\\)（）\\[\\]【】《》?？!！]+");
+        
+        for (String word : words) {
+            word = word.trim();
+            if (word.length() >= 2 && !STOP_WORDS.contains(word)) {
+                terms.add(word);
+            }
+        }
+        
+        for (String term : terms) {
+            documentFrequency.merge(term, 1, Integer::sum);
+        }
+        
+        // 更新平均文档长度
+        int docLength = article.getContent().length();
+        double currentAvg = averageDocLength.get();
+        int totalDocs = totalDocuments.incrementAndGet();
+        averageDocLength.set((currentAvg * (totalDocs - 1) + docLength) / totalDocs);
     }
 } 

@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * 标签控制器
  * 提供文章标签的相关接口
+ * RestController是Spring框架提供的注解，用于处理前端GET请求，返回json
+ * 
  */
 @RestController
 @RequestMapping("/api/tags")
@@ -37,9 +39,13 @@ public class TagController {
     private ArticleMapper articleMapper;
 
     /**
-     * 获取所有可用标签
+     * 从tagService获取所有可用标签
      */
     @GetMapping
+    /*
+     * @GetMapping是Spring框架提供的注解，用于处理前端GET请求
+     * 这里是返回一个包含所有标签json的列表，给前端使用
+     */
     public ResponseEntity<List<String>> getAllTags() {
         logger.info("获取所有标签");
         List<String> tags = tagService.getAllTags();
@@ -163,7 +169,7 @@ public class TagController {
     }
     
     /**
-     * 每天凌晨3点自动刷新标签缓存
+     * 每天自动刷新标签缓存
      */
     @Scheduled(cron = "0 0 3 * * ?")
     public void scheduledCacheRefresh() {

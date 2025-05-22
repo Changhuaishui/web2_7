@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 
 // 创建axios实例
 const request = axios.create({
-  // 不需要添加额外的baseURL，因为我们在vite.config.js中已经配置了代理
+  // 不需要添加额外的baseURL，因为在vite.config.js中已经配置了代理
   baseURL: '',
   timeout: 15000,
   headers: {

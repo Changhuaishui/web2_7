@@ -48,6 +48,7 @@ export default {
       }
     }
 
+    // 加载文章详情
     const loadArticle = async () => {
       try {
         console.log('请求文章详情，URL参数：', route.params.id);
@@ -66,7 +67,9 @@ export default {
           }
           console.log('文章数据:', article.value);
           
-          // 调试 - 检查关键词
+          // 调试 - 检查关键词。
+          // 有时候，api没钱了，网络不行，都会导致关键词为空。
+          // 留一手，再次请求，获取关键词。
           if (article.value.keywords) {
             console.log('文章关键词:', article.value.keywords);
             console.log('关键词数组:', article.value.keywords.split(','));
@@ -130,6 +133,7 @@ export default {
       }
     }
 
+    // 加载文章头图
     const loadHeadImage = async () => {
       if (!article.value || !article.value.id) return;
       
@@ -188,6 +192,7 @@ export default {
       }
     }
 
+    // 加载文章标签
     const loadArticleTags = async () => {
       if (!article.value || !article.value.id) return;
       
@@ -202,6 +207,7 @@ export default {
       }
     }
     
+    // 加载相关文章
     const loadRelatedArticles = async (articleId) => {
       try {
         const response = await axios.get(`/api/articles/${articleId}/related`);
