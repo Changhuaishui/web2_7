@@ -18,6 +18,9 @@ import java.util.Map;
 /**
  * 文章摘要控制器
  * 提供文章摘要生成、关键词提取和相关文章功能
+ * 注解RestController将该控制器返回JSON格式的响应
+ * 注解RequestMapping将所有以/api/articles开头的请求映射到此控制器
+ * 注解CrossOrigin将允许跨域请求，可以连接前端
  */
 @RestController
 @RequestMapping("/api/articles")
@@ -30,15 +33,15 @@ public class SummaryController {
     private DeepSeekService deepSeekService;
     
     @Autowired
-    private ArticleMapper articleMapper;
+    private ArticleMapper articleMapper;  
     
     @Autowired
     private RelatedArticleService relatedArticleService;
     
     /**
-     * 为特定文章生成摘要
-     * @param id 文章ID
-     * @param force 是否强制重新生成摘要和关键词，忽略现有值
+     * 为特定ID文章生成摘要
+     * @param id URL传入文章ID，以pathvariable方式传入
+     * @param force 是否强制重新生成摘要和关键词，忽略现有值（防止后续模型出现问题）
      * @return 包含摘要的响应
      */
     @PostMapping("/{id}/summarize")
@@ -94,13 +97,13 @@ public class SummaryController {
                 response.put("message", "摘要和关键词生成成功");
                 response.put("isExisting", false);
                 
-                // 尝试爬取相关文章
+                // 尝试对接搜狗，爬取相关文章，做推荐
                 try {
                     int relatedCount = relatedArticleService.crawlAndSaveRelatedArticles(id, keywords);
                     logger.info("为文章ID:{}爬取并保存了{}篇相关文章", id, relatedCount);
                     response.put("relatedArticlesCount", relatedCount);
                 } catch (Exception e) {
-                    logger.error("爬取相关文章时发生错误", e);
+                    logger.error("爬取相关文章时发生错误", e);  //一般是被搜狗反爬识别到了。
                     response.put("relatedArticlesError", e.getMessage());
                 }
                 

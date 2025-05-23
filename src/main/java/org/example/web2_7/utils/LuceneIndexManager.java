@@ -2,8 +2,11 @@ package org.example.web2_7.utils;
 
 /*
  * @auther chen 
- * 使用Lucene实现全文检索功能
- * 
+ * 使用Lucene实现全文检索功能。
+ * 注册注解@Component，Spring管理的组件
+ * 为服务层的service注入依赖提供全文检索功能
+ * --------------------------------
+ * 具体是：
  * 1. 创建或更新索引
  * 2. 更新单个文档
  * 3. 删除文档

@@ -38,17 +38,20 @@ public class CustomDictionaryLoader {
      * 加载自定义词典
      */
     private void loadCustomDictionary() {
+        long startTime = System.currentTimeMillis();
         try {
             Path customDictPath = Paths.get(dictionaryPath, "custom_main.dic");
             Path stopwordsDictPath = Paths.get(dictionaryPath, "custom_stopword.dic");
             
             // 加载自定义词典
             List<String> customWords = readDictionaryFile(customDictPath);
-            logger.info("加载{}个自定义词条", customWords.size());
+            long customDictTime = System.currentTimeMillis();
+            logger.info("加载{}个自定义词条，耗时: {}ms", customWords.size(), (customDictTime - startTime));
             
             // 加载停用词词典
             List<String> stopwords = readDictionaryFile(stopwordsDictPath);
-            logger.info("加载{}个停用词", stopwords.size());
+            long stopwordsTime = System.currentTimeMillis();
+            logger.info("加载{}个停用词，耗时: {}ms", stopwords.size(), (stopwordsTime - customDictTime));
             
             // 更新IK分词器词典
             if (!customWords.isEmpty()) {
@@ -61,6 +64,8 @@ public class CustomDictionaryLoader {
         } catch (IOException e) {
             logger.error("加载自定义词典失败", e);
         }
+        long endTime = System.currentTimeMillis();
+        logger.info("词典加载总耗时: {}ms", (endTime - startTime));
     }
     
     /**

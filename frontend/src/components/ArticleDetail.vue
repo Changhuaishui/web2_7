@@ -9,12 +9,17 @@ import ArticleContentProcessor from '@/utils/ArticleContentProcessor'
 
 dayjs.locale('zh-cn')
 
+// 组件初始化
 export default {
   name: 'ArticleDetail',
   setup() {
+    // 1、路由相关
     const route = useRoute()
+
     const article = ref(null)
     const headImage = ref(null)
+
+    // 加载
     const loading = ref(true)
     const articleTags = ref([])
     const generateSummaryLoading = ref(false)
@@ -52,11 +57,12 @@ export default {
     const loadArticle = async () => {
       try {
         console.log('请求文章详情，URL参数：', route.params.id);
+        // POST请求，获取文章详情
         const response = await axios.post('/api/crawler/articles/detail', {
           url: route.params.id
         });
         if (response.data) {
-          // 处理文章数据
+          // 更新文章数据
           article.value = {
             ...response.data,
             author: response.data.author || '未知',
@@ -68,8 +74,6 @@ export default {
           console.log('文章数据:', article.value);
           
           // 调试 - 检查关键词。
-          // 有时候，api没钱了，网络不行，都会导致关键词为空。
-          // 留一手，再次请求，获取关键词。
           if (article.value.keywords) {
             console.log('文章关键词:', article.value.keywords);
             console.log('关键词数组:', article.value.keywords.split(','));
@@ -104,7 +108,9 @@ export default {
           } else if (placeholders.length > 0) {
             // 没有映射信息但有占位符，尝试自动修复
             console.log('没有图片映射信息，但发现占位符，尝试自动修复');
+
             processedContent.value = ArticleContentProcessor.autoFixPlaceholders(article.value, placeholders);
+          
           } else {
             console.log('没有图片映射信息，使用原始内容');
             processedContent.value = article.value.content;
@@ -252,6 +258,7 @@ export default {
       }
     }
 
+    // 打开文章的方法
     const openArticle = () => {
       if (!article.value) {
         ElMessage.warning('无效的文章数据');
@@ -283,12 +290,14 @@ export default {
       }
     }
 
+    // 生成摘要和关键词的方法
     const generateSummary = async () => {
       if (!article.value || !article.value.id) {
         ElMessage.warning('无法生成摘要：缺少文章ID');
         return;
       }
       
+      //POST请求，生成摘要和关键词
       generateSummaryLoading.value = true;
       try {
         const response = await axios.post(`/api/articles/${article.value.id}/summarize`);
@@ -328,6 +337,7 @@ export default {
         return;
       }
       
+      
       regeneratingAll.value = true;
       try {
         // 使用与generateSummary相同的接口，但添加force=true参数强制重新生成
@@ -358,6 +368,7 @@ export default {
       }
     }
 
+    // 生成关键词的方法
     const generateKeywords = async () => {
       if (!article.value || !article.value.id) {
         ElMessage.warning('无法生成关键词：缺少文章ID');
@@ -367,7 +378,8 @@ export default {
       generatingKeywords.value = true;
       try {
         const response = await axios.post(`/api/articles/${article.value.id}/generate-keywords`);
-        
+
+        //响应处理后端数据
         if (response.data.success) {
           article.value.keywords = response.data.keywords;
           ElMessage.success('关键词生成成功');
@@ -397,7 +409,7 @@ export default {
       
       console.log('打开相关文章链接:', url);
       
-      // 验证URL
+      // 验证URL，防止搜狗微信链接不可达
       try {
         // 修正常见的URL问题
         let fixedUrl = url;
@@ -490,6 +502,7 @@ export default {
       loadArticle()
     })
 
+    // 返回json数据
     return {
       article,
       openArticle,
@@ -512,11 +525,14 @@ export default {
     }
   }
 }
+
 </script>
 
 <template>
+  <!-- 文章详情主容器 -->
   <div class="article-detail" v-if="article">
     <el-card>
+      <!-- 文章头部区域 -->
       <template #header>
         <div class="article-header">
           <h1>{{ article.title }}</h1>
@@ -536,6 +552,7 @@ export default {
               <span v-else>暂无时间</span>
             </span>
           </div>
+          <!-- 文章标签列表 -->
           <div v-if="articleTags.length" class="article-tags">
             <el-tag
               v-for="tag in articleTags"
@@ -550,10 +567,12 @@ export default {
         </div>
       </template>
       
+      <!-- 文章头图区域 -->
       <div v-if="headImage" class="article-head-image">
         <img :src="headImage" alt="文章头图" />
       </div>
       
+      <!-- 文章摘要和关键词区域 -->
       <div v-if="article.summary" class="article-summary">
         <h3>文章摘要</h3>
         <div class="summary-content">{{ article.summary }}</div>
@@ -570,6 +589,7 @@ export default {
             {{ keyword }}
           </el-tag>
         </div>
+        <!-- 生成关键词按钮 -->
         <div v-else class="keywords-in-summary">
           <el-button 
             type="primary" 
@@ -582,6 +602,7 @@ export default {
           </el-button>
         </div>
         
+        <!-- 重新生成摘要和关键词按钮 -->
         <div class="regenerate-buttons" style="margin-top: 15px;">
           <el-button 
             type="primary" 
@@ -606,6 +627,7 @@ export default {
         </el-button>
       </div>
       
+      <!-- 文章正文内容区域 -->
       <div class="article-content" v-html="processedContent"></div>
       
       <!-- 相关文章部分 -->
@@ -626,11 +648,14 @@ export default {
         </ul>
       </div>
       
+      <!-- 底部操作按钮区域 -->
       <div class="article-footer">
+        <!-- 阅读原文按钮 -->
         <el-button type="primary" @click="openArticle">
           {{ article.sourceUrl ? '阅读原文' : '查看文章' }}
         </el-button>
         
+        <!-- 查找相关文章按钮 -->
         <el-button v-if="!relatedArticles.length" type="info" @click="fetchRelatedArticles" :loading="loadingRelated">
           查找相关文章
         </el-button>
